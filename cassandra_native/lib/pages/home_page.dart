@@ -42,26 +42,46 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      endDrawer: Drawer(
-        backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-        child: Column(
-          children: [
-            const Spacer(),
-            Center(
-              child: Joystick(
-                onJoystickMoved: (Offset position) {
-                  print('Joystick position: $position');
-                },
+      endDrawer: GestureDetector(
+        onHorizontalDragEnd: (v) {},
+        child: Drawer(
+          backgroundColor:
+              Theme.of(context).colorScheme.primary.withOpacity(0.5),
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.topLeft,
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
               ),
-            ),
-            const Spacer(),
-          ],
+              const Spacer(),
+              Center(
+                child: Joystick(
+                  onJoystickMoved: (Offset position) {},
+                ),
+              ),
+              const Spacer(),
+            ],
+          ),
         ),
       ),
       drawer: Drawer(
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.5),
         child: Column(
           children: [
+            Align(
+              alignment: Alignment.topRight,
+              child: IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
             DrawerHeader(
               child: Image.asset('lib/images/artic_hare.png'),
             ),

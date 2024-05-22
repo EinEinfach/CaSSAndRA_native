@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/gestures.dart';
+import 'dart:math';
 
 class AllowMultipleGestureRecognizer extends PanGestureRecognizer {
   @override
@@ -20,6 +21,9 @@ class Joystick extends StatefulWidget {
 
 class _JoystickState extends State<Joystick> {
   Offset position = Offset.zero;
+  double _linearSpeed = 0.0;
+  double _angularSpeed = 0.0;
+  static double _maxSpeed = 0.5;
   Timer? timer;
 
   @override
@@ -48,21 +52,47 @@ class _JoystickState extends State<Joystick> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Card(
-              child: Padding(
-                padding: EdgeInsets.all(10.0),
-                child: Text('Linear Speed'),
+            Expanded(
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text('Linear Speed'),
+                      const SizedBox(
+                        height: 2,
+                      ),
+                      Text(
+                        _linearSpeed.toStringAsFixed(2),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-            Card(
-              child: Padding(
-                padding: EdgeInsets.all(10.0),
-                child: Text('Angular Speed'),
+            Expanded(
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text('Angular Speed'),
+                      const SizedBox(
+                        height: 2,
+                      ),
+                       Text(
+                        _angularSpeed.toStringAsFixed(2),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 20), // Abstand zwischen den Karten und dem Joystick
+        const SizedBox(height: 20),
         RawGestureDetector(
           gestures: {
             AllowMultipleGestureRecognizer:
@@ -82,12 +112,16 @@ class _JoystickState extends State<Joystick> {
                         radius,
                       );
                     }
+                    _linearSpeed = -1*_maxSpeed*((position.distance)/radius)*sin(position.direction);
+                    _angularSpeed = -1*_maxSpeed*((position.distance)/radius)*cos(position.direction);
                     widget.onJoystickMoved(position);
                   });
                 };
                 instance.onEnd = (_) {
                   setState(() {
                     position = Offset.zero;
+                    _linearSpeed = 0;
+                    _angularSpeed = 0;
                     widget.onJoystickMoved(position);
                   });
                 };
