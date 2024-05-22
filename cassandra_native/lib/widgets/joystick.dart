@@ -1,5 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:flutter/gestures.dart';
+
+class AllowMultipleGestureRecognizer extends PanGestureRecognizer{
+
+  @override
+  void rejectGesture(int pointer){
+    acceptGesture(pointer);
+  }
+}
 
 class Joystick extends StatefulWidget {
   final Function(Offset) onJoystickMoved;
@@ -35,31 +44,30 @@ class _JoystickState extends State<Joystick> {
     const double radius = 120; // Size of first circle
     const double redCircleRadius = radius / 2; // Size of second circle
 
-    return GestureDetector(
-
-      onPanUpdate: (details) {
-        setState(() {
-          // Neue Position relativ zur Mitte des blauen Kreises berechnen
-          Offset newPosition =
-              details.localPosition - const Offset(radius, radius);
-          // Prüfen, ob die neue Position den blauen Kreis überschreitet
-          if (newPosition.distance <= radius) {
-            position = newPosition;
-          } else {
-            // Wenn die neue Position den blauen Kreis überschreitet, begrenzen
-            position = Offset.fromDirection(
-              newPosition.direction,
-              radius,
-            );
-          }
-          widget.onJoystickMoved(position);
-        });
-      },
-      onPanEnd: (details) {
-        setState(() {
-          position = Offset.zero;
-          widget.onJoystickMoved(position);
-        });
+    return RawGestureDetector(
+      gestures: {
+        AllowMultipleGestureRecognizer: GestureRecognizerFactoryWithHandlers<AllowMultipleGestureRecognizer>(
+          () => AllowMultipleGestureRecognizer(),
+          (AllowMultipleGestureRecognizer instance) {
+            instance.onUpdate = (details) {
+              setState(() {
+                Offset newPosition = details.localPosition - const Offset(radius, radius);
+                if (newPosition.distance <= radius) {
+                  position = newPosition;
+                } else {
+                  position = Offset.fromDirection(newPosition.direction, radius,);
+                }
+                widget.onJoystickMoved(position);
+              }); 
+            };
+            instance.onEnd = (_) {
+              setState(() {
+                position = Offset.zero;
+                widget.onJoystickMoved(position);
+              });
+            };
+          },
+        ),
       },
       child: Container(
         width: 2 * radius,
