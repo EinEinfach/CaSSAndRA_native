@@ -8,72 +8,89 @@ class NavDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constrains){
-      if (constrains.maxWidth < largeWidth){
-        // nav drawer with close button 
+    return LayoutBuilder(builder: (context, constrains) {
+      if (constrains.maxWidth < largeWidth) {
+        // nav drawer with close button
         return Drawer(
           backgroundColor: Theme.of(context).colorScheme.surface,
           child: Column(
             children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
+              Expanded(
+                child: Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                    DrawerHeader(
+                      child: Image.asset('lib/images/artic_hare.png'),
+                    ),
+                    DrawerTile(
+                      title: "Overview",
+                      leading: const Icon(Icons.home),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.pushNamed(context, '/');
+                      },
+                    ),
+                    DrawerTile(
+                      title: "Settings",
+                      leading: const Icon(Icons.settings),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.pushNamed(context, '/settings');
+                      },
+                    ),
+                  ],
                 ),
               ),
-              DrawerHeader(
-                child: Image.asset('lib/images/artic_hare.png'),
-              ),
               DrawerTile(
-                title: "Overview",
-                leading: const Icon(Icons.home),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, '/');
-                  currentPage = '/';
-                },
-              ),
-              DrawerTile(
-                title: "Settings",
-                leading: const Icon(Icons.settings),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, '/settings');
-                  currentPage = '/settings';
-                  },
-              ),
+                  title: "Exit",
+                  leading: const Icon(Icons.logout),
+                  onTap: () {}),
             ],
           ),
         );
-      } else{
+      } else {
         // drawer without close button
         return Drawer(
           backgroundColor: Theme.of(context).colorScheme.surface,
           child: Column(
             children: [
-              DrawerHeader(
-                child: Image.asset('lib/images/artic_hare.png'),
+              Expanded(
+                child: Column(
+                  children: [
+                    DrawerHeader(
+                      child: Image.asset('lib/images/artic_hare.png'),
+                    ),
+                    DrawerTile(
+                      title: "Overview",
+                      leading: const Icon(Icons.home),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.pushNamed(context, '/');
+                      },
+                    ),
+                    DrawerTile(
+                      title: "Settings",
+                      leading: const Icon(Icons.settings),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.pushNamed(context, '/settings');
+                      },
+                    ),
+                  ],
+                ),
               ),
               DrawerTile(
-                title: "Overview",
-                leading: const Icon(Icons.home),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, '/');
-                  currentPage = '/';
-                },
-              ),
-              DrawerTile(
-                title: "Settings",
-                leading: const Icon(Icons.settings),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, '/settings');
-                  currentPage = '/settings';
-                  },
+                title: "Exit",
+                leading: const Icon(Icons.logout),
+                onTap: () {},
               ),
             ],
           ),
