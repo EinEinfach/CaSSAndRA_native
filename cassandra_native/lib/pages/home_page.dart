@@ -1,10 +1,10 @@
-import 'package:cassandra_native/components/nav_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 
-import 'package:cassandra_native/widgets/joystick.dart';
 import 'package:cassandra_native/widgets/bottom_cmd_bar.dart';
 import 'package:cassandra_native/widgets/map/state_map.dart';
+import 'package:cassandra_native/components/joystick_drawer.dart';
+import 'package:cassandra_native/components/nav_drawer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -43,33 +43,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      endDrawer: GestureDetector(
-        onHorizontalDragEnd: (v) {},
-        child: Drawer(
-          backgroundColor:
-              Theme.of(context).colorScheme.primary.withOpacity(0.5),
-          child: Column(
-            children: [
-              Align(
-                alignment: Alignment.topLeft,
-                child: IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ),
-              const Spacer(),
-              Center(
-                child: Joystick(
-                  onJoystickMoved: (Offset position) {},
-                ),
-              ),
-              const Spacer(),
-            ],
-          ),
-        ),
-      ),
+      endDrawer: const JoystickDrawer(),
       drawer: const NavDrawer(),
       body: const StateMap(),
       floatingActionButton: FloatingActionButton(

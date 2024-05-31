@@ -54,6 +54,7 @@ class _JoystickState extends State<Joystick> {
           children: [
             Expanded(
               child: Card(
+                color: Theme.of(context).colorScheme.primary,
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Column(
@@ -73,6 +74,7 @@ class _JoystickState extends State<Joystick> {
             ),
             Expanded(
               child: Card(
+                color: Theme.of(context).colorScheme.primary,
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Column(
@@ -82,7 +84,7 @@ class _JoystickState extends State<Joystick> {
                       const SizedBox(
                         height: 2,
                       ),
-                       Text(
+                      Text(
                         _angularSpeed.toStringAsFixed(2),
                       ),
                     ],
@@ -112,8 +114,14 @@ class _JoystickState extends State<Joystick> {
                         radius,
                       );
                     }
-                    _linearSpeed = -1*_maxSpeed*((position.distance)/radius)*sin(position.direction);
-                    _angularSpeed = -1*_maxSpeed*((position.distance)/radius)*cos(position.direction);
+                    _linearSpeed = -1 *
+                        _maxSpeed *
+                        ((position.distance) / radius) *
+                        sin(position.direction);
+                    _angularSpeed = -1 *
+                        _maxSpeed *
+                        ((position.distance) / radius) *
+                        cos(position.direction);
                     widget.onJoystickMoved(position);
                   });
                 };
@@ -133,7 +141,7 @@ class _JoystickState extends State<Joystick> {
             height: 2 * radius,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Theme.of(context).colorScheme.surface.withOpacity(0.8),
+              color: Theme.of(context).colorScheme.primary,
             ),
             child: Center(
               child: Transform.translate(
@@ -143,10 +151,7 @@ class _JoystickState extends State<Joystick> {
                   height: 2 * redCircleRadius,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .secondary
-                        .withOpacity(0.8),
+                    color: Theme.of(context).colorScheme.secondary.withOpacity(0.8),
                   ),
                 ),
               ),
