@@ -4,10 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 ThemeData lightMode = ThemeData(
   brightness: Brightness.light,
   colorScheme: ColorScheme.light(
-    background: const Color.fromARGB(255, 165, 245, 238),
+    surface: Colors.grey.shade100,
     primary: Colors.grey.shade300,
     secondary: Colors.grey.shade200,
-    onBackground: Colors.grey.shade900,
+    onSurface: Colors.grey.shade900,
+    inversePrimary: Colors.grey.shade800,
     
   ),
   fontFamily: GoogleFonts.montserrat().fontFamily,
@@ -16,10 +17,11 @@ ThemeData lightMode = ThemeData(
 ThemeData darkMode = ThemeData(
   brightness: Brightness.dark,
   colorScheme: ColorScheme.dark(
-    background: Colors.grey.shade900,
+    surface: Colors.grey.shade900,
     primary: Colors.grey.shade700,
     secondary: Colors.grey.shade600,
-    onBackground: Colors.grey.shade100,
+    onSurface: Colors.grey.shade100,
+    inversePrimary: Colors.grey.shade200,
   ),
   fontFamily: GoogleFonts.montserrat().fontFamily,
 );

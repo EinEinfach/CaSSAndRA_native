@@ -16,14 +16,14 @@ class Joystick extends StatefulWidget {
   const Joystick({super.key, required this.onJoystickMoved});
 
   @override
-  _JoystickState createState() => _JoystickState();
+  State createState() => _JoystickState();
 }
 
 class _JoystickState extends State<Joystick> {
   Offset position = Offset.zero;
   double _linearSpeed = 0.0;
   double _angularSpeed = 0.0;
-  static double _maxSpeed = 0.5;
+  final double _maxSpeed = 0.5;
   Timer? timer;
 
   @override
@@ -133,7 +133,7 @@ class _JoystickState extends State<Joystick> {
             height: 2 * radius,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Theme.of(context).colorScheme.background.withOpacity(0.8),
+              color: Theme.of(context).colorScheme.surface.withOpacity(0.8),
             ),
             child: Center(
               child: Transform.translate(

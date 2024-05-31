@@ -22,19 +22,19 @@ class BottomCmdBar extends StatelessWidget {
             icon: Icons.home_rounded,
             text: 'home',
             onPressed: () {},
-            iconColor: Theme.of(context).colorScheme.onBackground,
+            iconColor: Theme.of(context).colorScheme.onSurface,
           ),
           GButton(
             icon: Icons.map_outlined,
             text: 'calc',
             onPressed: () {},
-            iconColor: Theme.of(context).colorScheme.onBackground
+            iconColor: Theme.of(context).colorScheme.onSurface,
           ),
           GButton(
             icon: Icons.place_outlined,
             text: 'go to',
             onPressed: (){},
-            iconColor: Theme.of(context).colorScheme.onBackground
+            iconColor: Theme.of(context).colorScheme.onSurface,
           ),
         ],
       ),
