@@ -1,3 +1,5 @@
 // Temporarly data for UI
 
-bool darkMode = false;
+String currentPage = '/';
+int smallWidth = 500;
+int largeWidth = 1100;

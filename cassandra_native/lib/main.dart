@@ -1,8 +1,10 @@
+import 'package:cassandra_native/responsive/desktop_material_app.dart';
+import 'package:cassandra_native/responsive/mobile_material_app.dart';
+import 'package:cassandra_native/responsive/responsive_layout.dart';
+import 'package:cassandra_native/responsive/tablet_material_app.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:cassandra_native/pages/home_page.dart';
-import 'package:cassandra_native/pages/settings_page.dart';
 import 'package:cassandra_native/theme/theme_provider.dart';
 
 void main() {
@@ -21,15 +23,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: true,
-      title: 'CaSSAndRA native',
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const HomePage(),
-        '/settings': (context) => const SettingsPage(),
-      },
-      theme: Provider.of<ThemeProvider>(context).themeData,
-    );
+    return ResponsiveLayout(
+      mobileMaterialApp: MobileMaterialApp(), 
+      tabletTabletMaterialApp: TabletMaterialApp(), 
+      desktopMaterialApp: DesktopMaterialApp(),);
   }
 }
