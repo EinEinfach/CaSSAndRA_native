@@ -1,4 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:polygon/polygon.dart';
+
+const polygon = Polygon([
+  Offset(0.25, -1),
+  Offset(0, -0.25),
+  Offset(0.5, 0),
+  Offset(-0.25, 1),
+  Offset(0, 0.25),
+  Offset(-0.5, 0),
+]);
 
 class StateMap extends StatefulWidget {
   const StateMap({super.key});
@@ -48,7 +58,7 @@ class _StateMapState extends State<StateMap> {
           width: screenSize.width,
           height: screenSize.height,
           child: CustomPaint(
-            painter: LinePainter(),
+            painter: PolygonPainter(polygon),
           ),
         ),
       ),
@@ -73,5 +83,24 @@ class LinePainter extends CustomPainter {
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
     return false;
+  }
+}
+
+class PolygonPainter extends CustomPainter {
+  PolygonPainter(this.polygon);
+
+  final Polygon polygon;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawPath(
+      polygon.computePath(rect: Offset.zero & size),
+      Paint()..color = Colors.yellow.shade800
+    );
+  }
+
+  @override
+  bool shouldRepaint(PolygonPainter oldDelegate) {
+    return oldDelegate.polygon != polygon;
   }
 }

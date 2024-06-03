@@ -105,7 +105,7 @@ class SettingsPage extends StatelessWidget {
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            leading: null,
+            automaticallyImplyLeading: false,
           ),
           body: Row(
             children: [

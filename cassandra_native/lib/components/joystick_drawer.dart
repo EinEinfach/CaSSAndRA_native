@@ -10,7 +10,7 @@ class JoystickDrawer extends StatelessWidget {
         onHorizontalDragEnd: (v) {},
         child: Drawer(
           backgroundColor:
-              Theme.of(context).colorScheme.surface.withOpacity(0.5),
+              Theme.of(context).colorScheme.surface,
           child: Column(
             children: [
               Align(

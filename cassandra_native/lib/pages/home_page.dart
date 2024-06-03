@@ -92,7 +92,7 @@ class _HomePageState extends State<HomePage> {
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            leading: null,
+            automaticallyImplyLeading: false,
             actions: [
               Builder(
                 builder: (context) {

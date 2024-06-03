@@ -4,9 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 ThemeData lightMode = ThemeData(
   brightness: Brightness.light,
   colorScheme: ColorScheme.light(
-    surface: Colors.grey.shade100,
-    primary: Colors.grey.shade300,
-    secondary: Colors.grey.shade200,
+    surface: Colors.grey.shade200,
+    primary: Colors.grey.shade400,
+    secondary: Colors.grey.shade300,
     onSurface: Colors.grey.shade900,
     inversePrimary: Colors.grey.shade800,
     
