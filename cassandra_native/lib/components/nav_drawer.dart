@@ -39,6 +39,16 @@ class NavDrawer extends StatelessWidget {
                       },
                     ),
                     DrawerTile(
+                      title: "Taskplanner",
+                      leading: const Icon(Icons.timelapse),
+                      onTap: () {},
+                    ),
+                    DrawerTile(
+                      title: "Mapping",
+                      leading: const Icon(Icons.map_outlined),
+                      onTap: () {},
+                    ),
+                    DrawerTile(
                       title: "Settings",
                       leading: const Icon(Icons.settings),
                       onTap: () {
@@ -75,6 +85,16 @@ class NavDrawer extends StatelessWidget {
                         Navigator.pop(context);
                         Navigator.pushNamed(context, '/');
                       },
+                    ),
+                    DrawerTile(
+                      title: "Taskplanner",
+                      leading: const Icon(Icons.timelapse),
+                      onTap: () {},
+                    ),
+                    DrawerTile(
+                      title: "Mapping",
+                      leading: const Icon(Icons.map_outlined),
+                      onTap: () {},
                     ),
                     DrawerTile(
                       title: "Settings",
