@@ -18,7 +18,7 @@ class StateMap extends StatefulWidget {
 }
 
 class _StateMapState extends State<StateMap> {
-  TransformationController _transformationController =
+  final TransformationController _transformationController =
       TransformationController();
 
   @override

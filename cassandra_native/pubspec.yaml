@@ -40,6 +40,7 @@ dependencies:
   google_fonts: ^6.2.1
   bootstrap_icons: ^1.11.3
   polygon: ^0.1.0
+  flutter_map: ^7.0.0
 
 dev_dependencies:
   flutter_test:
