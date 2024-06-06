@@ -40,7 +40,12 @@ class HomePageTablet extends StatelessWidget {
       ),
       endDrawer: const JoystickDrawer(),
       drawer: const NavDrawer(),
-      body: const Center(child: MapView(),),
+      body: const Center(
+        child: Padding(
+          padding: EdgeInsets.all(10),
+          child: MapView(),
+        ),
+      ),
     );
   }
 }
