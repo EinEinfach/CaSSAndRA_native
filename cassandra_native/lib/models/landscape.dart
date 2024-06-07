@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:polygon/polygon.dart';
 
-class Landscape{
+class Landscape {
   const Landscape(
       {required this.perimeter,
       this.exclusions,
       this.dockPath,
       this.searchWire});
-  
-  Landscape.fromJson(Map<String, dynamic> json)
+
+  Landscape.fromJson(Map<String, dynamic> json, this.perimeter, this.exclusions,
+      this.dockPath, this.searchWire);
 
   final Polygon perimeter;
   final List<Polygon>? exclusions;

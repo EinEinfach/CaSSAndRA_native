@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:ui' as ui;
+import 'package:flutter/services.dart';
 
 const coords = [
   [
@@ -17,6 +19,9 @@ const coords = [
   ]
 ];
 
+const roverPostion = Offset(15, 15);
+double roverRotation = 0.5;
+
 class MapView extends StatefulWidget {
   const MapView({super.key});
 
@@ -32,19 +37,22 @@ class _MapViewState extends State<MapView> {
       maxX = double.negativeInfinity,
       maxY = double.negativeInfinity;
   double baseLineWidth = 2;
+  ui.Image? roverImage;
 
   @override
   void initState() {
     super.initState();
-    // look for min an max coordinates
-    for (var polygon in coords) {
-      for (var point in polygon) {
-        if (point.dx < minX) minX = point.dx;
-        if (point.dy < minY) minY = point.dy;
-        if (point.dx > maxX) maxX = point.dx;
-        if (point.dy > maxY) maxY = point.dy;
-      }
-    }
+    _loadImage('lib/images/rover0grad.png');
+  }
+
+  Future<void> _loadImage(String asset) async {
+    final data = await rootBundle.load(asset);
+    final list = Uint8List.view(data.buffer);
+    final codec = await ui.instantiateImageCodec(list);
+    final frame = await codec.getNextFrame();
+    setState(() {
+      roverImage = frame.image;
+    });
   }
 
   @override
@@ -54,6 +62,16 @@ class _MapViewState extends State<MapView> {
       // calc container size
       final width = constraints.maxWidth;
       final height = constraints.maxHeight;
+
+      // look for min an max coordinates
+      for (var polygon in coords) {
+        for (var point in polygon) {
+          if (point.dx < minX) minX = point.dx;
+          if (point.dy < minY) minY = point.dy;
+          if (point.dx > maxX) maxX = point.dx;
+          if (point.dy > maxY) maxY = point.dy;
+        }
+      }
 
       // shift min coords to 0,0
       final shiftedPolygons = coords
@@ -80,13 +98,16 @@ class _MapViewState extends State<MapView> {
       final offsetX = (width - shiftedMaxX * scale) / 2;
       final offsetY = (height - shiftedMaxY * scale) / 2;
 
-      // final centeredPoints =
-      //     points.map((p) => Offset(p.dx + offsetX, p.dy + offsetY)).toList();
       final centeredPolygons = scaledPolygons
           .map((polygon) => polygon
               .map((p) => Offset(p.dx + offsetX, p.dy + offsetY))
               .toList())
           .toList();
+
+      // calc rover postion for canvas
+      final shiftedRoverPosition = Offset(
+          (roverPostion.dx - minX) * scale + offsetX,
+          (roverPostion.dy - minY) * scale + offsetY);
 
       return InteractiveViewer(
         transformationController: _transformationController,
@@ -104,6 +125,9 @@ class _MapViewState extends State<MapView> {
                 colors: Theme.of(context).colorScheme,
                 transformationController: _transformationController,
                 lineWidth: baseLineWidth,
+                roverImage: roverImage,
+                roverPostion: shiftedRoverPosition,
+                roverRotaion: roverRotation,
               ),
             ),
           ),
@@ -118,12 +142,18 @@ class PolygonPainter extends CustomPainter {
   final ColorScheme colors;
   final TransformationController transformationController;
   final double lineWidth;
+  final ui.Image? roverImage;
+  final Offset roverPostion;
+  final double roverRotaion;
 
   const PolygonPainter(
       {required this.polygons,
       required this.colors,
       required this.transformationController,
-      required this.lineWidth});
+      required this.lineWidth,
+      required this.roverImage,
+      required this.roverPostion,
+      required this.roverRotaion});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -145,6 +175,24 @@ class PolygonPainter extends CustomPainter {
         path.close();
       }
       canvas.drawPath(path, polygonBrush);
+
+      if (roverImage != null) {
+        final imageSize = 70.0;
+
+        // rotate rover image
+        canvas.save();
+        canvas.translate(roverPostion.dx, roverPostion.dy);
+        canvas.rotate(roverRotaion);
+        canvas.translate(-roverPostion.dx, -roverPostion.dy);
+
+        final rect = Rect.fromCenter(
+            center: roverPostion, width: imageSize, height: imageSize);
+        paintImage(
+            canvas: canvas, rect: rect, image: roverImage!, fit: BoxFit.cover);
+
+        // restore saved canvas
+        canvas.restore();
+      }
     }
   }
 
