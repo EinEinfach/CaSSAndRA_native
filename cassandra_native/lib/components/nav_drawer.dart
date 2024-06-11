@@ -35,55 +35,7 @@ class NavDrawer extends StatelessWidget {
                       leading: const Icon(Icons.home),
                       onTap: () {
                         Navigator.pop(context);
-                        Navigator.pushNamed(context, '/');
-                      },
-                    ),
-                    DrawerTile(
-                      title: "Taskplanner",
-                      leading: const Icon(Icons.timelapse),
-                      onTap: () {},
-                    ),
-                    DrawerTile(
-                      title: "Mapping",
-                      leading: const Icon(Icons.map_outlined),
-                      onTap: () {},
-                    ),
-                    DrawerTile(
-                      title: "Settings",
-                      leading: const Icon(Icons.settings),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.pushNamed(context, '/settings');
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              DrawerTile(
-                  title: "Exit",
-                  leading: const Icon(Icons.logout),
-                  onTap: () {}),
-            ],
-          ),
-        );
-      } else {
-        // drawer without close button
-        return Drawer(
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          child: Column(
-            children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    DrawerHeader(
-                      child: Image.asset('lib/images/artic_hare.png'),
-                    ),
-                    DrawerTile(
-                      title: "Overview",
-                      leading: const Icon(Icons.home),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.pushNamed(context, '/');
+                        Navigator.pushNamed(context, '/home');
                       },
                     ),
                     DrawerTile(
@@ -110,7 +62,60 @@ class NavDrawer extends StatelessWidget {
               DrawerTile(
                 title: "Exit",
                 leading: const Icon(Icons.logout),
-                onTap: () {},
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, '/servers');
+                },
+              ),
+            ],
+          ),
+        );
+      } else {
+        // drawer without close button
+        return Drawer(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          child: Column(
+            children: [
+              Expanded(
+                child: Column(
+                  children: [
+                    DrawerHeader(
+                      child: Image.asset('lib/images/artic_hare.png'),
+                    ),
+                    DrawerTile(
+                      title: "Overview",
+                      leading: const Icon(Icons.home),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.pushNamed(context, '/home');
+                      },
+                    ),
+                    DrawerTile(
+                      title: "Taskplanner",
+                      leading: const Icon(Icons.timelapse),
+                      onTap: () {},
+                    ),
+                    DrawerTile(
+                      title: "Mapping",
+                      leading: const Icon(Icons.map_outlined),
+                      onTap: () {},
+                    ),
+                    DrawerTile(
+                      title: "Settings",
+                      leading: const Icon(Icons.settings),
+                      onTap: () {
+                        Navigator.pushNamed(context, '/settings');
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              DrawerTile(
+                title: "Exit",
+                leading: const Icon(Icons.logout),
+                onTap: () {
+                  Navigator.pushNamed(context, '/servers');
+                },
               ),
             ],
           ),
