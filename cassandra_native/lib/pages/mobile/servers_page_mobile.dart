@@ -21,18 +21,6 @@ class ServersPageMobile extends StatelessWidget {
           );
         }),
       ),
-      floatingActionButton: Container(
-        height: 50,
-        width: 50,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: IconButton(
-          icon: const Icon(Icons.add),
-          onPressed: () {},
-        ),
-      ),
       drawer: const NavDrawer(),
       body: Center(
         child: Padding(

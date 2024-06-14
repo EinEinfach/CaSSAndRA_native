@@ -43,6 +43,7 @@ dependencies:
   flutter_map: ^7.0.0
   mqtt_client: ^10.2.1
   uuid: ^4.4.0
+  flutter_animate: ^4.5.0
 
 dev_dependencies:
   flutter_test:

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import 'package:cassandra_native/data/ui_state.dart';
 import 'package:cassandra_native/pages/mobile/servers_page_mobile.dart';
 import 'package:cassandra_native/pages/tablet/servers_page_tablet.dart';
 import 'package:cassandra_native/pages/desktop/servers_page_desktop.dart';
-import 'package:cassandra_native/components/server_page/server_item.dart';
+import 'package:cassandra_native/components/servers_page/new_server.dart';
+import 'package:cassandra_native/components/servers_page/server_item.dart';
 import 'package:cassandra_native/models/server.dart';
 
 class ServersPage extends StatefulWidget {
@@ -16,7 +18,6 @@ class ServersPage extends StatefulWidget {
 }
 
 class _ServersPageDesktopState extends State<ServersPage> {
-
   void removeServer(BuildContext context, Server server) {
     showDialog(
       context: context,
@@ -39,11 +40,27 @@ class _ServersPageDesktopState extends State<ServersPage> {
     );
   }
 
+  void addServer(Server server) {
+    setState(() {
+      context.read<Servers>().addServer(server);
+    });
+  }
+
+  void openAddServerOverlay() {
+    showModalBottomSheet(
+      //isScrollControlled: true,
+      context: context,
+      builder: (ctx) => NewServer(onAddServer: addServer),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final registredServers = context.watch<Servers>().servers;
-    Widget mainContent = const Center(
-      child: Text('No Server found. Start with add button'),
+    Widget mainContent = Center(
+      child: const Text('No Server found. Start with add button')
+          .animate()
+          .shake(),
     );
     if (registredServers.isNotEmpty) {
       mainContent = SizedBox(
@@ -55,20 +72,52 @@ class _ServersPageDesktopState extends State<ServersPage> {
             final server = registredServers[index];
             return ServerItem(
               server: server,
-              onTap: () => removeServer(context, server),
-            );
+              onRemoveServer: () => removeServer(context, server),
+            ).animate().fadeIn().scale();
           },
         ),
       );
     }
-    return LayoutBuilder(builder: (context, constrains){
+
+    mainContent = Stack(
+      children: [
+        Container(
+          child: mainContent,
+        ),
+        Container(
+          alignment: const Alignment(0.9, 0.9),
+          child: Container(
+            height: 80,
+            width: 80,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ElevatedButton(
+              onPressed: openAddServerOverlay,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Icon(
+                Icons.add,
+                color: Theme.of(context).colorScheme.inversePrimary,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+
+    return LayoutBuilder(builder: (context, constrains) {
       //+++++++++++++++++++++++++++++++++++++++++++++++mobile page++++++++++++++++++++++++++++++++++++++++++++++++++++
       if (constrains.maxWidth < smallWidth) {
         return ServersPageMobile(mainContent: mainContent);
-      //+++++++++++++++++++++++++++++++++++++++++++++++tablet page++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //+++++++++++++++++++++++++++++++++++++++++++++++tablet page++++++++++++++++++++++++++++++++++++++++++++++++++++
       } else if (constrains.maxWidth < largeWidth) {
         return ServersPageTablet(mainContent: mainContent);
-      //+++++++++++++++++++++++++++++++++++++++++++++++desktop page++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //+++++++++++++++++++++++++++++++++++++++++++++++desktop page++++++++++++++++++++++++++++++++++++++++++++++++++++
       } else {
         return ServersPageDesktop(mainContent: mainContent);
       }

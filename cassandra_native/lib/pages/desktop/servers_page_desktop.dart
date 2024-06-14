@@ -9,24 +9,17 @@ class ServersPageDesktop extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      floatingActionButton: Container(
-        height: 50,
-        width: 50,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary,
-          borderRadius: BorderRadius.circular(12),
+      body: Padding(
+        padding: const EdgeInsets.only(top: 65),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const NavDrawer(),
+            Expanded(
+              child: Center(child: mainContent),
+            ),
+          ],
         ),
-        child: IconButton(
-          icon: const Icon(Icons.add),
-          onPressed: () {},
-        ),
-      ),
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const NavDrawer(),
-          Expanded(child: mainContent),
-        ],
       ),
     );
   }
