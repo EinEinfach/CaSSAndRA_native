@@ -1,3 +1,5 @@
+import 'package:cassandra_native/pages/servers_page.dart';
+import 'package:cassandra_native/pages/settings_page.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cassandra_native/components/drawer_tile.dart';
@@ -8,6 +10,16 @@ class NavDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
+    void navigateTo(Widget page) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => page,
+        ),
+      );
+    }
+
     return LayoutBuilder(builder: (context, constrains) {
       if (constrains.maxWidth < largeWidth) {
         // nav drawer with close button
@@ -34,8 +46,8 @@ class NavDrawer extends StatelessWidget {
                       title: "Overview",
                       leading: const Icon(Icons.home),
                       onTap: () {
-                        Navigator.pop(context);
-                        Navigator.pushNamed(context, '/home');
+                        // Navigator.pop(context);
+                        // Navigator.pushNamed(context, '/home');
                       },
                     ),
                     DrawerTile(
@@ -53,7 +65,9 @@ class NavDrawer extends StatelessWidget {
                       leading: const Icon(Icons.settings),
                       onTap: () {
                         Navigator.pop(context);
-                        Navigator.pushNamed(context, '/settings');
+                        navigateTo(
+                          const SettingsPage(),
+                        );
                       },
                     ),
                   ],
@@ -64,7 +78,9 @@ class NavDrawer extends StatelessWidget {
                 leading: const Icon(Icons.logout),
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.pushNamed(context, '/servers');
+                  navigateTo(
+                    const ServersPage(),
+                  );
                 },
               ),
             ],
@@ -86,8 +102,8 @@ class NavDrawer extends StatelessWidget {
                       title: "Overview",
                       leading: const Icon(Icons.home),
                       onTap: () {
-                        Navigator.pop(context);
-                        Navigator.pushNamed(context, '/home');
+                        //Navigator.pop(context);
+                        //Navigator.pushNamed(context, '/home');
                       },
                     ),
                     DrawerTile(
@@ -104,7 +120,9 @@ class NavDrawer extends StatelessWidget {
                       title: "Settings",
                       leading: const Icon(Icons.settings),
                       onTap: () {
-                        Navigator.pushNamed(context, '/settings');
+                        navigateTo(
+                          const SettingsPage(),
+                        );
                       },
                     ),
                   ],
@@ -114,7 +132,9 @@ class NavDrawer extends StatelessWidget {
                 title: "Exit",
                 leading: const Icon(Icons.logout),
                 onTap: () {
-                  Navigator.pushNamed(context, '/servers');
+                  navigateTo(
+                    const ServersPage(),
+                  );
                 },
               ),
             ],

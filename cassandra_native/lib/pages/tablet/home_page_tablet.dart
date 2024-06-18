@@ -5,9 +5,12 @@ import 'package:cassandra_native/components/joystick_drawer.dart';
 import 'package:cassandra_native/components/nav_drawer.dart';
 import 'package:cassandra_native/widgets/bottom_cmd_bar.dart';
 import 'package:cassandra_native/components/landscape/map_view.dart';
+import 'package:cassandra_native/models/server.dart';
 
 class HomePageTablet extends StatelessWidget {
-  const HomePageTablet({super.key});
+  final Server server;
+
+  const HomePageTablet({super.key, required this.server});
 
   @override
   Widget build(BuildContext context) {
@@ -40,10 +43,10 @@ class HomePageTablet extends StatelessWidget {
       ),
       endDrawer: const JoystickDrawer(),
       drawer: const NavDrawer(),
-      body: const Center(
+      body: Center(
         child: Padding(
-          padding: EdgeInsets.all(10),
-          child: MapView(),
+          padding: const EdgeInsets.all(10),
+          child: MapView(server: server),
         ),
       ),
     );

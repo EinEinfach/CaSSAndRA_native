@@ -1,35 +1,25 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
+import 'dart:convert';
 
-const coords = [
-  [
-    Offset(10, 10),
-    Offset(10, 20),
-    Offset(20, 20),
-    Offset(20, 10),
-    Offset(10, 10),
-  ],
-  [
-    Offset(15, 15),
-    Offset(15, 16),
-    Offset(16, 16),
-    Offset(16, 15),
-    Offset(15, 15),
-  ]
-];
-
-const roverPostion = Offset(15, 15);
-double roverRotation = 0.5;
+import 'package:cassandra_native/models/server.dart';
+import 'package:cassandra_native/comm/mqtt_service.dart';
 
 class MapView extends StatefulWidget {
-  const MapView({super.key});
+  final Server server;
+
+  const MapView({super.key, required this.server});
 
   @override
   State<MapView> createState() => _MapViewState();
 }
 
 class _MapViewState extends State<MapView> {
+  late MqttService mqttService;
+  String serverData = '';
+  List<List<Offset>> mapForPlot = [[]];
+  String currentMapId = '';
   final TransformationController _transformationController =
       TransformationController();
   double minX = double.infinity,
@@ -38,18 +28,68 @@ class _MapViewState extends State<MapView> {
       maxY = double.negativeInfinity;
   double baseLineWidth = 2;
   ui.Image? roverImage;
+  Offset roverPostion = const Offset(0, 0);
+  double roverRotation = 0;
+
+  @override
+  void dispose() {
+    mqttService.disconnect(widget.server.id);
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
-    _loadImage('lib/images/rover0grad.png');
+    mqttService = MqttService(onMessageReceived);
+    _loadAndConnect('lib/images/rover0grad.png');
+    setState(() {
+      roverImage;
+      roverPostion = Offset(widget.server.robot.position.x, widget.server.robot.position.y);
+      roverRotation = widget.server.robot.angle;
+      mapForPlot = widget.server.currentMap.mapForPlot;
+      currentMapId = widget.server.currentMap.mapId;
+    });
   }
 
-  Future<void> _loadImage(String asset) async {
+  void onMessageReceived(String topic, String message) {
+    setState(() {
+      if (topic.contains('/robot')) {
+        var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
+        widget.server.robot.position.x = decodedMessage['position']['x'];
+        widget.server.robot.position.y = decodedMessage['position']['y'];
+        widget.server.robot.angle = decodedMessage['angle'];
+        roverPostion = Offset(widget.server.robot.position.x, widget.server.robot.position.y);
+        roverRotation = widget.server.robot.angle;
+      } else if (topic.contains('/map')){
+        var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
+        String receivedMapId = decodedMessage['mapId'];
+        if (receivedMapId != currentMapId) {
+          mqttService.publish(widget.server.id, '${widget.server.serverNamePrefix}/api_cmd', '{"coords": 0}');
+          currentMapId = receivedMapId;
+          widget.server.currentMap.mapId = receivedMapId;
+        }
+      } else if (topic.contains('/coords')) {
+        widget.server.currentMap.jsonToCoords(message);
+        mapForPlot = widget.server.currentMap.mapForPlot;
+      }
+      print(topic);
+    });
+  }
+
+  Future<void> _loadAndConnect(String asset) async {
+    // load rover image 
     final data = await rootBundle.load(asset);
     final list = Uint8List.view(data.buffer);
     final codec = await ui.instantiateImageCodec(list);
     final frame = await codec.getNextFrame();
+
+    // load current map
+    mapForPlot = widget.server.currentMap.mapForPlot;
+
+    await mqttService.connect(widget.server.mqttServer, widget.server.id);
+    mqttService.subscribe(widget.server.id, '${widget.server.serverNamePrefix}/robot');
+    mqttService.subscribe(widget.server.id, '${widget.server.serverNamePrefix}/map');
+    mqttService.subscribe(widget.server.id, '${widget.server.serverNamePrefix}/coords');
     setState(() {
       roverImage = frame.image;
     });
@@ -64,7 +104,7 @@ class _MapViewState extends State<MapView> {
       final height = constraints.maxHeight;
 
       // look for min an max coordinates
-      for (var polygon in coords) {
+      for (var polygon in mapForPlot) {
         for (var point in polygon) {
           if (point.dx < minX) minX = point.dx;
           if (point.dy < minY) minY = point.dy;
@@ -74,9 +114,9 @@ class _MapViewState extends State<MapView> {
       }
 
       // shift min coords to 0,0
-      final shiftedPolygons = coords
+      final shiftedPolygons = mapForPlot
           .map((polygon) =>
-              polygon.map((p) => Offset(p.dx - minX, p.dy - minY)).toList())
+              polygon.map((p) => Offset(p.dx - minX, -(p.dy - minY))).toList())
           .toList();
 
       // calc new min an max coords
@@ -96,7 +136,7 @@ class _MapViewState extends State<MapView> {
 
       //
       final offsetX = (width - shiftedMaxX * scale) / 2;
-      final offsetY = (height - shiftedMaxY * scale) / 2;
+      final offsetY = (height + shiftedMaxY * scale) / 2;
 
       final centeredPolygons = scaledPolygons
           .map((polygon) => polygon
@@ -105,9 +145,12 @@ class _MapViewState extends State<MapView> {
           .toList();
 
       // calc rover postion for canvas
-      final shiftedRoverPosition = Offset(
+      Offset shiftedRoverPosition = Offset(width/2, height/2);
+      if (mapForPlot[0].isNotEmpty) {
+        shiftedRoverPosition = Offset(
           (roverPostion.dx - minX) * scale + offsetX,
-          (roverPostion.dy - minY) * scale + offsetY);
+          (-(roverPostion.dy - minY)) * scale + offsetY);
+      }
 
       return InteractiveViewer(
         transformationController: _transformationController,
@@ -126,8 +169,8 @@ class _MapViewState extends State<MapView> {
                 transformationController: _transformationController,
                 lineWidth: baseLineWidth,
                 roverImage: roverImage,
-                roverPostion: shiftedRoverPosition,
-                roverRotaion: roverRotation,
+                roverPosition: shiftedRoverPosition,
+                roverRotation: roverRotation,
               ),
             ),
           ),
@@ -143,8 +186,8 @@ class PolygonPainter extends CustomPainter {
   final TransformationController transformationController;
   final double lineWidth;
   final ui.Image? roverImage;
-  final Offset roverPostion;
-  final double roverRotaion;
+  final Offset roverPosition;
+  final double roverRotation;
 
   const PolygonPainter(
       {required this.polygons,
@@ -152,8 +195,8 @@ class PolygonPainter extends CustomPainter {
       required this.transformationController,
       required this.lineWidth,
       required this.roverImage,
-      required this.roverPostion,
-      required this.roverRotaion});
+      required this.roverPosition,
+      required this.roverRotation});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -165,35 +208,39 @@ class PolygonPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = adjustedLineWidth;
 
-    for (var points in polygons) {
-      final path = Path();
-      if (points.isNotEmpty) {
-        path.moveTo(points[0].dx, points[0].dy);
-        for (var point in points.skip(1)) {
-          path.lineTo(point.dx, point.dy);
+    // check if perimeter empty
+    if (polygons[0].isNotEmpty){
+      for (var points in polygons) {
+        final path = Path();
+        if (points.isNotEmpty) {
+          path.moveTo(points[0].dx, points[0].dy);
+          for (var point in points.skip(1)) {
+            path.lineTo(point.dx, point.dy);
+          }
+          path.close();
         }
-        path.close();
-      }
-      canvas.drawPath(path, polygonBrush);
-
-      if (roverImage != null) {
-        final imageSize = 70.0;
-
-        // rotate rover image
-        canvas.save();
-        canvas.translate(roverPostion.dx, roverPostion.dy);
-        canvas.rotate(roverRotaion);
-        canvas.translate(-roverPostion.dx, -roverPostion.dy);
-
-        final rect = Rect.fromCenter(
-            center: roverPostion, width: imageSize, height: imageSize);
-        paintImage(
-            canvas: canvas, rect: rect, image: roverImage!, fit: BoxFit.cover);
-
-        // restore saved canvas
-        canvas.restore();
+        canvas.drawPath(path, polygonBrush);
       }
     }
+
+    if (roverImage != null) {
+      final imageSize = 30.0;
+
+      // rotate rover image
+      canvas.save();
+      canvas.translate(roverPosition.dx, roverPosition.dy);
+      canvas.rotate(-roverRotation);
+      canvas.translate(-roverPosition.dx, -roverPosition.dy);
+
+      final rect = Rect.fromCenter(
+          center: roverPosition, width: imageSize, height: imageSize);
+      paintImage(
+          canvas: canvas, rect: rect, image: roverImage!, fit: BoxFit.cover);
+
+      // restore saved canvas
+      canvas.restore();
+    }
+    
   }
 
   @override

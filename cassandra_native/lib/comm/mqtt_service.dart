@@ -2,52 +2,97 @@ import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 
 class MqttService {
-  final MqttServerClient client;
+  final Map<String, MqttServerClient> _clients = {};
+  final Function(String, String)? onMessageReceived;
 
-  MqttService(String mqttServer, String clientId)
-      : client = MqttServerClient(mqttServer, clientId);
+  MqttService(this.onMessageReceived);
 
-  Future<void> connect() async {
-    client.logging(on: true);
-    client.setProtocolV31();
-    client.keepAlivePeriod = 20;
-    client.onDisconnected = onDisconnected;
+  Future<void> connect(String broker, String clientId) async {
+    var client = MqttServerClient(broker, clientId);
+    client.logging(on: false);
+    client.onConnected = () => onConnected(clientId);
+    client.onDisconnected = () => onDisconnected(clientId);
+    client.onSubscribed = (topic) => onSubscribed(clientId, topic);
+    client.onSubscribeFail = (topic) => onSubscribeFail(clientId, topic);
 
     final connMessage = MqttConnectMessage()
-        .withClientIdentifier('flutter_client')
+        .withClientIdentifier(clientId)
         .startClean()
-        .withWillQos(MqttQos.atMostOnce);
+        .withWillQos(MqttQos.atLeastOnce);
     client.connectionMessage = connMessage;
-  
+
     try {
       await client.connect();
-    } on Exception catch (e) {
-      print('EXAMPLE::client exception - $e');
-      disconnect();
+    } catch (e) {
+      print('Exception: $e');
+      client.disconnect();
     }
 
     if (client.connectionStatus!.state == MqttConnectionState.connected) {
-      print('EXAMPLE::MQTT client connected');
+      print('MQTT connected for client $clientId');
+      _clients[clientId] = client;
+      client.updates!.listen((List<MqttReceivedMessage<MqttMessage>> c) {
+        final MqttPublishMessage recMess = c[0].payload as MqttPublishMessage;
+        final String message =
+            MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+        final String topic = c[0].topic;
+
+        if (onMessageReceived != null) {
+          onMessageReceived!(topic, message);
+        }
+      });
     } else {
-      print('EXAMPLE::ERROR MQTT client connection failed - disconnecting state is ${client.connectionStatus!.state}');
-      disconnect();
+      print(
+          'ERROR: MQTT connection failed for client $clientId - ${client.connectionStatus}');
     }
   }
-  
-  void onDisconnected(){
-    print('EXAMPLE::OnDisconnected client callback - Client disconnection');
-  }
 
-  void disconnect() {
-    print('Disconnecting');
-    client.disconnect();
-  }
-
-  void subscribe(String topic) {
-    client.subscribe(topic, MqttQos.atMostOnce);
-  }
-
-  Stream<List<MqttReceivedMessage<MqttMessage>>>? getUpdates() {
-      return client.updates;
+  void subscribe(String clientId, String topic) {
+    var client = _clients[clientId];
+    if (client != null) {
+      client.subscribe(topic, MqttQos.atLeastOnce);
     }
+  }
+
+  void publish(String clientId, String topic, String message){
+    var client = _clients[clientId];
+    if (client != null){
+      final builder = MqttClientPayloadBuilder();
+      builder.addString(message);
+      client.publishMessage(topic, MqttQos.atLeastOnce, builder.payload!);
+    }
+  }
+
+  void onConnected(String clientId) {
+    print('Connected $clientId');
+  }
+
+  void onDisconnected(String clientId) {
+    print('Disconnected $clientId');
+  }
+
+  void onSubscribed(String clientId, String topic) {
+    print('Subscribed to $topic for client $clientId');
+  }
+
+  void onSubscribeFail(String clientId, String topic) {
+    print('Failed to subscribe $topic for client $clientId');
+  }
+
+  void pong() {
+    print('Ping response client callback invoked');
+  }
+
+  void disconnect(String clientId) {
+    var client = _clients[clientId];
+    client?.disconnect();
+    _clients.remove(clientId);
+  }
+
+  void disconnectAll() {
+    for (var client in _clients.values) {
+      client.disconnect();
+    }
+    _clients.clear();
+  }
 }

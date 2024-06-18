@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:cassandra_native/models/server.dart';
+import 'package:cassandra_native/components/customized_elevated_button.dart';
 
 class NewServer extends StatefulWidget {
   const NewServer({super.key, required this.onAddServer});
@@ -13,7 +14,7 @@ class NewServer extends StatefulWidget {
 
 class _NewServerState extends State<NewServer> {
   final _mqttServerController = TextEditingController();
-  final _clientIdController = TextEditingController();
+  final _serverNamePrefixController = TextEditingController();
   final _portController = TextEditingController();
   final _userController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -23,7 +24,7 @@ class _NewServerState extends State<NewServer> {
     final enteredPort = int.tryParse(_portController.text);
     final enteredPortIsInvalid = enteredPort == null || enteredPort <= 0;
     if (_mqttServerController.text.trim().isEmpty ||
-        _clientIdController.text.trim().isEmpty ||
+        _serverNamePrefixController.text.trim().isEmpty ||
         enteredPortIsInvalid) {
       showDialog(
         context: context,
@@ -45,7 +46,7 @@ class _NewServerState extends State<NewServer> {
       Server(
           category: _selectedCategory,
           mqttServer: _mqttServerController.text,
-          clientId: _clientIdController.text,
+          serverNamePrefix: _serverNamePrefixController.text,
           port: enteredPort,
           user: _userController.text,
           password: _passwordController.text),
@@ -56,7 +57,7 @@ class _NewServerState extends State<NewServer> {
   @override
   void dispose() {
     _mqttServerController.dispose();
-    _clientIdController.dispose();
+    _serverNamePrefixController.dispose();
     _portController.dispose();
     _userController.dispose();
     _passwordController.dispose();
@@ -70,8 +71,8 @@ class _NewServerState extends State<NewServer> {
       child: Column(
         children: [
           TextField(
-            controller: _clientIdController,
-            decoration: const InputDecoration(label: Text('Client ID')),
+            controller: _serverNamePrefixController,
+            decoration: const InputDecoration(label: Text('CaSSAndRA API name with prefix')),
           ),
           Row(
             children: [
@@ -112,57 +113,42 @@ class _NewServerState extends State<NewServer> {
               ),
             ],
           ),
-          DropdownButton(
-            value: _selectedCategory,
-            items: Category.values
-                .map(
-                  (category) => DropdownMenuItem(
-                    value: category,
-                    child: Text(
-                      category.name.toUpperCase(),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: DropdownButton(
+              value: _selectedCategory,
+              items: Category.values
+                  .map(
+                    (category) => DropdownMenuItem(
+                      value: category,
+                      child: Text(
+                        category.name.toUpperCase(),
+                      ),
                     ),
-                  ),
-                )
-                .toList(),
-            onChanged: (value) {
-              if (value == null) {
-                return;
-              }
-              setState(() {
-                _selectedCategory = value;
-              });
-            },
+                  )
+                  .toList(),
+              onChanged: (value) {
+                if (value == null) {
+                  return;
+                }
+                setState(() {
+                  _selectedCategory = value;
+                });
+              },
+            ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
+              CustomizedElevatedButton(
+                text: 'save',
                 onPressed: _submitServerData,
-                child: Text(
-                  'save',
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.inversePrimary),
-                ),
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
+              CustomizedElevatedButton(
+                text: 'cancel',
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text(
-                  'canel',
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.inversePrimary),
-                ),
               ),
             ],
           ),

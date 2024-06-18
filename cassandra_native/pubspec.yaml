@@ -44,6 +44,7 @@ dependencies:
   mqtt_client: ^10.2.1
   uuid: ^4.4.0
   flutter_animate: ^4.5.0
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
   flutter_test:
