@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/components/customized_elevated_button.dart';
+
+const uuid = Uuid();
 
 class NewServer extends StatefulWidget {
   const NewServer({super.key, required this.onAddServer});
@@ -44,6 +47,7 @@ class _NewServerState extends State<NewServer> {
     }
     widget.onAddServer(
       Server(
+          id: uuid.v4(),
           category: _selectedCategory,
           mqttServer: _mqttServerController.text,
           serverNamePrefix: _serverNamePrefixController.text,

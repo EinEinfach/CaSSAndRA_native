@@ -4,7 +4,7 @@ import 'dart:convert';
 
 import 'package:cassandra_native/data/ui_state.dart';
 import 'package:cassandra_native/utils/server_storage.dart';
-import 'package:cassandra_native/comm/mqtt_service.dart';
+import 'package:cassandra_native/comm/mqtt_manager.dart';
 import 'package:cassandra_native/pages/mobile/servers_page_mobile.dart';
 import 'package:cassandra_native/pages/tablet/servers_page_tablet.dart';
 import 'package:cassandra_native/pages/desktop/servers_page_desktop.dart';
@@ -14,7 +14,7 @@ import 'package:cassandra_native/components/customized_elevated_button.dart';
 import 'package:cassandra_native/models/server.dart';
 
 // globals
-
+import 'package:cassandra_native/data/user_data.dart' as user;
 
 class ServersPage extends StatefulWidget {
   const ServersPage({super.key});
@@ -24,38 +24,35 @@ class ServersPage extends StatefulWidget {
 }
 
 class _ServersPageState extends State<ServersPage> {
-  Servers registredServers = Servers();
-  late MqttService mqttService;
 
   @override
   void dispose() {
-    mqttService.disconnectAll();
+    MqttManager.instance.disconnectAll();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-    mqttService = MqttService(onMessageReceived);
     _loadServers();
   }
 
   Future<void> _connectToServer(Server server) async {
-    await mqttService.connect(server.mqttServer, server.id);
-    mqttService.subscribe(server.id, '${server.serverNamePrefix}/status');
-    mqttService.subscribe(server.id, '${server.serverNamePrefix}/robot');
+    await MqttManager.instance.connect(server.mqttServer, server.id, onMessageReceived);
+    MqttManager.instance.subscribe(server.id, '${server.serverNamePrefix}/status');
+    MqttManager.instance.subscribe(server.id, '${server.serverNamePrefix}/robot');
   }
 
   Future<void> _loadServers() async {
     final List<Server> loadedServers;
-    if (registredServers.servers.isEmpty) {
+    if (user.registredServers.servers.isEmpty) {
       loadedServers = await ServerStorage.loadServers();
       for (var server in loadedServers) {
-        registredServers.addServer(server);
+        user.registredServers.addServer(server);
       }
     }
     setState(() {});
-    for (var server in registredServers.servers) {
+    for (var server in user.registredServers.servers) {
       _connectToServer(server);
     }
   }
@@ -63,11 +60,11 @@ class _ServersPageState extends State<ServersPage> {
   void onMessageReceived(String topic, String message) {
     setState(() {
       if (topic.contains('/status')) {
-        var server = registredServers.servers
+        var server = user.registredServers.servers
             .firstWhere((s) => '${s.serverNamePrefix}/status' == topic);
         server.status = message;
       } else if (topic.contains('/robot')) {
-        var server = registredServers.servers
+        var server = user.registredServers.servers
             .firstWhere((s) => '${s.serverNamePrefix}/robot' == topic);
         var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
         server.robot.status = decodedMessage['status'];
@@ -90,9 +87,9 @@ class _ServersPageState extends State<ServersPage> {
             onPressed: () {
               Navigator.pop(context);
               setState(() {
-                mqttService.disconnect(server.serverNamePrefix);
-                registredServers.removeServer(server);
-                ServerStorage.saveServers(registredServers.servers);
+                MqttManager.instance.disconnect(server.id);
+                user.registredServers.removeServer(server);
+                ServerStorage.saveServers(user.registredServers.servers);
               });
             },
           ),
@@ -103,9 +100,9 @@ class _ServersPageState extends State<ServersPage> {
 
   void addServer(Server server) {
     setState(() {
-      registredServers.addServer(server);
+      user.registredServers.addServer(server);
       _connectToServer(server);
-      ServerStorage.saveServers(registredServers.servers);
+      ServerStorage.saveServers(user.registredServers.servers);
     });
   }
 
@@ -123,14 +120,14 @@ class _ServersPageState extends State<ServersPage> {
           .animate()
           .shake(),
     );
-    if (registredServers.servers.isNotEmpty) {
+    if (user.registredServers.servers.isNotEmpty) {
       mainContent = SizedBox(
         height: 500,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: registredServers.servers.length,
+          itemCount: user.registredServers.servers.length,
           itemBuilder: (context, index) {
-            final server = registredServers.servers[index];
+            final server = user.registredServers.servers[index];
             return ServerItem(
               server: server,
               onRemoveServer: () => removeServer(context, server),

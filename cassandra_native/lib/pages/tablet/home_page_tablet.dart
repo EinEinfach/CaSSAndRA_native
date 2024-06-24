@@ -41,7 +41,7 @@ class HomePageTablet extends StatelessWidget {
           ),
         ],
       ),
-      endDrawer: const JoystickDrawer(),
+      endDrawer: JoystickDrawer(server: server),
       drawer: const NavDrawer(),
       body: Center(
         child: Padding(

@@ -17,13 +17,14 @@ final categoryImages = {
 
 class Server {
   Server({
+    required this.id,
     required this.category,
     required this.mqttServer,
     required this.serverNamePrefix,
     required this.port,
     required this.user,
     required this.password,
-  }) : id = uuid.v4();
+  });
 
   final String id;
   final Category category;
@@ -38,6 +39,7 @@ class Server {
   Landscape currentMap = Landscape();
 
   Map<String, dynamic> toJson() => {
+    'id': id,
     'category': category.name,
     'mqttServer': mqttServer,
     'serverNamePrefix': serverNamePrefix,
@@ -48,6 +50,7 @@ class Server {
 
   factory Server.fromJson(Map<String, dynamic> json) {
     return Server(
+      id: json['id'],
       category: Category.values.byName(json['category']),
       mqttServer: json['mqttServer'],
       serverNamePrefix: json['serverNamePrefix'],
@@ -73,5 +76,3 @@ class Servers {
     _servers.remove(server);
   }
 }
-
-Servers servers = Servers();

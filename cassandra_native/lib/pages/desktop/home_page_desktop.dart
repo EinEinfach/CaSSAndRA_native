@@ -34,7 +34,7 @@ class HomePageDesktop extends StatelessWidget {
           ),
         ],
       ),
-      endDrawer: const JoystickDrawer(),
+      endDrawer: JoystickDrawer(server: server),
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
