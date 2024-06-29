@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cassandra_native/components/nav_drawer.dart';
+
+import 'package:cassandra_native/components/info_button.dart';
 
 class ServersPageMobile extends StatelessWidget {
   final Widget mainContent;
@@ -12,16 +13,11 @@ class ServersPageMobile extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: Builder(builder: (context) {
-          return IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
-          );
-        }),
+        automaticallyImplyLeading: false,
+        actions: const [
+          InfoButton(),
+        ],
       ),
-      drawer: const NavDrawer(),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(10),

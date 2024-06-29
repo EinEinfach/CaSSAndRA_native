@@ -7,7 +7,9 @@ import 'package:cassandra_native/components/customized_elevated_button.dart';
 const uuid = Uuid();
 
 class NewServer extends StatefulWidget {
-  const NewServer({super.key, required this.onAddServer});
+  final Server? server;
+
+  const NewServer({super.key, required this.onAddServer, this.server});
 
   final void Function(Server server) onAddServer;
 
@@ -16,6 +18,7 @@ class NewServer extends StatefulWidget {
 }
 
 class _NewServerState extends State<NewServer> {
+  String id = "";
   final _mqttServerController = TextEditingController();
   final _serverNamePrefixController = TextEditingController();
   final _portController = TextEditingController();
@@ -47,7 +50,7 @@ class _NewServerState extends State<NewServer> {
     }
     widget.onAddServer(
       Server(
-          id: uuid.v4(),
+          id: id,
           category: _selectedCategory,
           mqttServer: _mqttServerController.text,
           serverNamePrefix: _serverNamePrefixController.text,
@@ -66,6 +69,21 @@ class _NewServerState extends State<NewServer> {
     _userController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.server != null){
+      id = widget.server!.id;
+      _mqttServerController.text = widget.server!.mqttServer;
+      _serverNamePrefixController.text = widget.server!.serverNamePrefix;
+      _portController.text = widget.server!.port.toString();
+      _userController.text = widget.server!.user;
+      _passwordController.text = widget.server!.password;
+    } else {
+      id = uuid.v4();
+    }
   }
 
   @override

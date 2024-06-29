@@ -75,4 +75,9 @@ class Servers {
   void removeServer(Server server){
     _servers.remove(server);
   }
+
+  void editServer(Server editedServer){
+    final index = _servers.indexWhere((server) => server.id == editedServer.id);
+    _servers[index] = editedServer;
+  }
 }

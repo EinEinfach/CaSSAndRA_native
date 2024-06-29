@@ -6,15 +6,18 @@ import 'package:cassandra_native/models/server.dart';
 class ServerItem extends StatelessWidget {
   final Server server;
   final void Function()? onRemoveServer;
+  final void Function()? openEditServer;
 
   const ServerItem({
     super.key,
     required this.server,
     required this.onRemoveServer,
+    required this.openEditServer,
   });
 
   @override
   Widget build(BuildContext context) {
+
     void _navigateToHomePage(Server server) {
       Navigator.push(
         context,
@@ -106,7 +109,7 @@ class ServerItem extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                onPressed: () {},
+                onPressed: openEditServer,
                 child: Icon(Icons.edit,
                     color: Theme.of(context).colorScheme.inversePrimary),
               ),

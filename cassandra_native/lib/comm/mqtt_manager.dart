@@ -9,7 +9,7 @@ class MqttManager {
   final Map<String, MqttServerClient> _clients = {};
   final Map<String, List<Function(String, String)>> _messageCallbacks = {};
 
-  Future<void> connect(String mqttServer, String clientId, Function(String, String) onMessageReceived) async {
+  Future<void> connect(String mqttServer, int port, String clientId, Function(String, String) onMessageReceived) async {
     if (_clients.containsKey(clientId)) {
       _addCallback(clientId, onMessageReceived);
       return;

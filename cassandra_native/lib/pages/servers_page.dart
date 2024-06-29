@@ -24,7 +24,6 @@ class ServersPage extends StatefulWidget {
 }
 
 class _ServersPageState extends State<ServersPage> {
-
   @override
   void dispose() {
     MqttManager.instance.disconnectAll();
@@ -38,9 +37,12 @@ class _ServersPageState extends State<ServersPage> {
   }
 
   Future<void> _connectToServer(Server server) async {
-    await MqttManager.instance.connect(server.mqttServer, server.id, onMessageReceived);
-    MqttManager.instance.subscribe(server.id, '${server.serverNamePrefix}/status');
-    MqttManager.instance.subscribe(server.id, '${server.serverNamePrefix}/robot');
+    await MqttManager.instance
+        .connect(server.mqttServer, server.port, server.id, onMessageReceived);
+    MqttManager.instance
+        .subscribe(server.id, '${server.serverNamePrefix}/status');
+    MqttManager.instance
+        .subscribe(server.id, '${server.serverNamePrefix}/robot');
   }
 
   Future<void> _loadServers() async {
@@ -106,10 +108,26 @@ class _ServersPageState extends State<ServersPage> {
     });
   }
 
+  void editServer(Server server) {
+    setState(() {
+      MqttManager.instance.disconnect(server.id);
+      user.registredServers.editServer(server);
+      _connectToServer(server);
+      ServerStorage.saveServers(user.registredServers.servers);
+    });
+  }
+
   void openAddServerOverlay() {
     showModalBottomSheet(
       context: context,
       builder: (ctx) => NewServer(onAddServer: addServer),
+    );
+  }
+
+  void openEditServerOverlay(BuildContext context, Server server) {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => NewServer(onAddServer: editServer, server: server),
     );
   }
 
@@ -131,6 +149,7 @@ class _ServersPageState extends State<ServersPage> {
             return ServerItem(
               server: server,
               onRemoveServer: () => removeServer(context, server),
+              openEditServer: () => openEditServerOverlay(context, server),
             ).animate().fadeIn().scale();
           },
         ),
