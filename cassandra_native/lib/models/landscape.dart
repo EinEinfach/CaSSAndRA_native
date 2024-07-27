@@ -3,6 +3,7 @@ import 'dart:convert';
 
 class Landscape {
   String mapId = '';
+  String previewId = '';
   List<Offset> perimeter = [];
   List<Offset> exclusion = [];
   List<List<Offset>> exclusions = [];
@@ -17,16 +18,30 @@ class Landscape {
   List<Offset> scaledDockPath = [];
   List<Offset> scaledSearchWire = [];
   List<List<Offset>> mapForPlot = [[]];
+  List<Offset> preview = [];
   double minX = double.infinity;
   double minY = double.infinity;
   double maxX = double.negativeInfinity;
   double maxY = double.negativeInfinity;
   double shiftedMaxX = double.negativeInfinity;
   double shiftedMaxY = double.negativeInfinity;
+  // offset to center map in canvas
+  double offsetX = 0;
+  double offsetY = 0;
 
   void jsonToClassData(String message) {
-    _resetCoords();
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
+    final currentMapData = decodedMessage["features"][0]["properties"].containsValue("perimeter");
+    final previewData = decodedMessage["features"][0]["properties"].containsValue("preview");
+    if (currentMapData) {
+      _currentMapJsonToClassData(decodedMessage);
+    } else if (previewData) {
+      _previewJsonToClassData(decodedMessage);
+    }
+  }
+
+  void _currentMapJsonToClassData(Map decodedMessage) {
+    _resetCoords();
     try {
       for (var feature in decodedMessage["features"]) {
         if (feature['properties']['name'] == 'perimeter') {
@@ -60,6 +75,20 @@ class Landscape {
     }
   }
 
+  void _previewJsonToClassData(Map decodedMessage) {
+    try {
+      for (var feature in decodedMessage["features"]) {
+        if (feature['properties']['name'] == 'preview') {
+          for (var coord in feature['geometry']['coordinates'][0]) {
+            preview.add(Offset(coord[0], coord[1]));
+          }
+        }
+      }
+    } catch (e) {
+      print('Invalid preview json data: $e');
+    }
+  }
+
   void _findMinAndMax() {
     for (var polygon in mapForPlot) {
       for (var point in polygon) {
@@ -87,9 +116,8 @@ class Landscape {
   }
 
   void scaleShapes(double scale, double width, double height) {
-    // offset to center map in canvas
-    final offsetX = (width - shiftedMaxX * scale) / 2;
-    final offsetY = (height + shiftedMaxY * scale) / 2;
+    offsetX = (width - shiftedMaxX * scale) / 2;
+    offsetY = (height + shiftedMaxY * scale) / 2;
 
     // 1st. scale shapes for canvas screen size
     scaledPerimeter = shiftedPerimeter
@@ -99,9 +127,8 @@ class Landscape {
         .map((shape) =>
             shape.map((p) => Offset(p.dx * scale, p.dy * scale)).toList())
         .toList();
-    scaledDockPath = shiftedDockPath
-        .map((p) => Offset(p.dx * scale, p.dy * scale))
-        .toList();
+    scaledDockPath =
+        shiftedDockPath.map((p) => Offset(p.dx * scale, p.dy * scale)).toList();
     scaledSearchWire = shiftedSearchWire
         .map((p) => Offset(p.dx * scale, p.dy * scale))
         .toList();

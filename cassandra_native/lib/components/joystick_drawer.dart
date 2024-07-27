@@ -27,28 +27,30 @@ class JoystickDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onHorizontalDragEnd: (v) {},
-      child: Drawer(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        child: Column(
-          children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
+      child: SafeArea(
+        child: Drawer(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.topLeft,
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
               ),
-            ),
-            const Spacer(),
-            Center(
-              child: Joystick(
-                server: server,
-                onJoystickMoved: _onJoystickMove,
+              const Spacer(),
+              Center(
+                child: Joystick(
+                  server: server,
+                  onJoystickMoved: _onJoystickMove,
+                ),
               ),
-            ),
-            const Spacer(),
-          ],
+              const Spacer(),
+            ],
+          ),
         ),
       ),
     );

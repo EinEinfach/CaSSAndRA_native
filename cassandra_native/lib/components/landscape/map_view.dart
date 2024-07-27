@@ -10,7 +10,7 @@ import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/comm/mqtt_manager.dart';
 
 // later make rover image selectable in settings
-const minRoverImageSize = 30.0;
+const minRoverImageSize = 20.0;
 
 class MapView extends StatefulWidget {
   final Server server;
@@ -25,6 +25,7 @@ class _MapViewState extends State<MapView> {
   String serverData = '';
   List<List<Offset>> mapForPlot = [[]];
   String currentMapId = '';
+  String previewId = '';
   final TransformationController _transformationController =
       TransformationController();
   double baseLineWidth = 2;
@@ -44,10 +45,9 @@ class _MapViewState extends State<MapView> {
     _loadImage('lib/images/rover0grad.png');
     _connectToServer();
     setState(() {
-      roverPostion = widget.server.robot.position;
-      roverRotation = widget.server.robot.angle;
       mapForPlot = widget.server.currentMap.mapForPlot;
       currentMapId = widget.server.currentMap.mapId;
+      previewId = widget.server.currentMap.previewId;
     });
   }
 
@@ -55,11 +55,10 @@ class _MapViewState extends State<MapView> {
     setState(() {
       if (topic.contains('/robot')) {
         widget.server.robot.jsonToClassData(message);
-        roverPostion = widget.server.robot.position;
-        roverRotation = widget.server.robot.angle;
       } else if (topic.contains('/map')) {
         var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
         String receivedMapId = decodedMessage['mapId'];
+        String receivedPriviewId = decodedMessage['previewId'];
         if (receivedMapId != currentMapId) {
           MqttManager.instance.publish(
               widget.server.id,
@@ -67,6 +66,14 @@ class _MapViewState extends State<MapView> {
               '{"coords": {"command": "update", "value": ["currentMap"]}}');
           currentMapId = receivedMapId;
           widget.server.currentMap.mapId = receivedMapId;
+        }
+        else if (receivedPriviewId != previewId){
+          MqttManager.instance.publish(
+              widget.server.id,
+              '${widget.server.serverNamePrefix}/api_cmd',
+              '{"coords": {"command": "update", "value": ["preview"]}}');
+          previewId = receivedPriviewId;
+          widget.server.currentMap.previewId = receivedPriviewId;
         }
       } else if (topic.contains('/coords')) {
         widget.server.currentMap.jsonToClassData(message);
@@ -126,15 +133,7 @@ class _MapViewState extends State<MapView> {
 
       // calc coords for canvas
       widget.server.currentMap.scaleShapes(scale, width, height);
-
-      // calc rover postion for canvas
-      // Offset shiftedRoverPosition = Offset(width / 2, height / 2);
-      // if (mapForPlot[0].isNotEmpty) {
-      //   shiftedRoverPosition = Offset(
-      //       (roverPostion.dx - widget.server.currentMap.minX) * scale + offsetX,
-      //       (-(roverPostion.dy - widget.server.currentMap.minY)) * scale +
-      //           offsetY);
-      // }
+      widget.server.robot.scalePosition(scale, width, height, widget.server.currentMap);
 
       return InteractiveViewer(
         transformationController: _transformationController,
@@ -153,8 +152,8 @@ class _MapViewState extends State<MapView> {
                 transformationController: _transformationController,
                 lineWidth: baseLineWidth,
                 roverImage: roverImage,
-                //roverPosition: shiftedRoverPosition,
-                roverRotation: roverRotation,
+                roverPosition: widget.server.robot.scaledPosition,
+                roverRotation: widget.server.robot.angle,
                 pxToMeter: scale,
               ),
             ),
@@ -171,7 +170,7 @@ class PolygonPainter extends CustomPainter {
   final TransformationController transformationController;
   final double lineWidth;
   final ui.Image? roverImage;
-  //final Offset roverPosition;
+  final Offset roverPosition;
   final double roverRotation;
   final double pxToMeter;
 
@@ -181,7 +180,7 @@ class PolygonPainter extends CustomPainter {
     required this.transformationController,
     required this.lineWidth,
     required this.roverImage,
-    //required this.roverPosition,
+    required this.roverPosition,
     required this.roverRotation,
     required this.pxToMeter,
   });
@@ -254,24 +253,24 @@ class PolygonPainter extends CustomPainter {
     pathSearchWire = drawLine(pathSearchWire, currentMap.scaledSearchWire);
     canvas.drawPath(pathSearchWire, dockPathBrush);
 
-    // if (roverImage != null) {
-    //   double imageSize = 1 * pxToMeter;
-    //   imageSize = max(imageSize, minRoverImageSize);
+    if (roverImage != null) {
+      double imageSize = 1 * pxToMeter;
+      imageSize = max(imageSize, minRoverImageSize);
 
-    //   // rotate rover image
-    //   canvas.save();
-    //   canvas.translate(roverPosition.dx, roverPosition.dy);
-    //   canvas.rotate(-roverRotation);
-    //   canvas.translate(-roverPosition.dx, -roverPosition.dy);
+      // rotate rover image
+      canvas.save();
+      canvas.translate(roverPosition.dx, roverPosition.dy);
+      canvas.rotate(-roverRotation);
+      canvas.translate(-roverPosition.dx, -roverPosition.dy);
 
-    //   final rect = Rect.fromCenter(
-    //       center: roverPosition, width: imageSize, height: imageSize);
-    //   paintImage(
-    //       canvas: canvas, rect: rect, image: roverImage!, fit: BoxFit.cover);
+      final rect = Rect.fromCenter(
+          center: roverPosition, width: imageSize, height: imageSize);
+      paintImage(
+          canvas: canvas, rect: rect, image: roverImage!, fit: BoxFit.cover);
 
-    //   // restore saved canvas
-    //   canvas.restore();
-    // }
+      // restore saved canvas
+      canvas.restore();
+    }
   }
 
   @override

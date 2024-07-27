@@ -139,19 +139,21 @@ class _ServersPageState extends State<ServersPage> {
           .shake(),
     );
     if (user.registredServers.servers.isNotEmpty) {
-      mainContent = SizedBox(
-        height: 500,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: user.registredServers.servers.length,
-          itemBuilder: (context, index) {
-            final server = user.registredServers.servers[index];
-            return ServerItem(
-              server: server,
-              onRemoveServer: () => removeServer(context, server),
-              openEditServer: () => openEditServerOverlay(context, server),
-            ).animate().fadeIn().scale();
-          },
+      mainContent = SingleChildScrollView(
+        child: SizedBox(
+          height: 500,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: user.registredServers.servers.length,
+            itemBuilder: (context, index) {
+              final server = user.registredServers.servers[index];
+              return ServerItem(
+                server: server,
+                onRemoveServer: () => removeServer(context, server),
+                openEditServer: () => openEditServerOverlay(context, server),
+              ).animate().fadeIn().scale();
+            },
+          ),
         ),
       );
     }
