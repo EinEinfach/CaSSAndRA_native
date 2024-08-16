@@ -55,7 +55,24 @@ class MqttManager {
   }
 
   void _addCallback(String clientId, Function(String, String) onMessageReceived) {
-    _messageCallbacks[clientId]?.add(onMessageReceived);
+    if (_messageCallbacks.containsKey(clientId)){
+      _messageCallbacks[clientId]!.add(onMessageReceived);
+    } else {
+      _messageCallbacks[clientId] = [onMessageReceived];
+    }
+  }
+
+  void registerCallback(String clientId, Function(String, String) onMessageReceived) {
+    _addCallback(clientId, onMessageReceived);
+  }
+
+  void unregisterCallback(String clientId, Function(String, String) onMessageReceived) {
+    if (_messageCallbacks.containsKey(clientId)) {
+      _messageCallbacks[clientId]!.remove(onMessageReceived);
+      if (_messageCallbacks[clientId]!.isEmpty) {
+        _messageCallbacks.remove(clientId);
+      }
+    }
   }
 
   void subscribe(String clientId, String topic) {

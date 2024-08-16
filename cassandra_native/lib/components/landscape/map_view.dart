@@ -35,7 +35,8 @@ class _MapViewState extends State<MapView> {
 
   @override
   void dispose() {
-    MqttManager.instance.disconnect(widget.server.id);
+    //MqttManager.instance.disconnect(widget.server.id);
+    MqttManager.instance.unregisterCallback(widget.server.id, onMessageReceived);
     super.dispose();
   }
 
@@ -43,7 +44,7 @@ class _MapViewState extends State<MapView> {
   void initState() {
     super.initState();
     _loadImage('lib/images/rover0grad.png');
-    _connectToServer();
+    _registerCallback();
     setState(() {
       mapForPlot = widget.server.currentMap.mapForPlot;
       currentMapId = widget.server.currentMap.mapId;
@@ -94,15 +95,8 @@ class _MapViewState extends State<MapView> {
     });
   }
 
-  Future _connectToServer() async {
-    await MqttManager.instance.connect(widget.server.mqttServer,
-        widget.server.port, widget.server.id, onMessageReceived);
-    MqttManager.instance
-        .subscribe(widget.server.id, '${widget.server.serverNamePrefix}/robot');
-    MqttManager.instance
-        .subscribe(widget.server.id, '${widget.server.serverNamePrefix}/map');
-    MqttManager.instance.subscribe(
-        widget.server.id, '${widget.server.serverNamePrefix}/coords');
+  void _registerCallback() {
+    MqttManager.instance.registerCallback(widget.server.id, onMessageReceived);
   }
 
   @override

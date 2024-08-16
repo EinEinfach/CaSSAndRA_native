@@ -43,6 +43,10 @@ class _ServersPageState extends State<ServersPage> {
         .subscribe(server.id, '${server.serverNamePrefix}/status');
     MqttManager.instance
         .subscribe(server.id, '${server.serverNamePrefix}/robot');
+    MqttManager.instance
+        .subscribe(server.id, '${server.serverNamePrefix}/map');
+    MqttManager.instance
+        .subscribe(server.id, '${server.serverNamePrefix}/coords');
   }
 
   Future<void> _loadServers() async {
