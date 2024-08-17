@@ -36,7 +36,8 @@ class _MapViewState extends State<MapView> {
   @override
   void dispose() {
     //MqttManager.instance.disconnect(widget.server.id);
-    MqttManager.instance.unregisterCallback(widget.server.id, onMessageReceived);
+    MqttManager.instance
+        .unregisterCallback(widget.server.id, onMessageReceived);
     super.dispose();
   }
 
@@ -67,8 +68,7 @@ class _MapViewState extends State<MapView> {
               '{"coords": {"command": "update", "value": ["currentMap"]}}');
           currentMapId = receivedMapId;
           widget.server.currentMap.mapId = receivedMapId;
-        }
-        else if (receivedPriviewId != previewId){
+        } else if (receivedPriviewId != previewId) {
           MqttManager.instance.publish(
               widget.server.id,
               '${widget.server.serverNamePrefix}/api_cmd',
@@ -127,7 +127,9 @@ class _MapViewState extends State<MapView> {
 
       // calc coords for canvas
       widget.server.currentMap.scaleShapes(scale, width, height);
-      widget.server.robot.scalePosition(scale, width, height, widget.server.currentMap);
+      widget.server.currentMap.scalePreview(scale);
+      widget.server.robot
+          .scalePosition(scale, width, height, widget.server.currentMap);
 
       return InteractiveViewer(
         transformationController: _transformationController,
@@ -224,6 +226,11 @@ class PolygonPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8 * adjustedLineWidth;
 
+    var previewBrush = Paint()
+      ..color = Colors.green
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.5 * adjustedLineWidth;
+
     // draw perimeter
     var pathPerimeter = Path();
     pathPerimeter = drawPolygon(pathPerimeter, currentMap.scaledPerimeter);
@@ -246,6 +253,11 @@ class PolygonPainter extends CustomPainter {
     var pathSearchWire = Path();
     pathSearchWire = drawLine(pathSearchWire, currentMap.scaledSearchWire);
     canvas.drawPath(pathSearchWire, dockPathBrush);
+
+    // draw preview
+    var pathPreview = Path();
+    pathPreview = drawLine(pathPreview, currentMap.scaledPreview);
+    canvas.drawPath(pathPreview, previewBrush);
 
     if (roverImage != null) {
       double imageSize = 1 * pxToMeter;

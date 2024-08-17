@@ -13,10 +13,12 @@ class Landscape {
   List<List<Offset>> shiftedExclusions = [];
   List<Offset> shiftedDockPath = [];
   List<Offset> shiftedSearchWire = [];
+  List<Offset> shiftedPreview = [];
   List<Offset> scaledPerimeter = [];
   List<List<Offset>> scaledExclusions = [];
   List<Offset> scaledDockPath = [];
   List<Offset> scaledSearchWire = [];
+  List<Offset> scaledPreview = [];
   List<List<Offset>> mapForPlot = [[]];
   List<Offset> preview = [];
   double minX = double.infinity;
@@ -31,8 +33,10 @@ class Landscape {
 
   void jsonToClassData(String message) {
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
-    final currentMapData = decodedMessage["features"][0]["properties"].containsValue("perimeter");
-    final previewData = decodedMessage["features"][0]["properties"].containsValue("preview");
+    final currentMapData =
+        decodedMessage["features"][0]["properties"].containsValue("perimeter");
+    final previewData =
+        decodedMessage["features"][0]["properties"].containsValue("preview");
     if (currentMapData) {
       _currentMapJsonToClassData(decodedMessage);
     } else if (previewData) {
@@ -76,6 +80,7 @@ class Landscape {
   }
 
   void _previewJsonToClassData(Map decodedMessage) {
+    _resetPreviewCoords();
     try {
       for (var feature in decodedMessage["features"]) {
         if (feature['properties']['name'] == 'preview') {
@@ -84,6 +89,7 @@ class Landscape {
           }
         }
       }
+      _shiftPreview();
     } catch (e) {
       print('Invalid preview json data: $e');
     }
@@ -149,6 +155,20 @@ class Landscape {
         .toList();
   }
 
+  void _shiftPreview() {
+    shiftedPreview =
+        preview.map((p) => Offset(p.dx - minX, -(p.dy - minY))).toList();
+  }
+
+  void scalePreview(double scale) {
+    scaledPreview = shiftedPreview
+        .map((p) => Offset(p.dx * scale, p.dy * scale))
+        .toList();
+    scaledPreview = scaledPreview
+        .map((p) => Offset(p.dx + offsetX, p.dy + offsetY))
+        .toList();
+  }
+
   void _resetCoords() {
     perimeter = [];
     exclusion = [];
@@ -162,5 +182,9 @@ class Landscape {
     maxY = double.negativeInfinity;
     shiftedMaxX = double.negativeInfinity;
     shiftedMaxY = double.negativeInfinity;
+  }
+
+  void _resetPreviewCoords() {
+    preview = [];
   }
 }
