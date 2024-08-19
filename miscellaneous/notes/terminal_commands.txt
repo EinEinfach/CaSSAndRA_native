@@ -1,0 +1,7 @@
+Generate App Icon:
+1. Place new image in lib/images folder
+2. Rename new image to app_icon.png or change path an name in flutter_launcher_icons.yaml
+3. Run this command in terminal dart run flutter_launcher_icons
+
+Generate App in release state:
+1. Run this command in terminal: flutter run --release
