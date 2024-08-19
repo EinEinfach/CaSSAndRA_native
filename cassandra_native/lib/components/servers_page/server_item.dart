@@ -5,12 +5,14 @@ import 'package:cassandra_native/models/server.dart';
 
 class ServerItem extends StatelessWidget {
   final Server server;
+  final Color serverItemColor;
   final void Function()? onRemoveServer;
   final void Function()? openEditServer;
 
   const ServerItem({
     super.key,
     required this.server,
+    required this.serverItemColor,
     required this.onRemoveServer,
     required this.openEditServer,
   });
@@ -29,7 +31,7 @@ class ServerItem extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
+        color: serverItemColor,
         borderRadius: BorderRadius.circular(12),
       ),
       margin: const EdgeInsets.all(10),

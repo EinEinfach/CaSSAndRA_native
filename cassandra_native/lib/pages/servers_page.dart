@@ -24,6 +24,7 @@ class ServersPage extends StatefulWidget {
 }
 
 class _ServersPageState extends State<ServersPage> {
+
   @override
   void dispose() {
     MqttManager.instance.disconnectAll();
@@ -38,15 +39,15 @@ class _ServersPageState extends State<ServersPage> {
 
   Future<void> _connectToServer(Server server) async {
     await MqttManager.instance
-        .connect(server.mqttServer, server.port, server.id, onMessageReceived);
-    MqttManager.instance
-        .subscribe(server.id, '${server.serverNamePrefix}/status');
-    MqttManager.instance
-        .subscribe(server.id, '${server.serverNamePrefix}/robot');
-    MqttManager.instance
-        .subscribe(server.id, '${server.serverNamePrefix}/map');
-    MqttManager.instance
-        .subscribe(server.id, '${server.serverNamePrefix}/coords');
+        .create(server, onMessageReceived);
+    // MqttManager.instance
+    //     .subscribe(server.id, '${server.serverNamePrefix}/status');
+    // MqttManager.instance
+    //     .subscribe(server.id, '${server.serverNamePrefix}/robot');
+    // MqttManager.instance
+    //     .subscribe(server.id, '${server.serverNamePrefix}/map');
+    // MqttManager.instance
+    //     .subscribe(server.id, '${server.serverNamePrefix}/coords');
   }
 
   Future<void> _loadServers() async {
@@ -69,6 +70,11 @@ class _ServersPageState extends State<ServersPage> {
         var server = user.registredServers.servers
             .firstWhere((s) => '${s.serverNamePrefix}/status' == topic);
         server.status = message;
+        server.stateColor = Theme.of(context).colorScheme.primary;
+        if (server.status == 'offline') {
+          server.robot.status = 'offline';
+          server.stateColor = Theme.of(context).colorScheme.errorContainer;
+        }
       } else if (topic.contains('/robot')) {
         var server = user.registredServers.servers
             .firstWhere((s) => '${s.serverNamePrefix}/robot' == topic);
@@ -153,6 +159,7 @@ class _ServersPageState extends State<ServersPage> {
               final server = user.registredServers.servers[index];
               return ServerItem(
                 server: server,
+                serverItemColor: server.stateColor,
                 onRemoveServer: () => removeServer(context, server),
                 openEditServer: () => openEditServerOverlay(context, server),
               ).animate().fadeIn().scale();

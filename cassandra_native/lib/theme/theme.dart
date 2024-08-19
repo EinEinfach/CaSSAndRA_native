@@ -9,6 +9,7 @@ ThemeData lightMode = ThemeData(
     secondary: Colors.grey.shade300,
     onSurface: Colors.grey.shade900,
     inversePrimary: Colors.grey.shade800,
+    errorContainer: Colors.deepOrange
     
   ),
   fontFamily: GoogleFonts.montserrat().fontFamily,
@@ -22,6 +23,7 @@ ThemeData darkMode = ThemeData(
     secondary: Colors.grey.shade400,
     onSurface: Colors.grey.shade100,
     inversePrimary: Colors.grey.shade200,
+    errorContainer: Colors.deepOrange
   ),
   fontFamily: GoogleFonts.montserrat().fontFamily,
 );

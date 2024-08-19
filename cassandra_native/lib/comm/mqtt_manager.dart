@@ -1,5 +1,8 @@
+import 'dart:async';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
+
+import 'package:cassandra_native/models/server.dart';
 
 class MqttManager {
   MqttManager._privateConstructor();
@@ -8,37 +11,80 @@ class MqttManager {
 
   final Map<String, MqttServerClient> _clients = {};
   final Map<String, List<Function(String, String)>> _messageCallbacks = {};
+  final Map<String, Timer?> _reconnectTimers = {};
 
-  Future<void> connect(String mqttServer, int port, String clientId, Function(String, String) onMessageReceived) async {
-    if (_clients.containsKey(clientId)) {
-      _addCallback(clientId, onMessageReceived);
+  Future<void> create(
+      Server server,
+      Function(String, String) onMessageReceived) async {
+    if (_clients.containsKey(server.id)) {
+      _addCallback(server.id, onMessageReceived);
       return;
     }
 
-    var client = MqttServerClient(mqttServer, clientId);
-    client.logging(on: false); 
-    client.onConnected = () => print('Connected $clientId');
-    client.onDisconnected = () => print('Disconnected $clientId');
-    client.onSubscribed = (topic) => print('Subscribed to $topic for client $clientId');
-    client.onSubscribeFail = (topic) => print('Failed to subscribe $topic for client $clientId');
+    String clientId = server.id;
+    var client = MqttServerClient(server.mqttServer, clientId);
+
+    client.logging(on: false);
+    client.onConnected = () => _subscribeTopics(server);
+    client.onDisconnected = () => _handleDisconnection(clientId);
+    client.onSubscribed =
+        (topic) => print('Subscribed to $topic for client $clientId');
+    client.onSubscribeFail =
+        (topic) => print('Failed to subscribe $topic for client $clientId');
     client.pongCallback = () => print('Ping response client callback invoked');
 
     final connMessage = MqttConnectMessage()
         .withClientIdentifier(clientId)
+        .authenticateAs(server.user, server.password)
         .startClean()
         .withWillQos(MqttQos.atLeastOnce);
 
     client.connectionMessage = connMessage;
+    _clients[clientId] = client;
+    _messageCallbacks[clientId] = [onMessageReceived];
+    await connect(clientId);
+
+    // try {
+    //   await client.connect();
+    //   if (client.connectionStatus!.state == MqttConnectionState.connected) {
+    //     //print('MQTT connected for client $clientId');
+    //     _cancelReconnectTimer(clientId);
+    //     _clients[clientId] = client;
+    //     _messageCallbacks[clientId] = [onMessageReceived];
+    //     client.updates!.listen((List<MqttReceivedMessage<MqttMessage>> c) {
+    //       final MqttPublishMessage recMess = c[0].payload as MqttPublishMessage;
+    //       final String message =
+    //           MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+    //       final String topic = c[0].topic;
+    //       //print('Received message: $message from topic: $topic');
+    //       _messageCallbacks[clientId]?.forEach((callback) {
+    //         callback.call(topic, message);
+    //       });
+    //     });
+    //   } else {
+    //     //print('ERROR: MQTT connection failed for client $clientId - ${client.connectionStatus}');
+    //     _startReconnectTimer(clientId);
+    //   }
+    // } catch (e) {
+    //   //print('Exception: $e');
+    //   client.disconnect();
+    //   _startReconnectTimer(clientId);
+    // }
+  }
+
+  Future<void> connect(String clientId) async {
+    MqttServerClient? client = _clients[clientId];
 
     try {
-      await client.connect();
-      if (client.connectionStatus!.state == MqttConnectionState.connected) {
+      await client?.connect();
+      if (client?.connectionStatus!.state == MqttConnectionState.connected) {
         //print('MQTT connected for client $clientId');
-        _clients[clientId] = client;
-        _messageCallbacks[clientId] = [onMessageReceived]; 
-        client.updates!.listen((List<MqttReceivedMessage<MqttMessage>> c) {
+        _cancelReconnectTimer(clientId);
+        
+        client!.updates!.listen((List<MqttReceivedMessage<MqttMessage>> c) {
           final MqttPublishMessage recMess = c[0].payload as MqttPublishMessage;
-          final String message = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+          final String message =
+              MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
           final String topic = c[0].topic;
           //print('Received message: $message from topic: $topic');
           _messageCallbacks[clientId]?.forEach((callback) {
@@ -47,32 +93,44 @@ class MqttManager {
         });
       } else {
         //print('ERROR: MQTT connection failed for client $clientId - ${client.connectionStatus}');
+        _startReconnectTimer(clientId);
       }
     } catch (e) {
       //print('Exception: $e');
-      client.disconnect();
+      client?.disconnect();
+      _startReconnectTimer(clientId);
     }
   }
 
-  void _addCallback(String clientId, Function(String, String) onMessageReceived) {
-    if (_messageCallbacks.containsKey(clientId)){
+  void _addCallback(
+      String clientId, Function(String, String) onMessageReceived) {
+    if (_messageCallbacks.containsKey(clientId)) {
       _messageCallbacks[clientId]!.add(onMessageReceived);
     } else {
       _messageCallbacks[clientId] = [onMessageReceived];
     }
   }
 
-  void registerCallback(String clientId, Function(String, String) onMessageReceived) {
+  void registerCallback(
+      String clientId, Function(String, String) onMessageReceived) {
     _addCallback(clientId, onMessageReceived);
   }
 
-  void unregisterCallback(String clientId, Function(String, String) onMessageReceived) {
+  void unregisterCallback(
+      String clientId, Function(String, String) onMessageReceived) {
     if (_messageCallbacks.containsKey(clientId)) {
       _messageCallbacks[clientId]!.remove(onMessageReceived);
       if (_messageCallbacks[clientId]!.isEmpty) {
         _messageCallbacks.remove(clientId);
       }
     }
+  }
+
+  void _subscribeTopics(Server server) {
+    subscribe(server.id, '${server.serverNamePrefix}/status');
+    subscribe(server.id, '${server.serverNamePrefix}/robot');
+    subscribe(server.id, '${server.serverNamePrefix}/map');
+    subscribe(server.id, '${server.serverNamePrefix}/coords');
   }
 
   void subscribe(String clientId, String topic) {
@@ -100,17 +158,38 @@ class MqttManager {
   void disconnect(String clientId) {
     var client = _clients[clientId];
     client?.disconnect();
+    _cancelReconnectTimer(clientId);
     _clients.remove(clientId);
     _messageCallbacks.remove(clientId);
     //print('Client $clientId disconnected');
   }
 
   void disconnectAll() {
-    for (var client in _clients.values) {
-      client.disconnect();
+    for (var clientId in _clients.keys) {
+      disconnect(clientId);
+      _cancelReconnectTimer(clientId);
     }
     _clients.clear();
     _messageCallbacks.clear();
     //print('All clients disconnected');
+  }
+
+  void _handleDisconnection(String clientId) {
+    //print('Disconnected: $clientId');
+    _startReconnectTimer(clientId);
+  }
+
+  void _startReconnectTimer(String clientId) {
+    _cancelReconnectTimer(clientId);
+    _reconnectTimers[clientId] =
+        Timer.periodic(const Duration(seconds: 5), (timer) {
+      //print('Attempting to reconnect: $clientId');
+      connect(clientId);
+    });
+  }
+
+  void _cancelReconnectTimer(String clientId) {
+    _reconnectTimers[clientId]?.cancel();
+    _reconnectTimers.remove(clientId);
   }
 }

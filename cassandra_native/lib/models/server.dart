@@ -34,6 +34,7 @@ class Server {
   final String user;
   final String password;
   String status = "offline";
+  Color stateColor = Colors.deepOrange;
 
   Robot robot = Robot();
   Landscape currentMap = Landscape();
