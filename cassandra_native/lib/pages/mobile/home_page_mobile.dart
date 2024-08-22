@@ -45,7 +45,7 @@ class HomePageMobile extends StatelessWidget {
       drawer: const NavDrawer(),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(0),
           child: MapView(server: server),
         ),
       ),

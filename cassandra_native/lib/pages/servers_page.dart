@@ -41,14 +41,6 @@ class _ServersPageState extends State<ServersPage> {
   Future<void> _connectToServer(Server server) async {
     await MqttManager.instance
         .create(server, onMessageReceived);
-    // MqttManager.instance
-    //     .subscribe(server.id, '${server.serverNamePrefix}/status');
-    // MqttManager.instance
-    //     .subscribe(server.id, '${server.serverNamePrefix}/robot');
-    // MqttManager.instance
-    //     .subscribe(server.id, '${server.serverNamePrefix}/map');
-    // MqttManager.instance
-    //     .subscribe(server.id, '${server.serverNamePrefix}/coords');
   }
 
   Future<void> _loadServers() async {
