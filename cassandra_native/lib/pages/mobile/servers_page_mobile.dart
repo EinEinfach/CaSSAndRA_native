@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:cassandra_native/components/info_button.dart';
+import 'package:cassandra_native/components/servers_page/info_button.dart';
+import 'package:cassandra_native/components/servers_page/list_button.dart';
 
 class ServersPageMobile extends StatelessWidget {
   final Widget mainContent;
@@ -15,6 +16,7 @@ class ServersPageMobile extends StatelessWidget {
         elevation: 0,
         automaticallyImplyLeading: false,
         actions: const [
+          ListButton(),
           InfoButton(),
         ],
       ),

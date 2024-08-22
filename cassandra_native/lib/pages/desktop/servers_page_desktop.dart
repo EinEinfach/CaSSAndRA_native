@@ -1,5 +1,6 @@
-import 'package:cassandra_native/components/info_button.dart';
 import 'package:flutter/material.dart';
+
+import 'package:cassandra_native/components/servers_page/info_button.dart';
 
 class ServersPageDesktop extends StatelessWidget {
   final Widget mainContent;

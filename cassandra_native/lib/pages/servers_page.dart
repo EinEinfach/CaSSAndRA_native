@@ -10,6 +10,7 @@ import 'package:cassandra_native/pages/tablet/servers_page_tablet.dart';
 import 'package:cassandra_native/pages/desktop/servers_page_desktop.dart';
 import 'package:cassandra_native/components/servers_page/new_server.dart';
 import 'package:cassandra_native/components/servers_page/server_item.dart';
+import 'package:cassandra_native/components/servers_page/server_item_v_2.dart';
 import 'package:cassandra_native/components/customized_elevated_button.dart';
 import 'package:cassandra_native/models/server.dart';
 
@@ -64,11 +65,11 @@ class _ServersPageState extends State<ServersPage> {
     }
   }
 
-  void onMessageReceived(String topic, String message) {
+  void onMessageReceived(String clientId, String topic, String message) {
     setState(() {
       if (topic.contains('/status')) {
         var server = user.registredServers.servers
-            .firstWhere((s) => '${s.serverNamePrefix}/status' == topic);
+            .firstWhere((s) => s.id == clientId);
         server.status = message;
         server.stateColor = Theme.of(context).colorScheme.primary;
         if (server.status == 'offline') {
@@ -148,7 +149,7 @@ class _ServersPageState extends State<ServersPage> {
           .animate()
           .shake(),
     );
-    if (user.registredServers.servers.isNotEmpty) {
+    if (user.registredServers.servers.isNotEmpty && serverListViewOrientation == 'horizontal') {
       mainContent = SingleChildScrollView(
         child: SizedBox(
           height: 500,
@@ -158,6 +159,25 @@ class _ServersPageState extends State<ServersPage> {
             itemBuilder: (context, index) {
               final server = user.registredServers.servers[index];
               return ServerItem(
+                server: server,
+                serverItemColor: server.stateColor,
+                onRemoveServer: () => removeServer(context, server),
+                openEditServer: () => openEditServerOverlay(context, server),
+              ).animate().fadeIn().scale();
+            },
+          ),
+        ),
+      );
+    } else if (user.registredServers.servers.isNotEmpty && serverListViewOrientation == 'vertical') {
+      mainContent = SingleChildScrollView(
+        child: SizedBox(
+          height: 500,
+          child: ListView.builder(
+            scrollDirection: Axis.vertical,
+            itemCount: user.registredServers.servers.length,
+            itemBuilder: (context, index) {
+              final server = user.registredServers.servers[index];
+              return ServerItemV2(
                 server: server,
                 serverItemColor: server.stateColor,
                 onRemoveServer: () => removeServer(context, server),

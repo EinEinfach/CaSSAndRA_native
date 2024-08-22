@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/pages/home_page.dart';
 
-class ServerItem extends StatelessWidget {
+class ServerItemV2 extends StatelessWidget {
   final Server server;
   final Color serverItemColor;
   final void Function()? onRemoveServer;
   final void Function()? openEditServer;
 
-  const ServerItem({
+  const ServerItemV2({
     super.key,
     required this.server,
     required this.serverItemColor,
@@ -19,7 +19,6 @@ class ServerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     void _navigateToHomePage(Server server) {
       Navigator.push(
         context,

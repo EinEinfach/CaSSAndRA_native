@@ -53,7 +53,7 @@ class _MapViewState extends State<MapView> {
     });
   }
 
-  void onMessageReceived(String topic, String message) {
+  void onMessageReceived(String clientId, String topic, String message) {
     setState(() {
       if (topic.contains('/robot')) {
         widget.server.robot.jsonToClassData(message);
