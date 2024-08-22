@@ -1,3 +1,4 @@
+import 'package:cassandra_native/utils/ui_state_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:convert';
@@ -25,6 +26,7 @@ class ServersPage extends StatefulWidget {
 }
 
 class _ServersPageState extends State<ServersPage> {
+  late IconData listViewIcon;
 
   @override
   void dispose() {
@@ -35,12 +37,12 @@ class _ServersPageState extends State<ServersPage> {
   @override
   void initState() {
     super.initState();
+    _loadStoragedUiState();
     _loadServers();
   }
 
   Future<void> _connectToServer(Server server) async {
-    await MqttManager.instance
-        .create(server, onMessageReceived);
+    await MqttManager.instance.create(server, onMessageReceived);
   }
 
   Future<void> _loadServers() async {
@@ -57,11 +59,16 @@ class _ServersPageState extends State<ServersPage> {
     }
   }
 
+  Future<void> _loadStoragedUiState() async {
+    user.storedUiState = await UiStateStorage.loadUiState();
+    setState(() {});
+  }
+
   void onMessageReceived(String clientId, String topic, String message) {
     setState(() {
       if (topic.contains('/status')) {
-        var server = user.registredServers.servers
-            .firstWhere((s) => s.id == clientId);
+        var server =
+            user.registredServers.servers.firstWhere((s) => s.id == clientId);
         server.status = message;
         server.stateColor = Theme.of(context).colorScheme.primary;
         if (server.status == 'offline') {
@@ -134,6 +141,16 @@ class _ServersPageState extends State<ServersPage> {
     );
   }
 
+  void onListViewChange() {
+    if (user.storedUiState.serversListViewOrientation == 'vertical') {
+      user.storedUiState.serversListViewOrientation = 'horizontal';
+    } else {
+      user.storedUiState.serversListViewOrientation = 'vertical';
+    }
+    UiStateStorage.saveUiState(user.storedUiState);
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget mainContent = Center(
@@ -141,7 +158,8 @@ class _ServersPageState extends State<ServersPage> {
           .animate()
           .shake(),
     );
-    if (user.registredServers.servers.isNotEmpty && serverListViewOrientation == 'horizontal') {
+    if (user.registredServers.servers.isNotEmpty &&
+        user.storedUiState.serversListViewOrientation == 'vertical') {
       mainContent = SingleChildScrollView(
         child: SizedBox(
           height: 500,
@@ -160,7 +178,8 @@ class _ServersPageState extends State<ServersPage> {
           ),
         ),
       );
-    } else if (user.registredServers.servers.isNotEmpty && serverListViewOrientation == 'vertical') {
+    } else if (user.registredServers.servers.isNotEmpty &&
+        user.storedUiState.serversListViewOrientation == 'horizontal') {
       mainContent = SingleChildScrollView(
         child: SizedBox(
           height: 500,
@@ -212,16 +231,31 @@ class _ServersPageState extends State<ServersPage> {
       ],
     );
 
+    listViewIcon =
+      user.storedUiState.serversListViewOrientation == 'horizontal'
+          ? Icons.view_column
+          : Icons.list;
+
     return LayoutBuilder(builder: (context, constrains) {
       //+++++++++++++++++++++++++++++++++++++++++++++++mobile page++++++++++++++++++++++++++++++++++++++++++++++++++++
       if (constrains.maxWidth < smallWidth) {
-        return ServersPageMobile(mainContent: mainContent);
+        return ServersPageMobile(
+            mainContent: mainContent,
+            listViewIcon: listViewIcon,
+            onListViewChange: onListViewChange);
         //+++++++++++++++++++++++++++++++++++++++++++++++tablet page++++++++++++++++++++++++++++++++++++++++++++++++++++
       } else if (constrains.maxWidth < largeWidth) {
-        return ServersPageTablet(mainContent: mainContent);
+        return ServersPageTablet(
+          mainContent: mainContent,
+          listViewIcon: listViewIcon,
+          onListViewChange: onListViewChange,
+        );
         //+++++++++++++++++++++++++++++++++++++++++++++++desktop page++++++++++++++++++++++++++++++++++++++++++++++++++++
       } else {
-        return ServersPageDesktop(mainContent: mainContent);
+        return ServersPageDesktop(
+            mainContent: mainContent,
+            listViewIcon: listViewIcon,
+            onListViewChange: onListViewChange);
       }
     });
   }

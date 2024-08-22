@@ -1,47 +1,20 @@
 import 'package:flutter/material.dart';
 
-import 'package:cassandra_native/data/ui_state.dart';
-
-class ListButton extends StatefulWidget {
-  const ListButton({super.key});
-
-  @override
-  State<ListButton> createState() => _ListButtonState();
-}
-
-class _ListButtonState extends State<ListButton> {
-  IconData listViewIcon = Icons.list;
-
-  void _switchListView() {
-    setState(() {
-      if (serverListViewOrientation == 'vertical') {
-        serverListViewOrientation = 'horizontal';
-        listViewIcon = Icons.view_column;
-      } else {
-        serverListViewOrientation = 'vertical';
-        listViewIcon = Icons.list;
-      }
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      if (serverListViewOrientation == 'vertical') {
-        listViewIcon = Icons.list;
-      } else {
-        listViewIcon = Icons.view_column;
-      }
-    });
-  }
+class ListButton extends StatelessWidget {
+  final IconData listViewIcon;
+  final void Function() onListViewChange;
+  const ListButton({
+    super.key,
+    required this.listViewIcon,
+    required this.onListViewChange,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: ElevatedButton(
-        onPressed: _switchListView,
+        onPressed: () => onListViewChange(),
         style: ElevatedButton.styleFrom(
           backgroundColor: Theme.of(context).colorScheme.primary,
           shape: RoundedRectangleBorder(

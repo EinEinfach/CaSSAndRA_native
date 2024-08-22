@@ -5,7 +5,9 @@ import 'package:cassandra_native/components/servers_page/list_button.dart';
 
 class ServersPageMobile extends StatelessWidget {
   final Widget mainContent;
-  const ServersPageMobile({super.key, required this.mainContent});
+  final IconData listViewIcon;
+  final void Function() onListViewChange;
+  const ServersPageMobile({super.key, required this.mainContent, required this.listViewIcon, required this.onListViewChange});
 
   @override
   Widget build(BuildContext context) {
@@ -15,9 +17,9 @@ class ServersPageMobile extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         automaticallyImplyLeading: false,
-        actions: const [
-          ListButton(),
-          InfoButton(),
+        actions: [
+          ListButton(listViewIcon: listViewIcon, onListViewChange: onListViewChange),
+          const InfoButton(),
         ],
       ),
       body: Center(

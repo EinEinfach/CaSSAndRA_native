@@ -1,4 +1,5 @@
-
+import 'package:cassandra_native/models/ui_state.dart';
 import 'package:cassandra_native/models/server.dart';
 
-Servers registredServers= Servers();
+UiState storedUiState = UiState(serversListViewOrientation: 'vertical');
+Servers registredServers = Servers();

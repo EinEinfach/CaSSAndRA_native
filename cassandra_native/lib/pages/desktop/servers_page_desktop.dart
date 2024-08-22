@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
 import 'package:cassandra_native/components/servers_page/info_button.dart';
+import 'package:cassandra_native/components/servers_page/list_button.dart';
 
 class ServersPageDesktop extends StatelessWidget {
   final Widget mainContent;
-  const ServersPageDesktop({super.key, required this.mainContent});
+  final IconData listViewIcon;
+  final void Function() onListViewChange;
+  const ServersPageDesktop({super.key, required this.mainContent, required this.listViewIcon, required this.onListViewChange});
 
   @override
   Widget build(BuildContext context) {
@@ -14,8 +17,9 @@ class ServersPageDesktop extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         automaticallyImplyLeading: false,
-        actions: const [
-          InfoButton(),
+        actions: [
+          ListButton(listViewIcon: listViewIcon, onListViewChange: onListViewChange),
+          const InfoButton(),
         ],
       ),
       body: Padding(
