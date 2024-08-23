@@ -41,7 +41,7 @@ class NavDrawer extends StatelessWidget {
                         ),
                       ),
                       DrawerHeader(
-                        child: Image.asset('lib/images/artic_hare.png'),
+                        child: Image.asset('lib/images/in_app_icon.png'),
                       ),
                       DrawerTile(
                         title: "Overview",
@@ -99,7 +99,7 @@ class NavDrawer extends StatelessWidget {
                   child: Column(
                     children: [
                       DrawerHeader(
-                        child: Image.asset('lib/images/artic_hare.png'),
+                        child: Image.asset('lib/images/in_app_icon.png'),
                       ),
                       DrawerTile(
                         title: "Overview",

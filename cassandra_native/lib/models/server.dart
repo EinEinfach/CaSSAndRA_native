@@ -12,7 +12,7 @@ final categoryImages = {
   Category.ardumower: Image.asset('lib/images/artic_hare.png'),
   Category.alfred: Image.asset('lib/images/artic_hare.png'),
   Category.landrumower: Image.asset('lib/images/landrumower.png'),
-  Category.other: Image.asset('lib/images/artic_hare.png'),
+  Category.other: Image.asset('lib/images/in_app_icon.png'),
 };
 
 class Server {
