@@ -35,7 +35,7 @@ class ServerItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       margin: const EdgeInsets.all(10),
-      padding: const EdgeInsets.all(25),
+      padding: const EdgeInsets.all(10),
       width: 300,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

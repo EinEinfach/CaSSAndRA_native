@@ -13,6 +13,7 @@ import 'package:cassandra_native/components/servers_page/new_server.dart';
 import 'package:cassandra_native/components/servers_page/server_item.dart';
 import 'package:cassandra_native/components/servers_page/server_item_v_2.dart';
 import 'package:cassandra_native/components/customized_elevated_button.dart';
+import 'package:cassandra_native/components/servers_page/dismiss_item.dart';
 import 'package:cassandra_native/models/server.dart';
 
 // globals
@@ -110,6 +111,23 @@ class _ServersPageState extends State<ServersPage> {
     );
   }
 
+  void _onDismissedServer(BuildContext context, Server server) {
+    String name = server.serverNamePrefix;
+    setState(() {
+      MqttManager.instance.disconnect(server.id);
+      user.registredServers.removeServer(server);
+      ServerStorage.saveServers(user.registredServers.servers);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      backgroundColor: Theme.of(context).colorScheme.secondary,
+      content: Text(
+        '$name removed',
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+      ),
+      duration: const Duration(seconds: 5),
+    ));
+  }
+
   void addServer(Server server) {
     setState(() {
       user.registredServers.addServer(server);
@@ -188,12 +206,16 @@ class _ServersPageState extends State<ServersPage> {
             itemCount: user.registredServers.servers.length,
             itemBuilder: (context, index) {
               final server = user.registredServers.servers[index];
-              return ServerItemV2(
-                server: server,
-                serverItemColor: server.stateColor,
-                onRemoveServer: () => removeServer(context, server),
-                openEditServer: () => openEditServerOverlay(context, server),
-              ).animate().fadeIn().scale();
+              return Dismissible(
+                key: Key(server.id),
+                background: const DismissItem(),
+                onDismissed: (direction) => _onDismissedServer(context, server),
+                child: ServerItemV2(
+                  server: server,
+                  serverItemColor: server.stateColor,
+                  openEditServer: () => openEditServerOverlay(context, server),
+                ).animate().fadeIn().scale(),
+              );
             },
           ),
         ),
@@ -231,10 +253,9 @@ class _ServersPageState extends State<ServersPage> {
       ],
     );
 
-    listViewIcon =
-      user.storedUiState.serversListViewOrientation == 'horizontal'
-          ? Icons.view_column
-          : Icons.list;
+    listViewIcon = user.storedUiState.serversListViewOrientation == 'horizontal'
+        ? Icons.view_column
+        : Icons.list;
 
     return LayoutBuilder(builder: (context, constrains) {
       //+++++++++++++++++++++++++++++++++++++++++++++++mobile page++++++++++++++++++++++++++++++++++++++++++++++++++++
