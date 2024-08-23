@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
-import 'package:cassandra_native/data/ui_state.dart';
+import 'package:cassandra_native/data/app_data.dart';
 import 'package:cassandra_native/theme/theme_provider.dart';
 import 'package:cassandra_native/components/nav_drawer.dart';
 

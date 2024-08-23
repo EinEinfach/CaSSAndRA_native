@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:convert';
 
-import 'package:cassandra_native/data/ui_state.dart';
+import 'package:cassandra_native/data/app_data.dart';
 import 'package:cassandra_native/utils/server_storage.dart';
 import 'package:cassandra_native/comm/mqtt_manager.dart';
 import 'package:cassandra_native/pages/mobile/servers_page_mobile.dart';

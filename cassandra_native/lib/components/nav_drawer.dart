@@ -3,7 +3,7 @@ import 'package:cassandra_native/pages/settings_page.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cassandra_native/components/drawer_tile.dart';
-import 'package:cassandra_native/data/ui_state.dart';
+import 'package:cassandra_native/data/app_data.dart';
 
 class NavDrawer extends StatelessWidget {
   const NavDrawer({super.key});

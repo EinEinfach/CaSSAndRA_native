@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cassandra_native/pages/mobile/home_page_mobile.dart';
 import 'package:cassandra_native/pages/tablet/home_page_tablet.dart';
 import 'package:cassandra_native/pages/desktop/home_page_desktop.dart';
-import 'package:cassandra_native/data/ui_state.dart';
+import 'package:cassandra_native/data/app_data.dart';
 import 'package:cassandra_native/models/server.dart';
 
 class HomePage extends StatelessWidget{
