@@ -16,7 +16,6 @@ class BottomCmdBar extends StatelessWidget {
         tabActiveBorder: Border.all(color: Colors.white),
         tabBackgroundColor: Colors.grey.shade100,
         tabBorderRadius: 16,
-        
         tabs: [
           GButton(
             icon: Icons.home_rounded,

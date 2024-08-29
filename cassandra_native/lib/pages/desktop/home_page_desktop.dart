@@ -3,7 +3,7 @@ import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/components/joystick_drawer.dart';
 import 'package:cassandra_native/components/nav_drawer.dart';
-import 'package:cassandra_native/widgets/bottom_cmd_bar.dart';
+import 'package:cassandra_native/components/home_page/bottom_cmd_bar.dart';
 import 'package:cassandra_native/components/landscape/map_view.dart';
 import 'package:cassandra_native/models/server.dart';
 

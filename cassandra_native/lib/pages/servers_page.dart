@@ -89,6 +89,10 @@ class _ServersPageState extends State<ServersPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
         content: const Text('Remove this server?'),
         actions: [
           CustomizedElevatedButton(
@@ -146,16 +150,36 @@ class _ServersPageState extends State<ServersPage> {
   }
 
   void openAddServerOverlay() {
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      builder: (ctx) => NewServer(onAddServer: addServer),
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        title: const Text(
+          'Add new server instance',
+          style: TextStyle(fontSize: 14),
+        ),
+        content: NewServer(onAddServer: addServer),
+      ),
     );
   }
 
   void openEditServerOverlay(BuildContext context, Server server) {
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      builder: (ctx) => NewServer(onAddServer: editServer, server: server),
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        title: const Text(
+          'Edit server instance',
+          style: TextStyle(fontSize: 14),
+        ),
+        content: NewServer(onAddServer: editServer, server: server),
+      ),
     );
   }
 
