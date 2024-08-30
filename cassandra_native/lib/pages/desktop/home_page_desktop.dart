@@ -4,7 +4,7 @@ import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:cassandra_native/components/joystick_drawer.dart';
 import 'package:cassandra_native/components/nav_drawer.dart';
 import 'package:cassandra_native/components/home_page/bottom_cmd_bar.dart';
-import 'package:cassandra_native/components/landscape/map_view.dart';
+import 'package:cassandra_native/components/home_page/map_view.dart';
 import 'package:cassandra_native/models/server.dart';
 
 class HomePageDesktop extends StatelessWidget {
@@ -16,7 +16,7 @@ class HomePageDesktop extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      bottomNavigationBar: const BottomCmdBar(),
+      bottomNavigationBar: BottomCmdBar(server: server),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

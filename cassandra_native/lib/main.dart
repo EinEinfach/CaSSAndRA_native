@@ -7,6 +7,7 @@ import 'package:cassandra_native/theme/theme_provider.dart';
 import 'package:cassandra_native/pages/servers_page.dart';
 //import 'package:cassandra_native/pages/home_page.dart';
 //import 'package:cassandra_native/pages/settings_page.dart';
+//import 'package:cassandra_native/models/robot.dart';
 
 void main() {
   runApp(
@@ -16,7 +17,7 @@ void main() {
           create: (context) => ThemeProvider(),
         ),
         // ChangeNotifierProvider(
-        //   create: (context) => Servers(),
+        //   create: (context) => Robot(),
         // ),
       ],
       child: const MyApp(),

@@ -36,6 +36,8 @@ class Server {
   String status = "offline";
   Color stateColor = Colors.deepOrange;
 
+  String preparedCmd = "home";
+
   Robot robot = Robot();
   Landscape currentMap = Landscape();
 

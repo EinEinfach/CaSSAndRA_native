@@ -17,6 +17,8 @@ class Robot {
     try{
       position = Offset(decodedMessage['position']['x'], decodedMessage['position']['y']);
       angle = decodedMessage['angle'];
+      status = decodedMessage['status'];
+      //notifyListeners();
     }
     catch(e){
       print('Invalid robot json data: $e');

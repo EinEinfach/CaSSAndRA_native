@@ -1,7 +1,6 @@
 import 'package:cassandra_native/utils/ui_state_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'dart:convert';
 
 import 'package:cassandra_native/data/app_data.dart';
 import 'package:cassandra_native/utils/server_storage.dart';
@@ -79,8 +78,7 @@ class _ServersPageState extends State<ServersPage> {
       } else if (topic.contains('/robot')) {
         var server = user.registredServers.servers
             .firstWhere((s) => '${s.serverNamePrefix}/robot' == topic);
-        var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
-        server.robot.status = decodedMessage['status'];
+        server.robot.jsonToClassData(message);
       }
     });
   }

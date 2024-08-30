@@ -33,8 +33,9 @@ class ServerItemV2 extends StatelessWidget {
       ),
       height: 80,
       margin: const EdgeInsets.all(2),
-      padding: const EdgeInsets.fromLTRB(8, 5, 2, 5),
+      padding: const EdgeInsets.fromLTRB(8, 5, 5, 5),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           GestureDetector(
             onTap: () => _navigateToHomePage(server),

@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
+import 'package:cassandra_native/models/server.dart';
+
 class BottomCmdBar extends StatelessWidget {
-  const BottomCmdBar({super.key});
+  final Server server;
+
+  const BottomCmdBar({super.key, required this.server});
+
+  void setCmdBarState(String state){
+    server.preparedCmd = state;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,19 +28,25 @@ class BottomCmdBar extends StatelessWidget {
           GButton(
             icon: Icons.home_rounded,
             text: 'home',
-            onPressed: () {},
+            onPressed: () {setCmdBarState('home');},
             iconColor: Theme.of(context).colorScheme.onSurface,
           ),
           GButton(
             icon: Icons.map_outlined,
             text: 'calc',
-            onPressed: () {},
+            onPressed: () {setCmdBarState('calc');},
             iconColor: Theme.of(context).colorScheme.onSurface,
           ),
           GButton(
             icon: Icons.place_outlined,
             text: 'go to',
-            onPressed: (){},
+            onPressed: () {setCmdBarState('go to');},
+            iconColor: Theme.of(context).colorScheme.onSurface,
+          ),
+          GButton(
+            icon: Icons.list,
+            text: 'tasks',
+            onPressed: () {setCmdBarState('tasks');},
             iconColor: Theme.of(context).colorScheme.onSurface,
           ),
         ],

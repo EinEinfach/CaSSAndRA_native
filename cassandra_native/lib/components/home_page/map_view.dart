@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:cassandra_native/components/home_page/play_button.dart';
 import 'package:cassandra_native/models/landscape.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
@@ -32,6 +33,7 @@ class _MapViewState extends State<MapView> {
   ui.Image? roverImage;
   Offset roverPostion = const Offset(0, 0);
   double roverRotation = 0;
+  late IconData playButtonIcon;
 
   @override
   void dispose() {
@@ -50,6 +52,7 @@ class _MapViewState extends State<MapView> {
       mapForPlot = widget.server.currentMap.mapForPlot;
       currentMapId = widget.server.currentMap.mapId;
       previewId = widget.server.currentMap.previewId;
+      playButtonIcon = _createPlayButtonIcon();
     });
   }
 
@@ -57,6 +60,7 @@ class _MapViewState extends State<MapView> {
     setState(() {
       if (topic.contains('/robot')) {
         widget.server.robot.jsonToClassData(message);
+        playButtonIcon = _createPlayButtonIcon();
       } else if (topic.contains('/map')) {
         var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
         String receivedMapId = decodedMessage['mapId'];
@@ -99,6 +103,14 @@ class _MapViewState extends State<MapView> {
     MqttManager.instance.registerCallback(widget.server.id, onMessageReceived);
   }
 
+  IconData _createPlayButtonIcon() {
+    if (widget.server.robot.status == 'mow' || widget.server.robot.status == 'docking') {
+      return Icons.pause;
+    } else {
+      return Icons.play_arrow;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
@@ -131,31 +143,34 @@ class _MapViewState extends State<MapView> {
       widget.server.robot
           .scalePosition(scale, width, height, widget.server.currentMap);
 
-      return InteractiveViewer(
-        transformationController: _transformationController,
-        boundaryMargin: const EdgeInsets.all(double.infinity),
-        minScale: 0.8,
-        maxScale: maxZoom,
-        child: SizedBox(
-          width: screenSize.width,
-          height: screenSize.height,
-          child: AspectRatio(
-            aspectRatio: 1,
-            child: CustomPaint(
-              painter: PolygonPainter(
-                currentMap: widget.server.currentMap,
-                colors: Theme.of(context).colorScheme,
-                transformationController: _transformationController,
-                lineWidth: baseLineWidth,
-                roverImage: roverImage,
-                roverPosition: widget.server.robot.scaledPosition,
-                roverRotation: widget.server.robot.angle,
-                pxToMeter: scale,
+      return Stack(children: [
+        InteractiveViewer(
+          transformationController: _transformationController,
+          boundaryMargin: const EdgeInsets.all(double.infinity),
+          minScale: 0.8,
+          maxScale: maxZoom,
+          child: SizedBox(
+            width: screenSize.width,
+            height: screenSize.height,
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: CustomPaint(
+                painter: PolygonPainter(
+                  currentMap: widget.server.currentMap,
+                  colors: Theme.of(context).colorScheme,
+                  transformationController: _transformationController,
+                  lineWidth: baseLineWidth,
+                  roverImage: roverImage,
+                  roverPosition: widget.server.robot.scaledPosition,
+                  roverRotation: widget.server.robot.angle,
+                  pxToMeter: scale,
+                ),
               ),
             ),
           ),
         ),
-      );
+        PlayButton(icon: playButtonIcon),
+      ]);
     });
   }
 }
