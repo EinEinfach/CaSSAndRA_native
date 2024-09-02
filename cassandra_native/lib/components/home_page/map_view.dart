@@ -25,8 +25,6 @@ class MapView extends StatefulWidget {
 class _MapViewState extends State<MapView> {
   String serverData = '';
   List<List<Offset>> mapForPlot = [[]];
-  String currentMapId = '';
-  String previewId = '';
   final TransformationController _transformationController =
       TransformationController();
   double baseLineWidth = 2;
@@ -50,8 +48,6 @@ class _MapViewState extends State<MapView> {
     _registerCallback();
     setState(() {
       mapForPlot = widget.server.currentMap.mapForPlot;
-      currentMapId = widget.server.currentMap.mapId;
-      previewId = widget.server.currentMap.previewId;
       playButtonIcon = _createPlayButtonIcon();
     });
   }
@@ -64,21 +60,17 @@ class _MapViewState extends State<MapView> {
       } else if (topic.contains('/map')) {
         var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
         String receivedMapId = decodedMessage['mapId'];
-        String receivedPriviewId = decodedMessage['previewId'];
-        if (receivedMapId != currentMapId) {
+        String receivedPreviewId = decodedMessage['previewId'];
+        if (receivedMapId != widget.server.currentMap.mapId) {
           MqttManager.instance.publish(
               widget.server.id,
               '${widget.server.serverNamePrefix}/api_cmd',
               '{"coords": {"command": "update", "value": ["currentMap"]}}');
-          currentMapId = receivedMapId;
-          widget.server.currentMap.mapId = receivedMapId;
-        } else if (receivedPriviewId != previewId) {
+        } else if (receivedPreviewId != widget.server.currentMap.previewId) {
           MqttManager.instance.publish(
               widget.server.id,
               '${widget.server.serverNamePrefix}/api_cmd',
               '{"coords": {"command": "update", "value": ["preview"]}}');
-          previewId = receivedPriviewId;
-          widget.server.currentMap.previewId = receivedPriviewId;
         }
       } else if (topic.contains('/coords')) {
         widget.server.currentMap.jsonToClassData(message);

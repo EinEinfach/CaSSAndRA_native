@@ -43,7 +43,10 @@ class ServerItemV2 extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(server.serverNamePrefix),
-                Text(server.id, style: const TextStyle(fontSize: 6),),
+                Text(
+                  server.id,
+                  style: const TextStyle(fontSize: 6),
+                ),
               ],
             ),
           ),
@@ -61,8 +64,15 @@ class ServerItemV2 extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.computer, size: 40,),
-                  Text(server.status, style: const TextStyle(fontSize: 10),),
+                  Icon(
+                    Icons.computer,
+                    color: Theme.of(context).colorScheme.inversePrimary,
+                    size: 40,
+                  ),
+                  Text(
+                    server.status,
+                    style: const TextStyle(fontSize: 10),
+                  ),
                 ],
               ),
             ),
@@ -72,16 +82,24 @@ class ServerItemV2 extends StatelessWidget {
           ),
           Container(
             width: 50,
-            decoration: BoxDecoration(color: Theme.of(context).colorScheme.secondary,
-            borderRadius: BorderRadius.circular(5),),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.secondary,
+              borderRadius: BorderRadius.circular(5),
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(
                   height: 40,
-                  child: Image.asset('lib/images/mower_icon.png', ),
+                  child: Image.asset(
+                    'lib/images/mower_icon.png',
+                    color: Theme.of(context).colorScheme.inversePrimary,
+                  ),
                 ),
-                Text(server.robot.status, style: const TextStyle(fontSize: 10),),
+                Text(
+                  server.robot.status,
+                  style: const TextStyle(fontSize: 10),
+                ),
               ],
             ),
           ),

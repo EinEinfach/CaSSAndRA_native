@@ -33,13 +33,9 @@ class Landscape {
 
   void jsonToClassData(String message) {
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
-    final currentMapData =
-        decodedMessage["features"][0]["properties"].containsValue("perimeter");
-    final previewData =
-        decodedMessage["features"][0]["properties"].containsValue("preview");
-    if (currentMapData) {
+    if (decodedMessage["features"][0]["properties"]["name"] == 'current map') {
       _currentMapJsonToClassData(decodedMessage);
-    } else if (previewData) {
+    } else if (decodedMessage["features"][0]["properties"]["name"] == 'current preview') {
       _previewJsonToClassData(decodedMessage);
     }
   }
@@ -72,6 +68,7 @@ class Landscape {
           mapForPlot.add(searchWire);
         }
       }
+      mapId = decodedMessage["features"][0]["properties"]["id"];
       _findMinAndMax();
       _shiftShapes();
     } catch (e) {
@@ -82,6 +79,10 @@ class Landscape {
   void _previewJsonToClassData(Map decodedMessage) {
     _resetPreviewCoords();
     try {
+      if (decodedMessage['features'][1]['geometry']['coordinates'].isEmpty){
+        previewId = decodedMessage["features"][0]["properties"]["id"];
+        return;
+      }
       for (var feature in decodedMessage["features"]) {
         if (feature['properties']['name'] == 'preview') {
           for (var coord in feature['geometry']['coordinates'][0]) {
@@ -89,6 +90,7 @@ class Landscape {
           }
         }
       }
+      previewId = decodedMessage["features"][0]["properties"]["id"];
       _shiftPreview();
     } catch (e) {
       print('Invalid preview json data: $e');
