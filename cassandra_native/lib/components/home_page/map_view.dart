@@ -1,12 +1,12 @@
-import 'dart:math';
-
-import 'package:cassandra_native/components/home_page/play_button.dart';
-import 'package:cassandra_native/models/landscape.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'dart:convert';
+import 'dart:math';
 
+import 'package:cassandra_native/components/home_page/map_button.dart';
+import 'package:cassandra_native/components/home_page/play_button.dart';
+import 'package:cassandra_native/models/landscape.dart';
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/comm/mqtt_manager.dart';
 
@@ -61,6 +61,7 @@ class _MapViewState extends State<MapView> {
         var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
         String receivedMapId = decodedMessage['mapId'];
         String receivedPreviewId = decodedMessage['previewId'];
+        String receivedMowPathId = decodedMessage['mowPathId'];
         if (receivedMapId != widget.server.currentMap.mapId) {
           MqttManager.instance.publish(
               widget.server.id,
@@ -71,6 +72,11 @@ class _MapViewState extends State<MapView> {
               widget.server.id,
               '${widget.server.serverNamePrefix}/api_cmd',
               '{"coords": {"command": "update", "value": ["preview"]}}');
+        } else if (receivedMowPathId != widget.server.currentMap.mowPathId) {
+          MqttManager.instance.publish(
+              widget.server.id,
+              '${widget.server.serverNamePrefix}/api_cmd',
+              '{"coords": {"command": "update", "value": ["mowPath"]}}');
         }
       } else if (topic.contains('/coords')) {
         widget.server.currentMap.jsonToClassData(message);
@@ -96,7 +102,8 @@ class _MapViewState extends State<MapView> {
   }
 
   IconData _createPlayButtonIcon() {
-    if (widget.server.robot.status == 'mow' || widget.server.robot.status == 'docking') {
+    if (widget.server.robot.status == 'mow' ||
+        widget.server.robot.status == 'docking') {
       return Icons.pause;
     } else {
       return Icons.play_arrow;
@@ -132,6 +139,7 @@ class _MapViewState extends State<MapView> {
       // calc coords for canvas
       widget.server.currentMap.scaleShapes(scale, width, height);
       widget.server.currentMap.scalePreview(scale);
+      widget.server.currentMap.scaleMowPath(scale);
       widget.server.robot
           .scalePosition(scale, width, height, widget.server.currentMap);
 
@@ -156,12 +164,21 @@ class _MapViewState extends State<MapView> {
                   roverPosition: widget.server.robot.scaledPosition,
                   roverRotation: widget.server.robot.angle,
                   pxToMeter: scale,
+                  mowPointIdx: widget.server.robot.mowPointIdx,
                 ),
               ),
             ),
           ),
         ),
         PlayButton(icon: playButtonIcon),
+        MapButton(
+          icon: Icons.zoom_in_map,
+          verticalAligment: -1,
+          horizontalAlignment: 0,
+          onPressed: () {
+            _transformationController.value = Matrix4.identity();
+          },
+        ),
       ]);
     });
   }
@@ -176,6 +193,7 @@ class PolygonPainter extends CustomPainter {
   final Offset roverPosition;
   final double roverRotation;
   final double pxToMeter;
+  final int mowPointIdx;
 
   const PolygonPainter({
     required this.currentMap,
@@ -186,6 +204,7 @@ class PolygonPainter extends CustomPainter {
     required this.roverPosition,
     required this.roverRotation,
     required this.pxToMeter,
+    required this.mowPointIdx,
   });
 
   Path drawPolygon(Path path, List<Offset> points) {
@@ -214,11 +233,17 @@ class PolygonPainter extends CustomPainter {
     final scale = transformationController.value.getMaxScaleOnAxis();
     final adjustedLineWidth = lineWidth / scale;
 
+    // draw perimeter
     var polygonBrush = Paint()
       ..color = colors.inversePrimary
       ..style = PaintingStyle.stroke
       ..strokeWidth = adjustedLineWidth;
 
+    var pathPerimeter = Path();
+    pathPerimeter = drawPolygon(pathPerimeter, currentMap.scaledPerimeter);
+    canvas.drawPath(pathPerimeter, polygonBrush);
+
+    // draw exclusions
     var exclusionsStrokeBrusch = Paint()
       ..color = colors.inversePrimary
       ..style = PaintingStyle.stroke
@@ -228,22 +253,6 @@ class PolygonPainter extends CustomPainter {
       ..color = colors.primary
       ..style = PaintingStyle.fill;
 
-    var dockPathBrush = Paint()
-      ..color = colors.onSurface
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.8 * adjustedLineWidth;
-
-    var previewBrush = Paint()
-      ..color = Colors.green
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.5 * adjustedLineWidth;
-
-    // draw perimeter
-    var pathPerimeter = Path();
-    pathPerimeter = drawPolygon(pathPerimeter, currentMap.scaledPerimeter);
-    canvas.drawPath(pathPerimeter, polygonBrush);
-
-    // draw exclusions
     var pathExclusions = Path();
     for (var exclusion in currentMap.scaledExclusions) {
       pathExclusions = drawPolygon(pathExclusions, exclusion);
@@ -251,7 +260,75 @@ class PolygonPainter extends CustomPainter {
     canvas.drawPath(pathExclusions, exclusionsFillColor);
     canvas.drawPath(pathExclusions, exclusionsStrokeBrusch);
 
+    // draw preview
+    var previewBrush = Paint()
+      ..color = Color.fromARGB(255, 113, 161, 143)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.5 * adjustedLineWidth;
+
+    var pathPreview = Path();
+    pathPreview = drawLine(pathPreview, currentMap.scaledPreview);
+    canvas.drawPath(pathPreview, previewBrush);
+
+    // draw mow path
+    var mowPathBrush = Paint()
+      ..color = Colors.green
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.5 * adjustedLineWidth;
+
+    var mowPathFinishedBrush = Paint()
+      ..color = Colors.grey.shade300
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.5 * adjustedLineWidth;
+
+    var mowPathCurrent = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.5 * adjustedLineWidth;
+
+    if (currentMap.scaledMowPath.isNotEmpty) {
+      //finished
+      var pathMowPathFinished = Path();
+      pathMowPathFinished = drawLine(pathMowPathFinished,
+          currentMap.scaledMowPath.sublist(0, mowPointIdx + 1));
+      canvas.drawPath(pathMowPathFinished, mowPathFinishedBrush);
+
+      // unfinished
+      var pathMowPath = Path();
+      pathMowPath =
+          drawLine(pathMowPath, currentMap.scaledMowPath.sublist(mowPointIdx));
+      canvas.drawPath(pathMowPath, mowPathBrush);
+
+      // current
+      if (mowPointIdx > 0) {
+        double dashWidth = 2.0;
+        double dashSpace = 2.0;
+        double distance = (currentMap.scaledMowPath[mowPointIdx] -
+                currentMap.scaledMowPath[mowPointIdx - 1])
+            .distance;
+        Offset direction = (currentMap.scaledMowPath[mowPointIdx] -
+                currentMap.scaledMowPath[mowPointIdx - 1]) /
+            distance;
+        double currentDistance = 0;
+        while (currentDistance < distance) {
+          final currentStart = currentMap.scaledMowPath[mowPointIdx - 1] +
+              direction * currentDistance;
+          final currentEnd = currentMap.scaledMowPath[mowPointIdx - 1] +
+              direction * (currentDistance + dashWidth);
+          if ((currentDistance + dashWidth) <= distance) {
+            canvas.drawLine(currentStart, currentEnd, mowPathCurrent);
+          }
+          currentDistance += dashWidth + dashSpace;
+        }
+      }
+    }
+
     // draw dockPath
+    var dockPathBrush = Paint()
+      ..color = colors.onSurface
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.8 * adjustedLineWidth;
+
     var pathDock = Path();
     pathDock = drawLine(pathDock, currentMap.scaledDockPath);
     canvas.drawPath(pathDock, dockPathBrush);
@@ -260,11 +337,6 @@ class PolygonPainter extends CustomPainter {
     var pathSearchWire = Path();
     pathSearchWire = drawLine(pathSearchWire, currentMap.scaledSearchWire);
     canvas.drawPath(pathSearchWire, dockPathBrush);
-
-    // draw preview
-    var pathPreview = Path();
-    pathPreview = drawLine(pathPreview, currentMap.scaledPreview);
-    canvas.drawPath(pathPreview, previewBrush);
 
     if (roverImage != null) {
       double imageSize = 1 * pxToMeter;

@@ -11,6 +11,7 @@ class Robot {
   Offset scaledPosition = Offset(0, 0);
   Offset scaledTarget = Offset(0, 0);
   double angle = 0;
+  int mowPointIdx = 0;
 
   void jsonToClassData(String message){
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
@@ -18,6 +19,8 @@ class Robot {
       position = Offset(decodedMessage['position']['x'], decodedMessage['position']['y']);
       angle = decodedMessage['angle'];
       status = decodedMessage['status'];
+      mowPointIdx = decodedMessage['mowPointIdx'];
+
       //notifyListeners();
     }
     catch(e){

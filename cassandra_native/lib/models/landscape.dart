@@ -4,6 +4,7 @@ import 'dart:convert';
 class Landscape {
   String mapId = '';
   String previewId = '';
+  String mowPathId = '';
   List<Offset> perimeter = [];
   List<Offset> exclusion = [];
   List<List<Offset>> exclusions = [];
@@ -14,13 +15,16 @@ class Landscape {
   List<Offset> shiftedDockPath = [];
   List<Offset> shiftedSearchWire = [];
   List<Offset> shiftedPreview = [];
+  List<Offset> shiftedMowPath = [];
   List<Offset> scaledPerimeter = [];
   List<List<Offset>> scaledExclusions = [];
   List<Offset> scaledDockPath = [];
   List<Offset> scaledSearchWire = [];
   List<Offset> scaledPreview = [];
+  List<Offset> scaledMowPath = [];
   List<List<Offset>> mapForPlot = [[]];
   List<Offset> preview = [];
+  List<Offset> mowPath = [];
   double minX = double.infinity;
   double minY = double.infinity;
   double maxX = double.negativeInfinity;
@@ -35,8 +39,12 @@ class Landscape {
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
     if (decodedMessage["features"][0]["properties"]["name"] == 'current map') {
       _currentMapJsonToClassData(decodedMessage);
-    } else if (decodedMessage["features"][0]["properties"]["name"] == 'current preview') {
+    } else if (decodedMessage["features"][0]["properties"]["name"] ==
+        'current preview') {
       _previewJsonToClassData(decodedMessage);
+    } else if (decodedMessage["features"][0]["properties"]["name"] ==
+        'current mow path') {
+      _mowPathJsonToClassData(decodedMessage);
     }
   }
 
@@ -79,7 +87,7 @@ class Landscape {
   void _previewJsonToClassData(Map decodedMessage) {
     _resetPreviewCoords();
     try {
-      if (decodedMessage['features'][1]['geometry']['coordinates'].isEmpty){
+      if (decodedMessage['features'][1]['geometry']['coordinates'].isEmpty) {
         previewId = decodedMessage["features"][0]["properties"]["id"];
         return;
       }
@@ -94,6 +102,28 @@ class Landscape {
       _shiftPreview();
     } catch (e) {
       print('Invalid preview json data: $e');
+    }
+  }
+
+  void _mowPathJsonToClassData(Map decodedMessage) {
+    _resetMowPathCoords();
+    try {
+      if (decodedMessage['features'][1]['geometry']['coordinates'].isEmpty) {
+        mowPathId = decodedMessage["features"][0]["properties"]["id"];
+        return;
+      }
+      _resetPreviewCoords();
+      for (var feature in decodedMessage["features"]) {
+        if (feature['properties']['name'] == 'mow path') {
+          for (var coord in feature['geometry']['coordinates'][0]) {
+            mowPath.add(Offset(coord[0], coord[1]));
+          }
+        }
+      }
+      mowPathId = decodedMessage["features"][0]["properties"]["id"];
+      _shiftMowPath();
+    } catch (e) {
+      print('Invalid mow path json data: $e');
     }
   }
 
@@ -163,10 +193,22 @@ class Landscape {
   }
 
   void scalePreview(double scale) {
-    scaledPreview = shiftedPreview
-        .map((p) => Offset(p.dx * scale, p.dy * scale))
-        .toList();
+    scaledPreview =
+        shiftedPreview.map((p) => Offset(p.dx * scale, p.dy * scale)).toList();
     scaledPreview = scaledPreview
+        .map((p) => Offset(p.dx + offsetX, p.dy + offsetY))
+        .toList();
+  }
+
+  void _shiftMowPath() {
+    shiftedMowPath =
+        mowPath.map((p) => Offset(p.dx - minX, -(p.dy - minY))).toList();
+  }
+
+  void scaleMowPath(double scale) {
+    scaledMowPath =
+        shiftedMowPath.map((p) => Offset(p.dx * scale, p.dy * scale)).toList();
+    scaledMowPath = scaledMowPath
         .map((p) => Offset(p.dx + offsetX, p.dy + offsetY))
         .toList();
   }
@@ -188,5 +230,13 @@ class Landscape {
 
   void _resetPreviewCoords() {
     preview = [];
+    shiftedPreview = [];
+    scaledPreview = [];
+  }
+
+  void _resetMowPathCoords() {
+    mowPath = [];
+    shiftedMowPath = [];
+    scaledMowPath = [];
   }
 }
