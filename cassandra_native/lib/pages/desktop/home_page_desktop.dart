@@ -25,7 +25,10 @@ class HomePageDesktop extends StatelessWidget {
           Builder(
             builder: (context) {
               return IconButton(
-                icon: const Icon(BootstrapIcons.joystick),
+                icon: Icon(
+                  BootstrapIcons.joystick,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 onPressed: () {
                   Scaffold.of(context).openEndDrawer();
                 },
