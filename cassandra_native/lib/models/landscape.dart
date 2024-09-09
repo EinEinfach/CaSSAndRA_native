@@ -22,7 +22,7 @@ class Landscape {
   List<Offset> scaledSearchWire = [];
   List<Offset> scaledPreview = [];
   List<Offset> scaledMowPath = [];
-  List<List<Offset>> mapForPlot = [[]];
+  List<List<Offset>> shapesBouquet = [[]];
   List<Offset> preview = [];
   List<Offset> mowPath = [];
   double minX = double.infinity;
@@ -56,24 +56,24 @@ class Landscape {
           for (var coord in feature['geometry']['coordinates'][0]) {
             perimeter.add(Offset(coord[0], coord[1]));
           }
-          mapForPlot[0] = perimeter;
+          shapesBouquet[0] = perimeter;
         } else if (feature['properties']['name'] == 'exclusion') {
           exclusion = [];
           for (var coord in feature['geometry']['coordinates'][0]) {
             exclusion.add(Offset(coord[0], coord[1]));
           }
-          mapForPlot.add(exclusion);
+          shapesBouquet.add(exclusion);
           exclusions.add(exclusion);
         } else if (feature['properties']['name'] == 'dockpoints') {
           for (var coord in feature['geometry']['coordinates']) {
             dockPath.add(Offset(coord[0], coord[1]));
           }
-          mapForPlot.add(dockPath);
+          shapesBouquet.add(dockPath);
         } else if (feature['properties']['name'] == 'search wire') {
           for (var coord in feature['geometry']['coordinates']) {
             searchWire.add(Offset(coord[0], coord[1]));
           }
-          mapForPlot.add(searchWire);
+          shapesBouquet.add(searchWire);
         }
       }
       mapId = decodedMessage["features"][0]["properties"]["id"];
@@ -128,7 +128,7 @@ class Landscape {
   }
 
   void _findMinAndMax() {
-    for (var polygon in mapForPlot) {
+    for (var polygon in shapesBouquet) {
       for (var point in polygon) {
         if (point.dx < minX) minX = point.dx;
         if (point.dy < minY) minY = point.dy;
@@ -219,7 +219,7 @@ class Landscape {
     exclusions = [];
     dockPath = [];
     searchWire = [];
-    mapForPlot = [[]];
+    shapesBouquet = [[]];
     minX = double.infinity;
     minY = double.infinity;
     maxX = double.negativeInfinity;

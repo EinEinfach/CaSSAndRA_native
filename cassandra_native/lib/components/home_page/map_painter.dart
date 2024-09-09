@@ -4,31 +4,36 @@ import 'dart:math';
 
 import 'package:cassandra_native/models/landscape.dart';
 
-
 // later make rover image selectable in settings
 const minRoverImageSize = 20.0;
 
 class MapPainter extends CustomPainter {
+  final bool interactiveViewerActive;
   final Landscape currentMap;
   final ColorScheme colors;
   final TransformationController transformationController;
+  final Matrix4 transformationControllerValue;
   final double lineWidth;
   final ui.Image? roverImage;
   final Offset roverPosition;
   final double roverRotation;
   final double pxToMeter;
   final int mowPointIdx;
+  final List<Offset> lassoSelection;
 
   const MapPainter({
+    required this.interactiveViewerActive,
     required this.currentMap,
     required this.colors,
     required this.transformationController,
+    required this.transformationControllerValue,
     required this.lineWidth,
     required this.roverImage,
     required this.roverPosition,
     required this.roverRotation,
     required this.pxToMeter,
     required this.mowPointIdx,
+    required this.lassoSelection,
   });
 
   Path drawPolygon(Path path, List<Offset> points) {
@@ -37,7 +42,7 @@ class MapPainter extends CustomPainter {
       for (var point in points.skip(1)) {
         path.lineTo(point.dx, point.dy);
       }
-      path.close;
+      path.close();
     }
     return path;
   }
@@ -54,8 +59,16 @@ class MapPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final scale = transformationController.value.getMaxScaleOnAxis();
+    late double scale;
+    if (interactiveViewerActive) {
+      scale = transformationController.value.getMaxScaleOnAxis();
+    } else {
+      scale = transformationControllerValue.getMaxScaleOnAxis();
+      canvas.transform(transformationControllerValue.storage);
+    }
+    
     final adjustedLineWidth = lineWidth / scale;
+    //canvas.transform(transformationControllerValue.storage);
 
     // draw perimeter
     var polygonBrush = Paint()
@@ -162,6 +175,18 @@ class MapPainter extends CustomPainter {
     pathSearchWire = drawLine(pathSearchWire, currentMap.scaledSearchWire);
     canvas.drawPath(pathSearchWire, dockPathBrush);
 
+    // draw lassoSelection
+    if (lassoSelection.isNotEmpty) {
+      var lassoSelectionBrush = Paint()
+        ..color = Colors.black
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.5 * adjustedLineWidth;
+      Path pathLassoSelection = Path();
+      pathLassoSelection = drawPolygon(pathLassoSelection, lassoSelection);
+      canvas.drawPath(pathLassoSelection, lassoSelectionBrush);
+    }
+
+    // draw rower image
     if (roverImage != null) {
       double imageSize = 1 * pxToMeter;
       imageSize = max(imageSize, minRoverImageSize);

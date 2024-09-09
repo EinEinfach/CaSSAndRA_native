@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'dart:convert';
+import 'dart:math';
+import 'package:vector_math/vector_math_64.dart' as vmath;
 
 import 'package:cassandra_native/components/home_page/map_painter.dart';
 import 'package:cassandra_native/components/home_page/map_button.dart';
@@ -23,15 +25,17 @@ class MapView extends StatefulWidget {
 
 class _MapViewState extends State<MapView> {
   String serverData = '';
-  List<List<Offset>> mapForPlot = [[]];
   final TransformationController _transformationController =
       TransformationController();
+  Matrix4 currentTransformation = Matrix4.identity();
   double baseLineWidth = 2;
   ui.Image? roverImage;
   Offset roverPostion = const Offset(0, 0);
   double roverRotation = 0;
   late IconData playButtonIcon;
   bool focusOnMowerActive = false;
+  bool lassoSelectionActive = false;
+  List<Offset> lassoSelection = [];
 
   @override
   void dispose() {
@@ -47,7 +51,7 @@ class _MapViewState extends State<MapView> {
     _loadImage('lib/images/rover0grad.png');
     _registerCallback();
     setState(() {
-      mapForPlot = widget.server.currentMap.mapForPlot;
+      //mapForPlot = widget.server.currentMap.mapForPlot;
       playButtonIcon = _createPlayButtonIcon();
     });
   }
@@ -80,7 +84,7 @@ class _MapViewState extends State<MapView> {
         }
       } else if (topic.contains('/coords')) {
         widget.server.currentMap.jsonToClassData(message);
-        mapForPlot = widget.server.currentMap.mapForPlot;
+        //mapForPlot = widget.server.currentMap.mapForPlot;
       }
     });
   }
@@ -155,38 +159,97 @@ class _MapViewState extends State<MapView> {
       widget.server.currentMap.scaleMowPath(scale);
       widget.server.robot
           .scalePosition(scale, width, height, widget.server.currentMap);
-      
+
       // focus on mower
       if (focusOnMowerActive) {
         focusOnMower(widget.server.robot.scaledPosition);
       }
 
       return Stack(children: [
-        InteractiveViewer(
-          transformationController: _transformationController,
-          boundaryMargin: const EdgeInsets.all(double.infinity),
-          minScale: 0.8,
-          maxScale: maxZoom,
-          child: SizedBox(
-            width: screenSize.width,
-            height: screenSize.height,
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: CustomPaint(
-                painter: MapPainter(
-                  currentMap: widget.server.currentMap,
-                  colors: Theme.of(context).colorScheme,
+        GestureDetector(
+          onPanStart: (_) {
+            if (lassoSelectionActive) {
+              setState(() {
+                lassoSelection = [];
+              });
+            }
+          },
+          onPanUpdate: (details) {
+            if (lassoSelectionActive) {
+              setState(() {
+                RenderBox renderBox = context.findRenderObject() as RenderBox;
+                Offset localPosition =
+                    renderBox.globalToLocal(details.globalPosition);
+
+                Offset transformedPosition = _applyInverseMatrixTransformation(
+                    localPosition, currentTransformation);
+                lassoSelection.add(transformedPosition);
+                lassoSelection = simplifyPath(lassoSelection, 0.3);
+              });
+            }
+          },
+          onPanEnd: (_) {
+            if (lassoSelectionActive) {
+              setState(() {
+                lassoSelectionActive = false;
+                //lassoSelection = simplifyPath(lassoSelection, 5.0);
+              });
+            }
+          },
+          child: !lassoSelectionActive
+              ? InteractiveViewer(
                   transformationController: _transformationController,
-                  lineWidth: baseLineWidth,
-                  roverImage: roverImage,
-                  roverPosition: widget.server.robot.scaledPosition,
-                  roverRotation: widget.server.robot.angle,
-                  pxToMeter: scale,
-                  mowPointIdx: widget.server.robot.mowPointIdx,
+                  boundaryMargin: const EdgeInsets.all(double.infinity),
+                  minScale: 0.8,
+                  maxScale: maxZoom,
+                  child: SizedBox(
+                    width: screenSize.width,
+                    height: screenSize.height,
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: CustomPaint(
+                        painter: MapPainter(
+                          interactiveViewerActive: !lassoSelectionActive,
+                          currentMap: widget.server.currentMap,
+                          colors: Theme.of(context).colorScheme,
+                          transformationController: _transformationController,
+                          transformationControllerValue:
+                              _transformationController.value,
+                          lineWidth: baseLineWidth,
+                          roverImage: roverImage,
+                          roverPosition: widget.server.robot.scaledPosition,
+                          roverRotation: widget.server.robot.angle,
+                          pxToMeter: scale,
+                          mowPointIdx: widget.server.robot.mowPointIdx,
+                          lassoSelection: lassoSelection,
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              : SizedBox(
+                  width: screenSize.width,
+                  height: screenSize.height,
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: CustomPaint(
+                      painter: MapPainter(
+                        interactiveViewerActive: !lassoSelectionActive,
+                        currentMap: widget.server.currentMap,
+                        colors: Theme.of(context).colorScheme,
+                        transformationController: _transformationController,
+                        transformationControllerValue: currentTransformation,
+                        lineWidth: baseLineWidth,
+                        roverImage: roverImage,
+                        roverPosition: widget.server.robot.scaledPosition,
+                        roverRotation: widget.server.robot.angle,
+                        pxToMeter: scale,
+                        mowPointIdx: widget.server.robot.mowPointIdx,
+                        lassoSelection: lassoSelection,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
         ),
         PlayButton(icon: playButtonIcon),
         Row(
@@ -196,6 +259,7 @@ class _MapViewState extends State<MapView> {
               icon: Icons.zoom_in_map,
               onPressed: () {
                 focusOnMowerActive = false;
+                lassoSelectionActive = false;
                 _transformationController.value = Matrix4.identity();
               },
             ),
@@ -203,12 +267,81 @@ class _MapViewState extends State<MapView> {
               icon: Icons.center_focus_weak_outlined,
               onPressed: () {
                 focusOnMowerActive = !focusOnMowerActive;
+                lassoSelectionActive = false;
                 focusOnMower(widget.server.robot.scaledPosition);
+              },
+            ),
+            MapButton(
+              icon: Icons.gesture_outlined,
+              onPressed: () {
+                currentTransformation = _transformationController.value.clone();
+                focusOnMowerActive = false;
+                lassoSelectionActive = !lassoSelectionActive;
+                lassoSelection = [];
+                setState(() {});
               },
             ),
           ],
         ),
       ]);
     });
+  }
+
+  // Ramer-Douglas-Peucker Algorithmus zur Vereinfachung des Polygons
+  List<Offset> simplifyPath(List<Offset> points, double tolerance) {
+    if (points.length < 3) return points;
+    return _ramerDouglasPeucker(points, tolerance);
+  }
+
+  // Der Ramer-Douglas-Peucker Algorithmus rekursiv
+  List<Offset> _ramerDouglasPeucker(List<Offset> points, double epsilon) {
+    if (points.length < 2) return points;
+
+    double dmax = 0.0;
+    int index = 0;
+    for (int i = 1; i < points.length - 1; i++) {
+      double d = _perpendicularDistance(
+          points[i], points[0], points[points.length - 1]);
+      if (d > dmax) {
+        index = i;
+        dmax = d;
+      }
+    }
+
+    if (dmax > epsilon) {
+      List<Offset> recResults1 =
+          _ramerDouglasPeucker(points.sublist(0, index + 1), epsilon);
+      List<Offset> recResults2 =
+          _ramerDouglasPeucker(points.sublist(index), epsilon);
+
+      return recResults1.sublist(0, recResults1.length - 1) + recResults2;
+    } else {
+      return [points[0], points[points.length - 1]];
+    }
+  }
+
+  // Berechne den Abstand eines Punktes zur Linie
+  double _perpendicularDistance(
+      Offset point, Offset lineStart, Offset lineEnd) {
+    double dx = lineEnd.dx - lineStart.dx;
+    double dy = lineEnd.dy - lineStart.dy;
+    double mag = sqrt(dx * dx + dy * dy);
+    if (mag > 0.0) {
+      dx /= mag;
+      dy /= mag;
+    }
+    double pvx = point.dx - lineStart.dx;
+    double pvy = point.dy - lineStart.dy;
+    double pvdot = dx * pvx + dy * pvy;
+    double ax = pvx - pvdot * dx;
+    double ay = pvy - pvdot * dy;
+    return sqrt(ax * ax + ay * ay);
+  }
+
+  Offset _applyInverseMatrixTransformation(Offset point, Matrix4 matrix) {
+    final vmath.Vector3 transformed3D = vmath.Vector3(point.dx, point.dy, 0);
+    Matrix4 invertedMatrix = Matrix4.inverted(matrix);
+    final vmath.Vector3 result = invertedMatrix.transform3(transformed3D);
+    return Offset(result.x, result.y);
   }
 }
