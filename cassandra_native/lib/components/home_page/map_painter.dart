@@ -2,38 +2,31 @@ import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'dart:math';
 
+import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/models/landscape.dart';
+import 'package:cassandra_native/models/robot.dart';
 
-// later make rover image selectable in settings
+// should be refactored to make rover size selectable
 const minRoverImageSize = 20.0;
+const double baseLineWidth = 2.0;
 
 class MapPainter extends CustomPainter {
-  final bool interactiveViewerActive;
-  final Landscape currentMap;
-  final ColorScheme colors;
-  final TransformationController transformationController;
-  final Matrix4 transformationControllerValue;
-  final double lineWidth;
+  final Offset offset;
+  final double scale;
   final ui.Image? roverImage;
-  final Offset roverPosition;
-  final double roverRotation;
-  final double pxToMeter;
-  final int mowPointIdx;
+  final Server currentServer;
   final List<Offset> lassoSelection;
+  final List<Offset> lassoSelectionPoints;
+  final ColorScheme colors;
 
   const MapPainter({
-    required this.interactiveViewerActive,
-    required this.currentMap,
-    required this.colors,
-    required this.transformationController,
-    required this.transformationControllerValue,
-    required this.lineWidth,
+    required this.offset,
+    required this.scale,
     required this.roverImage,
-    required this.roverPosition,
-    required this.roverRotation,
-    required this.pxToMeter,
-    required this.mowPointIdx,
+    required this.currentServer,
     required this.lassoSelection,
+    required this.lassoSelectionPoints,
+    required this.colors,
   });
 
   Path drawPolygon(Path path, List<Offset> points) {
@@ -57,18 +50,34 @@ class MapPainter extends CustomPainter {
     return path;
   }
 
+  Path drawDashedLine(
+      Path path, List<Offset> points, double dashWidth, double dashSpace) {
+    if (points.length >= 2) {
+      double distance = (points[1] - points[0]).distance;
+      Offset direction = (points[1] - points[0]) / distance;
+      double currentDistance = 0;
+      while (currentDistance < distance) {
+        final currentStart = points[0] + direction * currentDistance;
+        final currentEnd =
+            points[0] + direction * (currentDistance + dashWidth);
+        if ((currentDistance + dashWidth) <= distance) {
+          path = drawLine(path, [currentStart, currentEnd]);
+        }
+        currentDistance += dashWidth + dashSpace;
+      }
+    }
+    return path;
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
-    late double scale;
-    if (interactiveViewerActive) {
-      scale = transformationController.value.getMaxScaleOnAxis();
-    } else {
-      scale = transformationControllerValue.getMaxScaleOnAxis();
-      canvas.transform(transformationControllerValue.storage);
-    }
-    
-    final adjustedLineWidth = lineWidth / scale;
-    //canvas.transform(transformationControllerValue.storage);
+    canvas.save();
+    canvas.translate(offset.dx, offset.dy);
+    canvas.scale(scale);
+
+    final adjustedLineWidth = baseLineWidth / scale;
+    final Landscape currentMap = currentServer.currentMap;
+    final Robot robot = currentServer.robot;
 
     // draw perimeter
     var polygonBrush = Paint()
@@ -76,7 +85,7 @@ class MapPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = adjustedLineWidth;
 
-    var pathPerimeter = Path();
+    Path pathPerimeter = Path();
     pathPerimeter = drawPolygon(pathPerimeter, currentMap.scaledPerimeter);
     canvas.drawPath(pathPerimeter, polygonBrush);
 
@@ -90,7 +99,7 @@ class MapPainter extends CustomPainter {
       ..color = colors.primary
       ..style = PaintingStyle.fill;
 
-    var pathExclusions = Path();
+    Path pathExclusions = Path();
     for (var exclusion in currentMap.scaledExclusions) {
       pathExclusions = drawPolygon(pathExclusions, exclusion);
     }
@@ -99,11 +108,11 @@ class MapPainter extends CustomPainter {
 
     // draw preview
     var previewBrush = Paint()
-      ..color = Color.fromARGB(255, 113, 161, 143)
+      ..color = const Color.fromARGB(255, 113, 161, 143)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.5 * adjustedLineWidth;
 
-    var pathPreview = Path();
+    Path pathPreview = Path();
     pathPreview = drawLine(pathPreview, currentMap.scaledPreview);
     canvas.drawPath(pathPreview, previewBrush);
 
@@ -125,38 +134,30 @@ class MapPainter extends CustomPainter {
 
     if (currentMap.scaledMowPath.isNotEmpty) {
       //finished
-      var pathMowPathFinished = Path();
+      Path pathMowPathFinished = Path();
       pathMowPathFinished = drawLine(pathMowPathFinished,
-          currentMap.scaledMowPath.sublist(0, mowPointIdx + 1));
+          currentMap.scaledMowPath.sublist(0, robot.mowPointIdx + 1));
       canvas.drawPath(pathMowPathFinished, mowPathFinishedBrush);
 
       // unfinished
-      var pathMowPath = Path();
-      pathMowPath =
-          drawLine(pathMowPath, currentMap.scaledMowPath.sublist(mowPointIdx));
+      Path pathMowPath = Path();
+      pathMowPath = drawLine(
+          pathMowPath, currentMap.scaledMowPath.sublist(robot.mowPointIdx));
       canvas.drawPath(pathMowPath, mowPathBrush);
 
       // current
-      if (mowPointIdx > 0) {
-        double dashWidth = 2.0;
-        double dashSpace = 2.0;
-        double distance = (currentMap.scaledMowPath[mowPointIdx] -
-                currentMap.scaledMowPath[mowPointIdx - 1])
-            .distance;
-        Offset direction = (currentMap.scaledMowPath[mowPointIdx] -
-                currentMap.scaledMowPath[mowPointIdx - 1]) /
-            distance;
-        double currentDistance = 0;
-        while (currentDistance < distance) {
-          final currentStart = currentMap.scaledMowPath[mowPointIdx - 1] +
-              direction * currentDistance;
-          final currentEnd = currentMap.scaledMowPath[mowPointIdx - 1] +
-              direction * (currentDistance + dashWidth);
-          if ((currentDistance + dashWidth) <= distance) {
-            canvas.drawLine(currentStart, currentEnd, mowPathCurrent);
-          }
-          currentDistance += dashWidth + dashSpace;
-        }
+      if (robot.mowPointIdx > 0) {
+        var pathMowPathCurrent = Path();
+        pathMowPathCurrent = drawDashedLine(
+          pathMowPathCurrent,
+          [
+            currentMap.scaledMowPath[robot.mowPointIdx - 1],
+            currentMap.scaledMowPath[robot.mowPointIdx]
+          ],
+          2.0,
+          2.0,
+        );
+        canvas.drawPath(pathMowPathCurrent, mowPathCurrent);
       }
     }
 
@@ -166,19 +167,19 @@ class MapPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8 * adjustedLineWidth;
 
-    var pathDock = Path();
+    Path pathDock = Path();
     pathDock = drawLine(pathDock, currentMap.scaledDockPath);
     canvas.drawPath(pathDock, dockPathBrush);
 
     // draw searchWire
-    var pathSearchWire = Path();
+    Path pathSearchWire = Path();
     pathSearchWire = drawLine(pathSearchWire, currentMap.scaledSearchWire);
     canvas.drawPath(pathSearchWire, dockPathBrush);
 
     // draw lassoSelection
     if (lassoSelection.isNotEmpty) {
       var lassoSelectionBrush = Paint()
-        ..color = Colors.black
+        ..color = colors.onSurface.withOpacity(0.4)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 0.5 * adjustedLineWidth;
       Path pathLassoSelection = Path();
@@ -186,29 +187,42 @@ class MapPainter extends CustomPainter {
       canvas.drawPath(pathLassoSelection, lassoSelectionBrush);
     }
 
-    // draw rower image
+    // draw lassoSelectionPoints
+    if (lassoSelectionPoints.isNotEmpty) {
+      var lassoSelectionPointsBrush = Paint()
+        ..color = colors.onSurface.withOpacity(0.5)
+        ..style = PaintingStyle.fill;
+      for (Offset point in lassoSelectionPoints) {
+        canvas.drawCircle(point, 2/scale, lassoSelectionPointsBrush);
+      }
+    }
+
+
+    // draw rover image
     if (roverImage != null) {
-      double imageSize = 1 * pxToMeter;
+      double imageSize = 1 * scale;
       imageSize = max(imageSize, minRoverImageSize);
 
       // rotate rover image
       canvas.save();
-      canvas.translate(roverPosition.dx, roverPosition.dy);
-      canvas.rotate(-roverRotation);
-      canvas.translate(-roverPosition.dx, -roverPosition.dy);
+      canvas.translate(robot.scaledPosition.dx, robot.scaledPosition.dy);
+      canvas.rotate(-robot.angle);
+      canvas.translate(-robot.scaledPosition.dx, -robot.scaledPosition.dy);
 
       final rect = Rect.fromCenter(
-          center: roverPosition, width: imageSize, height: imageSize);
+          center: robot.scaledPosition, width: imageSize, height: imageSize);
       paintImage(
           canvas: canvas, rect: rect, image: roverImage!, fit: BoxFit.cover);
 
       // restore saved canvas
       canvas.restore();
     }
+
+    canvas.restore();
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return true;
   }
 }
