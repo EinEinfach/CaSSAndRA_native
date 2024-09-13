@@ -50,3 +50,13 @@ double _perpendicularDistance(Offset point, Offset lineStart, Offset lineEnd) {
   double ay = pvy - pvdot * dy;
   return sqrt(ax * ax + ay * ay);
 }
+
+// Prüfe ob der Punkt innerhalb des Polygons liegt
+bool isPointInsidePolygon(Offset point, List<Offset> polygon) {
+  Path path = Path()..moveTo(polygon[0].dx, polygon[0].dy);
+  for (int i = 1; i < polygon.length; i++) {
+    path.lineTo(polygon[i].dx, polygon[i].dy);
+  }
+  path.close();
+  return path.contains(point);
+}

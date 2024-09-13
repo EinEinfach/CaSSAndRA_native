@@ -17,6 +17,8 @@ class MapPainter extends CustomPainter {
   final Server currentServer;
   final List<Offset> lassoSelection;
   final List<Offset> lassoSelectionPoints;
+  final bool lassoPointSelected;
+  final bool lassoSelected;
   final ColorScheme colors;
 
   const MapPainter({
@@ -26,6 +28,8 @@ class MapPainter extends CustomPainter {
     required this.currentServer,
     required this.lassoSelection,
     required this.lassoSelectionPoints,
+    required this.lassoPointSelected,
+    required this.lassoSelected,
     required this.colors,
   });
 
@@ -179,8 +183,8 @@ class MapPainter extends CustomPainter {
     // draw lassoSelection
     if (lassoSelection.isNotEmpty) {
       var lassoSelectionBrush = Paint()
-        ..color = colors.onSurface.withOpacity(0.4)
-        ..style = PaintingStyle.stroke
+        ..color = lassoPointSelected? colors.error : colors.onSurface.withOpacity(0.4)
+        ..style = lassoSelected? PaintingStyle.fill : PaintingStyle.stroke
         ..strokeWidth = 0.5 * adjustedLineWidth;
       Path pathLassoSelection = Path();
       pathLassoSelection = drawPolygon(pathLassoSelection, lassoSelection);
@@ -190,7 +194,7 @@ class MapPainter extends CustomPainter {
     // draw lassoSelectionPoints
     if (lassoSelectionPoints.isNotEmpty) {
       var lassoSelectionPointsBrush = Paint()
-        ..color = colors.onSurface.withOpacity(0.5)
+        ..color = lassoPointSelected? colors.error : colors.onSurface.withOpacity(0.5)
         ..style = PaintingStyle.fill;
       for (Offset point in lassoSelectionPoints) {
         canvas.drawCircle(point, 2/scale, lassoSelectionPointsBrush);

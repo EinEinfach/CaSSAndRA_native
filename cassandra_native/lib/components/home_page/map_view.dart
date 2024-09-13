@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'dart:ui' as ui;
@@ -30,6 +31,9 @@ class _MapViewState extends State<MapView> {
   bool lassoSelectionActive = false;
   List<Offset> lassoSelection = [];
   List<Offset> lassoSelectionPoints = [];
+  int? lassoSelectedPointIndex;
+  bool lassoSelected = false;
+  Offset? lastLassoPosition;
 
   //ui
   ui.Image? roverImage;
@@ -121,151 +125,237 @@ class _MapViewState extends State<MapView> {
     }
   }
 
+  void _lookForSelectedPointIndex(LongPressStartDetails details) {
+    final Offset scaledAndMovedPosition =
+        (details.localPosition - _offset) / _scale;
+    for (int i = 0; i < lassoSelection.length; i++) {
+      if ((lassoSelection[i] - scaledAndMovedPosition).distance < 20) {
+        lassoSelectedPointIndex = i;
+        return;
+      }
+    }
+    if (isPointInsidePolygon(scaledAndMovedPosition, lassoSelection)) {
+      lassoSelected = true;
+      lastLassoPosition = scaledAndMovedPosition;
+    }
+  }
+
+  void _moveSelectedPoint(LongPressMoveUpdateDetails details) {
+    final Offset scaledAndMovedPosition =
+        (details.localPosition - _offset) / _scale;
+    lassoSelection[lassoSelectedPointIndex!] = scaledAndMovedPosition;
+    lassoSelectionPoints[lassoSelectedPointIndex!] = scaledAndMovedPosition;
+  }
+
+  void _moveLasso(LongPressMoveUpdateDetails details) {
+    final Offset scaledAndMovedPosition =
+        (details.localPosition - _offset) / _scale;
+    final Offset delta = scaledAndMovedPosition - lastLassoPosition!;
+    lassoSelection = lassoSelection.map((point) => point + delta).toList();
+    lassoSelectionPoints =
+        lassoSelectionPoints.map((point) => point + delta).toList();
+    lastLassoPosition = scaledAndMovedPosition;
+  }
+
+  void _checkCancelButton() {
+    lassoSelectionActive = false;
+    focusOnMowerActive = false;
+    lassoSelection = [];
+    lassoSelectionPoints = [];
+    lassoSelectedPointIndex = null;
+    lassoSelected = false;
+  }
+
   @override
   Widget build(BuildContext context) {
     //Size screenSize = MediaQuery.of(context).size;
-    return LayoutBuilder(builder: (context, constraints) {
-      // calc new min an max coords
-      final shiftedMaxX = widget.server.currentMap.shiftedMaxX;
-      final shiftedMaxY = widget.server.currentMap.shiftedMaxY;
+    return Listener(
+      onPointerSignal: (pointerSignal) {
+        if (pointerSignal is PointerScrollEvent) {
+          setState(() {
+            double scrollZoom = (pointerSignal.scrollDelta.dy > 0) ? 0.9 : 1.1;
+            _scale *= scrollZoom;
+          });
+        }
+      },
+      child: LayoutBuilder(builder: (context, constraints) {
+        // calc new min an max coords
+        final shiftedMaxX = widget.server.currentMap.shiftedMaxX;
+        final shiftedMaxY = widget.server.currentMap.shiftedMaxY;
 
-      // calc scale factor 1:1 depends on container size
-      double mapScale = 1.0;
-      if (shiftedMaxX / shiftedMaxY >
-          constraints.maxWidth / constraints.maxHeight) {
-        mapScale = constraints.maxWidth / shiftedMaxX;
-      } else {
-        mapScale = constraints.maxHeight / shiftedMaxY;
-      }
+        // calc scale factor 1:1 depends on container size
+        double mapScale = 1.0;
+        if (shiftedMaxX / shiftedMaxY >
+            constraints.maxWidth / constraints.maxHeight) {
+          mapScale = constraints.maxWidth / shiftedMaxX;
+        } else {
+          mapScale = constraints.maxHeight / shiftedMaxY;
+        }
 
-      // calc coords to canvas coords on 1:1 scale
-      widget.server.currentMap
-          .scaleShapes(mapScale, constraints.maxWidth, constraints.maxHeight);
-      widget.server.currentMap.scalePreview(mapScale);
-      widget.server.currentMap.scaleMowPath(mapScale);
-      widget.server.robot.scalePosition(mapScale, constraints.maxWidth,
-          constraints.maxHeight, widget.server.currentMap);
+        // calc coords to canvas coords on 1:1 scale
+        widget.server.currentMap
+            .scaleShapes(mapScale, constraints.maxWidth, constraints.maxHeight);
+        widget.server.currentMap.scalePreview(mapScale);
+        widget.server.currentMap.scaleMowPath(mapScale);
+        widget.server.robot.scalePosition(mapScale, constraints.maxWidth,
+            constraints.maxHeight, widget.server.currentMap);
 
-      // zoom focus on mower
-      if (focusOnMowerActive) {
-        _focusOnMower();
-      }
+        // zoom focus on mower
+        if (focusOnMowerActive) {
+          _focusOnMower();
+        }
 
-      return Stack(
-        children: [
-          GestureDetector(
-            onScaleStart: (details) {
-              //selection or zoom and
-              if (lassoSelectionActive) {
-                lassoSelection = [];
-                lassoSelectionPoints = [];
-              } else {
-                _previousScale = _scale;
-                _focalPoint = details.focalPoint;
-                _initialFocalPoint = details.focalPoint;
-              }
-            },
-            onScaleUpdate: (details) {
-              setState(() {
-                //selection or zoom and pan
-
-                //selection
+        return Stack(
+          children: [
+            GestureDetector(
+              onScaleStart: (details) {
+                //selection or zoom and
                 if (lassoSelectionActive) {
-                  RenderBox box = context.findRenderObject() as RenderBox;
-                  Offset widgetGlobalPosition = box.localToGlobal(Offset.zero);
-                  Offset selection =
-                      (details.focalPoint - widgetGlobalPosition - _offset) /
-                          _scale;
-                  lassoSelection.add(selection);
-
-                  //zoom and pan
+                  lassoSelection = [];
+                  lassoSelectionPoints = [];
                 } else {
-                  //limit sensivity of zoom
-                  double newScale = (_previousScale * details.scale)
-                      .clamp(0.5, double.infinity);
-
-                  //calc new offset to center zoom between focal point
-                  Offset focalPointDelta = _initialFocalPoint - _offset;
-                  _offset =
-                      _offset - (focalPointDelta * (newScale / _scale - 1));
-                  _scale = _previousScale * details.scale;
-
-                  //if map is just moved, callc new offset
-                  if (details.scale == 1.0) {
-                    _offset += details.focalPoint - _focalPoint;
-                    _focalPoint = details.focalPoint;
-                  }
-
-                  //set new scale
-                  _scale = newScale;
+                  _previousScale = _scale;
+                  _focalPoint = details.focalPoint;
+                  _initialFocalPoint = details.focalPoint;
                 }
-              });
-            },
-            onScaleEnd: (_) {
-              if (lassoSelectionActive) {
+              },
+              onScaleUpdate: (details) {
                 setState(() {
-                  lassoSelectionActive = false;
-                  lassoSelection = simplifyPath(lassoSelection, 2.0/_scale);
-                  lassoSelectionPoints = lassoSelection;
+                  //selection or zoom and pan
+
+                  //selection
+                  if (lassoSelectionActive) {
+                    RenderBox box = context.findRenderObject() as RenderBox;
+                    Offset widgetGlobalPosition =
+                        box.localToGlobal(Offset.zero);
+                    Offset selection =
+                        (details.focalPoint - widgetGlobalPosition - _offset) /
+                            _scale;
+                    lassoSelection.add(selection);
+
+                    //zoom and pan
+                  } else {
+                    //limit sensivity of zoom
+                    double newScale = (_previousScale * details.scale)
+                        .clamp(0.5, double.infinity);
+
+                    //calc new offset to center zoom between focal point
+                    Offset focalPointDelta = _initialFocalPoint - _offset;
+                    _offset =
+                        _offset - (focalPointDelta * (newScale / _scale - 1));
+                    _scale = _previousScale * details.scale;
+
+                    //if map is just moved, callc new offset
+                    if (details.scale == 1.0) {
+                      _offset += details.focalPoint - _focalPoint;
+                      _focalPoint = details.focalPoint;
+                    }
+
+                    //set new scale
+                    _scale = newScale;
+                  }
                 });
-              }
-            },
-            child: SizedBox(
-              width: constraints.maxWidth,
-              height: constraints.maxHeight,
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: CustomPaint(
-                  painter: MapPainter(
-                      offset: _offset,
-                      scale: _scale,
-                      roverImage: roverImage,
-                      currentServer: widget.server,
-                      lassoSelection: lassoSelection,
-                      lassoSelectionPoints: lassoSelectionPoints,
-                      colors: Theme.of(context).colorScheme),
+              },
+              onScaleEnd: (_) {
+                if (lassoSelectionActive) {
+                  setState(() {
+                    lassoSelectionActive = false;
+                    lassoSelection = simplifyPath(lassoSelection, 2.0 / _scale);
+                    lassoSelectionPoints = lassoSelection;
+                  });
+                }
+              },
+              onLongPressStart: (details) {
+                if (lassoSelection.isNotEmpty) {
+                  _lookForSelectedPointIndex(details);
+                  setState(() {});
+                }
+              },
+              onLongPressMoveUpdate: (details) {
+                if (lassoSelectedPointIndex != null) {
+                  _moveSelectedPoint(details);
+                  setState(() {});
+                } else if (lassoSelected) {
+                  _moveLasso(details);
+                  setState(() {});
+                }
+              },
+              onLongPressEnd: (_) {
+                lassoSelectedPointIndex = null;
+                lassoSelected = false;
+                setState(() {});
+              },
+              child: SizedBox(
+                width: constraints.maxWidth,
+                height: constraints.maxHeight,
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: CustomPaint(
+                    painter: MapPainter(
+                        offset: _offset,
+                        scale: _scale,
+                        roverImage: roverImage,
+                        currentServer: widget.server,
+                        lassoSelection: lassoSelection,
+                        lassoSelectionPoints: lassoSelectionPoints,
+                        lassoPointSelected:
+                            (lassoSelectedPointIndex == null) ? false : true,
+                        lassoSelected: lassoSelected,
+                        colors: Theme.of(context).colorScheme),
+                  ),
                 ),
               ),
             ),
-          ),
-          PlayButton(icon: playButtonIcon),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              MapButton(
-                icon: Icons.zoom_in_map,
-                onPressed: () {
-                  focusOnMowerActive = false;
-                  lassoSelectionActive = false;
-                  _offset = Offset.zero;
-                  _scale = 1.0;
-                  setState(() {});
-                },
-              ),
-              MapButton(
-                icon: Icons.center_focus_weak_outlined,
-                onPressed: () {
-                  focusOnMowerActive = !focusOnMowerActive;
-                  lassoSelectionActive = false;
-                  _focusOnMower();
-                  setState(() {});
-                },
-              ),
-              MapButton(
-                icon: Icons.gesture_outlined,
-                onPressed: () {
-                  //currentTransformation = _transformationController.value.clone();
-                  focusOnMowerActive = false;
-                  lassoSelectionActive = !lassoSelectionActive;
-                  lassoSelection = [];
-                  lassoSelectionPoints = [];
-                  setState(() {});
-                },
-              ),
-            ],
-          ),
-        ],
-      );
-    });
+            PlayButton(icon: playButtonIcon),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                MapButton(
+                  icon: Icons.zoom_in_map,
+                  isActive: false,
+                  onPressed: () {
+                    focusOnMowerActive = false;
+                    lassoSelectionActive = false;
+                    _offset = Offset.zero;
+                    _scale = 1.0;
+                    setState(() {});
+                  },
+                ),
+                MapButton(
+                  icon: Icons.center_focus_weak_outlined,
+                  isActive: focusOnMowerActive,
+                  onPressed: () {
+                    focusOnMowerActive = !focusOnMowerActive;
+                    lassoSelectionActive = false;
+                    _focusOnMower();
+                    setState(() {});
+                  },
+                ),
+                MapButton(
+                  icon: Icons.gesture_outlined,
+                  isActive: lassoSelectionActive,
+                  onPressed: () {
+                    //currentTransformation = _transformationController.value.clone();
+                    focusOnMowerActive = false;
+                    lassoSelectionActive = !lassoSelectionActive;
+                    lassoSelection = [];
+                    lassoSelectionPoints = [];
+                    setState(() {});
+                  },
+                ),
+                MapButton(
+                  icon: Icons.cancel,
+                  isActive: false,
+                  onPressed: () {
+                    _checkCancelButton();
+                    setState(() {});
+                  },
+                ),
+              ],
+            ),
+          ],
+        );
+      }),
+    );
   }
 }
