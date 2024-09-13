@@ -5,9 +5,11 @@ import 'package:provider/provider.dart';
 import 'package:cassandra_native/data/app_data.dart';
 import 'package:cassandra_native/theme/theme_provider.dart';
 import 'package:cassandra_native/components/nav_drawer.dart';
+import 'package:cassandra_native/models/server.dart';
 
 class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
+  final Server server;
+  const SettingsPage({super.key, required this.server});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +31,9 @@ class SettingsPage extends StatelessWidget {
                 );
               }),
             ),
-            drawer: const NavDrawer(),
+            drawer: NavDrawer(
+              server: server,
+            ),
             body: Container(
               decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.primary,
@@ -72,7 +76,9 @@ class SettingsPage extends StatelessWidget {
                 );
               }),
             ),
-            drawer: const NavDrawer(),
+            drawer: NavDrawer(
+              server: server,
+            ),
             body: Container(
               decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.primary,
@@ -110,7 +116,9 @@ class SettingsPage extends StatelessWidget {
             ),
             body: Row(
               children: [
-                const NavDrawer(),
+                NavDrawer(
+                  server: server,
+                ),
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(

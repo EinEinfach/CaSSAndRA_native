@@ -13,10 +13,10 @@ class NewServer extends StatefulWidget {
   final void Function(Server server) onAddServer;
 
   @override
-  State<NewServer> createState() => _NewServer2State();
+  State<NewServer> createState() => _NewServerState();
 }
 
-class _NewServer2State extends State<NewServer> {
+class _NewServerState extends State<NewServer> {
   String id = "";
   final _mqttServerController = TextEditingController();
   final _serverNamePrefixController = TextEditingController();

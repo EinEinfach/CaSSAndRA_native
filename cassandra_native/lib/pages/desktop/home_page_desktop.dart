@@ -41,7 +41,9 @@ class HomePageDesktop extends StatelessWidget {
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const NavDrawer(),
+          NavDrawer(
+            server: server,
+          ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(10),

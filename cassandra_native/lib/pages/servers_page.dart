@@ -1,18 +1,25 @@
-import 'package:cassandra_native/utils/ui_state_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import 'package:cassandra_native/data/app_data.dart';
+import 'package:cassandra_native/utils/ui_state_storage.dart';
 import 'package:cassandra_native/utils/server_storage.dart';
+
+import 'package:cassandra_native/data/app_data.dart';
+
 import 'package:cassandra_native/comm/mqtt_manager.dart';
+
 import 'package:cassandra_native/pages/mobile/servers_page_mobile.dart';
 import 'package:cassandra_native/pages/tablet/servers_page_tablet.dart';
 import 'package:cassandra_native/pages/desktop/servers_page_desktop.dart';
+
+import 'package:cassandra_native/components/customized_elevated_button.dart';
+
 import 'package:cassandra_native/components/servers_page/new_server.dart';
 import 'package:cassandra_native/components/servers_page/server_item.dart';
 import 'package:cassandra_native/components/servers_page/server_item_v_2.dart';
-import 'package:cassandra_native/components/customized_elevated_button.dart';
 import 'package:cassandra_native/components/servers_page/dismiss_item.dart';
+import 'package:cassandra_native/components/servers_page/info_item.dart';
+
 import 'package:cassandra_native/models/server.dart';
 
 // globals
@@ -191,6 +198,29 @@ class _ServersPageState extends State<ServersPage> {
     setState(() {});
   }
 
+  void openInfoDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        title: const Text(
+          'CaSSAndRA native',
+          style: TextStyle(fontSize: 14),
+        ),
+        actions: [
+          CustomizedElevatedButton(
+            text: 'ok',
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+        content: const InfoItem(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget mainContent = Center(
@@ -283,22 +313,27 @@ class _ServersPageState extends State<ServersPage> {
       //+++++++++++++++++++++++++++++++++++++++++++++++mobile page++++++++++++++++++++++++++++++++++++++++++++++++++++
       if (constrains.maxWidth < smallWidth) {
         return ServersPageMobile(
-            mainContent: mainContent,
-            listViewIcon: listViewIcon,
-            onListViewChange: onListViewChange);
+          mainContent: mainContent,
+          listViewIcon: listViewIcon,
+          onListViewChange: onListViewChange,
+          onInfoButtonPressed: openInfoDialog,
+        );
         //+++++++++++++++++++++++++++++++++++++++++++++++tablet page++++++++++++++++++++++++++++++++++++++++++++++++++++
       } else if (constrains.maxWidth < largeWidth) {
         return ServersPageTablet(
           mainContent: mainContent,
           listViewIcon: listViewIcon,
           onListViewChange: onListViewChange,
+          onInfoButtonPressed: openInfoDialog,
         );
         //+++++++++++++++++++++++++++++++++++++++++++++++desktop page++++++++++++++++++++++++++++++++++++++++++++++++++++
       } else {
         return ServersPageDesktop(
-            mainContent: mainContent,
-            listViewIcon: listViewIcon,
-            onListViewChange: onListViewChange);
+          mainContent: mainContent,
+          listViewIcon: listViewIcon,
+          onListViewChange: onListViewChange,
+          onInfoButtonPressed: openInfoDialog,
+        );
       }
     });
   }

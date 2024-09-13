@@ -46,6 +46,8 @@ dependencies:
   flutter_animate: ^4.5.0
   shared_preferences: ^2.2.3
   flutter_launcher_icons: ^0.13.1
+  url_launcher: ^6.3.0
+  desktop_window: ^0.4.0
 
 dev_dependencies:
   flutter_test:

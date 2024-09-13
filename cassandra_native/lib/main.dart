@@ -1,15 +1,27 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:desktop_window/desktop_window.dart';
 //import 'dart:ui';
 
 import 'package:cassandra_native/theme/theme_provider.dart';
 //import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/pages/servers_page.dart';
+
 //import 'package:cassandra_native/pages/home_page.dart';
 //import 'package:cassandra_native/pages/settings_page.dart';
 //import 'package:cassandra_native/models/robot.dart';
 
+Future setWindowSize() async {
+  await DesktopWindow.setMinWindowSize(const Size(800, 600),);
+}
+
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    setWindowSize();  
+  }
   runApp(
     MultiProvider(
       providers: [

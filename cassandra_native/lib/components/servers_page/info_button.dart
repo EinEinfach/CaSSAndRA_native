@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 
 class InfoButton extends StatelessWidget {
-  const InfoButton({super.key});
+  final void Function() onInfoButtonPressed;
+  const InfoButton({
+    super.key,
+    required this.onInfoButtonPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: onInfoButtonPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: Theme.of(context).colorScheme.primary,
           shape: RoundedRectangleBorder(

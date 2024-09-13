@@ -1,16 +1,18 @@
-import 'package:cassandra_native/pages/servers_page.dart';
-import 'package:cassandra_native/pages/settings_page.dart';
 import 'package:flutter/material.dart';
 
+import 'package:cassandra_native/models/server.dart';
+import 'package:cassandra_native/pages/home_page.dart';
+import 'package:cassandra_native/pages/servers_page.dart';
+import 'package:cassandra_native/pages/settings_page.dart';
 import 'package:cassandra_native/components/drawer_tile.dart';
 import 'package:cassandra_native/data/app_data.dart';
 
 class NavDrawer extends StatelessWidget {
-  const NavDrawer({super.key});
+  final Server server;
+  const NavDrawer({super.key, required this.server});
 
   @override
   Widget build(BuildContext context) {
-    
     void navigateTo(Widget page) {
       Navigator.push(
         context,
@@ -47,8 +49,10 @@ class NavDrawer extends StatelessWidget {
                         title: "Overview",
                         leading: const Icon(Icons.home),
                         onTap: () {
-                          // Navigator.pop(context);
-                          // Navigator.pushNamed(context, '/home');
+                          Navigator.pop(context);
+                          navigateTo(
+                            HomePage(server: server),
+                          );
                         },
                       ),
                       DrawerTile(
@@ -67,7 +71,9 @@ class NavDrawer extends StatelessWidget {
                         onTap: () {
                           Navigator.pop(context);
                           navigateTo(
-                            const SettingsPage(),
+                            SettingsPage(
+                              server: server,
+                            ),
                           );
                         },
                       ),
@@ -124,7 +130,9 @@ class NavDrawer extends StatelessWidget {
                         leading: const Icon(Icons.settings),
                         onTap: () {
                           navigateTo(
-                            const SettingsPage(),
+                            SettingsPage(
+                              server: server,
+                            ),
                           );
                         },
                       ),

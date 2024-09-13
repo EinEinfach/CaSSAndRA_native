@@ -48,7 +48,9 @@ class HomePageMobile extends StatelessWidget {
         ],
       ),
       endDrawer: JoystickDrawer(server: server),
-      drawer: const NavDrawer(),
+      drawer: NavDrawer(
+        server: server,
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(0),

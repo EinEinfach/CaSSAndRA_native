@@ -7,7 +7,14 @@ class ServersPageMobile extends StatelessWidget {
   final Widget mainContent;
   final IconData listViewIcon;
   final void Function() onListViewChange;
-  const ServersPageMobile({super.key, required this.mainContent, required this.listViewIcon, required this.onListViewChange});
+  final void Function() onInfoButtonPressed;
+  const ServersPageMobile({
+    super.key,
+    required this.mainContent,
+    required this.listViewIcon,
+    required this.onListViewChange,
+    required this.onInfoButtonPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +25,11 @@ class ServersPageMobile extends StatelessWidget {
         elevation: 0,
         automaticallyImplyLeading: false,
         actions: [
-          ListButton(listViewIcon: listViewIcon, onListViewChange: onListViewChange),
-          const InfoButton(),
+          ListButton(
+              listViewIcon: listViewIcon, onListViewChange: onListViewChange),
+          InfoButton(
+            onInfoButtonPressed: onInfoButtonPressed,
+          ),
         ],
       ),
       body: Center(
