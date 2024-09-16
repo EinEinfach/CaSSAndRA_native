@@ -1,8 +1,9 @@
-import 'package:cassandra_native/models/landscape.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:cassandra_native/models/robot.dart';
+import 'package:cassandra_native/models/landscape.dart';
+import 'package:cassandra_native/comm/cmd_list.dart';
 
 const uuid = Uuid();
 
@@ -24,6 +25,7 @@ class Server {
     required this.port,
     required this.user,
     required this.password,
+    required this.cmdList,
   });
 
   final String id;
@@ -33,6 +35,7 @@ class Server {
   final int port;
   final String user;
   final String password;
+  final CmdList cmdList;
   String status = "offline";
   Color stateColor = Colors.deepOrange;
 
@@ -60,8 +63,31 @@ class Server {
       port: json['port'],
       user: json['user'],
       password: json['password'],
+      cmdList: CmdList(id: json['id'], serverNamePrefix: json['serverNamePrefix']),
     );
   }
+
+  void onMessageReceived(String clientId, String topic, String message) {
+    if (topic.contains('/status')) {
+        status = message;
+        if (status == 'offline') {
+          robot.status = 'offline';
+        }
+      } else if (topic.contains('/robot')) {
+          robot.jsonToClassData(message);
+      } else if (topic.contains('/map')) {
+        currentMap.mapJsonToClassData(message);
+        if (currentMap.receivedMapId != currentMap.mapId) {
+          cmdList.commandUpdateCoords('currentMap');
+        } else if (currentMap.receivedPreviewId != currentMap.previewId) {
+          cmdList.commandUpdateCoords('preview');
+        } else if (currentMap.receivedMowPathId != currentMap.mowPathId) {
+          cmdList.commandUpdateCoords('mowPath');
+        }
+      } else if (topic.contains('/coords')) {
+        currentMap.coordsJsonToClassData(message);
+      }
+    }
 }
 
 class Servers {

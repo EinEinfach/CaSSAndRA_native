@@ -62,7 +62,9 @@ class _ServersPageState extends State<ServersPage> {
     }
     setState(() {});
     for (var server in user.registredServers.servers) {
-      _connectToServer(server);
+      if (MqttManager.instance.isNotConnected(server.id)) {
+        _connectToServer(server);
+      }
     }
   }
 
@@ -72,20 +74,13 @@ class _ServersPageState extends State<ServersPage> {
   }
 
   void onMessageReceived(String clientId, String topic, String message) {
+    var server = user.registredServers.servers.firstWhere((s) => s.id == clientId);
+    server.onMessageReceived(clientId, topic, message);
     setState(() {
-      if (topic.contains('/status')) {
-        var server =
-            user.registredServers.servers.firstWhere((s) => s.id == clientId);
-        server.status = message;
+      if (server.status == 'offline'){
+        server.stateColor = Theme.of(context).colorScheme.errorContainer;
+      } else {
         server.stateColor = Theme.of(context).colorScheme.primary;
-        if (server.status == 'offline') {
-          server.robot.status = 'offline';
-          server.stateColor = Theme.of(context).colorScheme.errorContainer;
-        }
-      } else if (topic.contains('/robot')) {
-        var server = user.registredServers.servers
-            .firstWhere((s) => '${s.serverNamePrefix}/robot' == topic);
-        server.robot.jsonToClassData(message);
       }
     });
   }

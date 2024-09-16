@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:cassandra_native/models/server.dart';
+import 'package:cassandra_native/comm/cmd_list.dart';
 import 'package:cassandra_native/components/customized_elevated_button.dart';
 
 const uuid = Uuid();
@@ -49,13 +50,15 @@ class _NewServerState extends State<NewServer> {
     }
     widget.onAddServer(
       Server(
-          id: id,
-          category: _selectedCategory,
-          mqttServer: _mqttServerController.text,
-          serverNamePrefix: _serverNamePrefixController.text,
-          port: enteredPort,
-          user: _userController.text,
-          password: _passwordController.text),
+        id: id,
+        category: _selectedCategory,
+        mqttServer: _mqttServerController.text,
+        serverNamePrefix: _serverNamePrefixController.text,
+        port: enteredPort,
+        user: _userController.text,
+        password: _passwordController.text,
+        cmdList: CmdList(id: id, serverNamePrefix: _serverNamePrefixController.text),
+      ),
     );
     Navigator.pop(context);
   }
@@ -96,10 +99,10 @@ class _NewServerState extends State<NewServer> {
           children: [
             TextField(
               controller: _serverNamePrefixController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 label: Text(
                   'CaSSAndRA API name with prefix',
-                  style: TextStyle(fontSize: 10),
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
             ),
@@ -108,10 +111,10 @@ class _NewServerState extends State<NewServer> {
                 Expanded(
                   child: TextField(
                     controller: _mqttServerController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       label: Text(
                         'MQTT Server',
-                        style: TextStyle(fontSize: 10),
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
                   ),
@@ -120,10 +123,10 @@ class _NewServerState extends State<NewServer> {
                   child: TextField(
                     controller: _portController,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       label: Text(
                         'Port',
-                        style: TextStyle(fontSize: 10),
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
                   ),
@@ -135,10 +138,10 @@ class _NewServerState extends State<NewServer> {
                 Expanded(
                   child: TextField(
                     controller: _userController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       label: Text(
                         'User',
-                        style: TextStyle(fontSize: 10),
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
                   ),
@@ -146,10 +149,10 @@ class _NewServerState extends State<NewServer> {
                 Expanded(
                   child: TextField(
                     controller: _passwordController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       label: Text(
                         'Password',
-                        style: TextStyle(fontSize: 10),
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
                   ),

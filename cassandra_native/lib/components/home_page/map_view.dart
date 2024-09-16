@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
-import 'dart:convert';
 import 'dart:ui' as ui;
 
 import '../../models/server.dart';
@@ -38,6 +37,7 @@ class _MapViewState extends State<MapView> {
   //ui
   ui.Image? roverImage;
   bool focusOnMowerActive = false;
+  bool jobActive = false;
   IconData playButtonIcon = Icons.play_arrow;
 
   @override
@@ -54,7 +54,7 @@ class _MapViewState extends State<MapView> {
     _registerCallback();
     setState(() {
       //mapForPlot = widget.server.currentMap.mapForPlot;
-      playButtonIcon = _createPlayButtonIcon();
+      _handlePlayButton();
     });
   }
 
@@ -75,35 +75,9 @@ class _MapViewState extends State<MapView> {
   }
 
   void onMessageReceived(String clientId, String topic, String message) {
+    //widget.server.onMessageReceived(clientId, topic, message);
     setState(() {
-      if (topic.contains('/robot')) {
-        widget.server.robot.jsonToClassData(message);
-        playButtonIcon = _createPlayButtonIcon();
-      } else if (topic.contains('/map')) {
-        var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
-        String receivedMapId = decodedMessage['mapId'];
-        String receivedPreviewId = decodedMessage['previewId'];
-        String receivedMowPathId = decodedMessage['mowPathId'];
-        if (receivedMapId != widget.server.currentMap.mapId) {
-          MqttManager.instance.publish(
-              widget.server.id,
-              '${widget.server.serverNamePrefix}/api_cmd',
-              '{"coords": {"command": "update", "value": ["currentMap"]}}');
-        } else if (receivedPreviewId != widget.server.currentMap.previewId) {
-          MqttManager.instance.publish(
-              widget.server.id,
-              '${widget.server.serverNamePrefix}/api_cmd',
-              '{"coords": {"command": "update", "value": ["preview"]}}');
-        } else if (receivedMowPathId != widget.server.currentMap.mowPathId) {
-          MqttManager.instance.publish(
-              widget.server.id,
-              '${widget.server.serverNamePrefix}/api_cmd',
-              '{"coords": {"command": "update", "value": ["mowPath"]}}');
-        }
-      } else if (topic.contains('/coords')) {
-        widget.server.currentMap.jsonToClassData(message);
-        //mapForPlot = widget.server.currentMap.mapForPlot;
-      }
+      _handlePlayButton();
     });
   }
 
@@ -115,26 +89,20 @@ class _MapViewState extends State<MapView> {
     //setState(() {});
   }
 
-  IconData _createPlayButtonIcon() {
-    if (widget.server.robot.status == 'mow' ||
-        widget.server.robot.status == 'transit' ||
-        widget.server.robot.status == 'docking') {
-      return Icons.pause;
-    } else {
-      return Icons.play_arrow;
-    }
-  }
-
   void _lookForSelectedPointIndex(LongPressStartDetails details) {
+    double currentDistance = double.infinity;
     final Offset scaledAndMovedPosition =
         (details.localPosition - _offset) / _scale;
     for (int i = 0; i < lassoSelection.length; i++) {
-      if ((lassoSelection[i] - scaledAndMovedPosition).distance < 20) {
+      if ((lassoSelection[i] - scaledAndMovedPosition).distance < 20 &&
+          (lassoSelection[i] - scaledAndMovedPosition).distance <
+              currentDistance) {
+        currentDistance = (lassoSelection[i] - scaledAndMovedPosition).distance;
         lassoSelectedPointIndex = i;
-        return;
       }
     }
-    if (isPointInsidePolygon(scaledAndMovedPosition, lassoSelection)) {
+    if (isPointInsidePolygon(scaledAndMovedPosition, lassoSelection) &&
+        lassoSelectedPointIndex == null) {
       lassoSelected = true;
       lastLassoPosition = scaledAndMovedPosition;
     }
@@ -166,6 +134,29 @@ class _MapViewState extends State<MapView> {
     lassoSelected = false;
   }
 
+  void _handlePlayButton({bool cmd = false}) {
+    if (cmd) {
+      if (jobActive) {
+        widget.server.cmdList.commandStop();
+      } else if (lassoSelection.isNotEmpty) {
+        widget.server.currentMap.lassoSelectionToJsonData(lassoSelection, widget.server.currentMap.mapScale);
+        widget.server.cmdList.commandSetSelection(widget.server.currentMap.selectedArea);
+        widget.server.cmdList.commandMow('selection');
+      } else {
+        widget.server.cmdList.commandMow('all');
+      }
+    } else if (widget.server.robot.status == 'idle' ||
+        widget.server.robot.status == 'charging' ||
+        widget.server.robot.status == 'docked' ||
+        widget.server.robot.status == 'stop') {
+      jobActive = false;
+      playButtonIcon = Icons.play_arrow;
+    } else {
+      jobActive = true;
+      playButtonIcon = Icons.pause;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     //Size screenSize = MediaQuery.of(context).size;
@@ -184,19 +175,21 @@ class _MapViewState extends State<MapView> {
         final shiftedMaxY = widget.server.currentMap.shiftedMaxY;
 
         // calc scale factor 1:1 depends on container size
-        double mapScale = 1.0;
         if (shiftedMaxX / shiftedMaxY >
             constraints.maxWidth / constraints.maxHeight) {
-          mapScale = constraints.maxWidth / shiftedMaxX;
+          widget.server.currentMap.mapScale =
+              constraints.maxWidth / shiftedMaxX;
         } else {
-          mapScale = constraints.maxHeight / shiftedMaxY;
+          widget.server.currentMap.mapScale =
+              constraints.maxHeight / shiftedMaxY;
         }
 
         // calc coords to canvas coords on 1:1 scale
+        double mapScale = widget.server.currentMap.mapScale;
         widget.server.currentMap
-            .scaleShapes(mapScale, constraints.maxWidth, constraints.maxHeight);
-        widget.server.currentMap.scalePreview(mapScale);
-        widget.server.currentMap.scaleMowPath(mapScale);
+            .scaleShapes(constraints.maxWidth, constraints.maxHeight);
+        widget.server.currentMap.scalePreview();
+        widget.server.currentMap.scaleMowPath();
         widget.server.robot.scalePosition(mapScale, constraints.maxWidth,
             constraints.maxHeight, widget.server.currentMap);
 
@@ -306,7 +299,12 @@ class _MapViewState extends State<MapView> {
                 ),
               ),
             ),
-            PlayButton(icon: playButtonIcon),
+            PlayButton(
+              icon: playButtonIcon,
+              onPressed: () {
+                _handlePlayButton(cmd: true);
+              },
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

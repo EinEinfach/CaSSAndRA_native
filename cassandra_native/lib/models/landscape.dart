@@ -3,8 +3,11 @@ import 'dart:convert';
 
 class Landscape {
   String mapId = '';
+  String receivedMapId = '';
   String previewId = '';
+  String receivedPreviewId = '';
   String mowPathId = '';
+  String receivedMowPathId = '';
   List<Offset> perimeter = [];
   List<Offset> exclusion = [];
   List<List<Offset>> exclusions = [];
@@ -25,17 +28,23 @@ class Landscape {
   List<List<Offset>> shapesBouquet = [[]];
   List<Offset> preview = [];
   List<Offset> mowPath = [];
+  // selection lasso etc.
+  List<Offset> selectedArea = [];
+  // min and max of map x and y coordinates
   double minX = double.infinity;
   double minY = double.infinity;
   double maxX = double.negativeInfinity;
   double maxY = double.negativeInfinity;
+  // shifted max coordinates to remove negative values from x and y coordinates
   double shiftedMaxX = double.negativeInfinity;
   double shiftedMaxY = double.negativeInfinity;
   // offset to center map in canvas
   double offsetX = 0;
   double offsetY = 0;
+  // ratio meter to available screen size
+  double mapScale = 1.0;
 
-  void jsonToClassData(String message) {
+  void coordsJsonToClassData(String message) {
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
     if (decodedMessage["features"][0]["properties"]["name"] == 'current map') {
       _currentMapJsonToClassData(decodedMessage);
@@ -46,6 +55,13 @@ class Landscape {
         'current mow path') {
       _mowPathJsonToClassData(decodedMessage);
     }
+  }
+
+  void mapJsonToClassData(String message) {
+    var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
+    receivedMapId = decodedMessage['mapId'];
+    receivedPreviewId = decodedMessage['previewId'];
+    receivedMowPathId = decodedMessage['mowPathId'];
   }
 
   void _currentMapJsonToClassData(Map decodedMessage) {
@@ -127,6 +143,17 @@ class Landscape {
     }
   }
 
+  void lassoSelectionToJsonData(List<Offset> selection, double scale) {
+    selectedArea = _canvasCoordsToCartesian(selection, scale);
+  } 
+
+  List<Offset> _canvasCoordsToCartesian(List<Offset> shape, double scale) {
+    shape = shape.map((p) => Offset(p.dx - offsetX, p.dy - offsetY)).toList();
+    shape = shape.map((p) => Offset(p.dx / scale, p.dy / scale)).toList();
+    shape = shape.map((p) => Offset(p.dx + minX, -p.dy + minY)).toList();
+    return shape;
+  }
+
   void _findMinAndMax() {
     for (var polygon in shapesBouquet) {
       for (var point in polygon) {
@@ -153,22 +180,22 @@ class Landscape {
         searchWire.map((p) => Offset(p.dx - minX, -(p.dy - minY))).toList();
   }
 
-  void scaleShapes(double scale, double width, double height) {
-    offsetX = (width - shiftedMaxX * scale) / 2;
-    offsetY = (height + shiftedMaxY * scale) / 2;
+  void scaleShapes(double width, double height) {
+    offsetX = (width - shiftedMaxX * mapScale) / 2;
+    offsetY = (height + shiftedMaxY * mapScale) / 2;
 
     // 1st. scale shapes for canvas screen size
     scaledPerimeter = shiftedPerimeter
-        .map((p) => Offset(p.dx * scale, p.dy * scale))
+        .map((p) => Offset(p.dx * mapScale, p.dy * mapScale))
         .toList();
     scaledExclusions = shiftedExclusions
         .map((shape) =>
-            shape.map((p) => Offset(p.dx * scale, p.dy * scale)).toList())
+            shape.map((p) => Offset(p.dx * mapScale, p.dy * mapScale)).toList())
         .toList();
     scaledDockPath =
-        shiftedDockPath.map((p) => Offset(p.dx * scale, p.dy * scale)).toList();
+        shiftedDockPath.map((p) => Offset(p.dx * mapScale, p.dy * mapScale)).toList();
     scaledSearchWire = shiftedSearchWire
-        .map((p) => Offset(p.dx * scale, p.dy * scale))
+        .map((p) => Offset(p.dx * mapScale, p.dy * mapScale))
         .toList();
 
     // 2nd. center shapes for canvas
@@ -192,9 +219,9 @@ class Landscape {
         preview.map((p) => Offset(p.dx - minX, -(p.dy - minY))).toList();
   }
 
-  void scalePreview(double scale) {
+  void scalePreview() {
     scaledPreview =
-        shiftedPreview.map((p) => Offset(p.dx * scale, p.dy * scale)).toList();
+        shiftedPreview.map((p) => Offset(p.dx * mapScale, p.dy * mapScale)).toList();
     scaledPreview = scaledPreview
         .map((p) => Offset(p.dx + offsetX, p.dy + offsetY))
         .toList();
@@ -205,9 +232,9 @@ class Landscape {
         mowPath.map((p) => Offset(p.dx - minX, -(p.dy - minY))).toList();
   }
 
-  void scaleMowPath(double scale) {
+  void scaleMowPath() {
     scaledMowPath =
-        shiftedMowPath.map((p) => Offset(p.dx * scale, p.dy * scale)).toList();
+        shiftedMowPath.map((p) => Offset(p.dx * mapScale, p.dy * mapScale)).toList();
     scaledMowPath = scaledMowPath
         .map((p) => Offset(p.dx + offsetX, p.dy + offsetY))
         .toList();

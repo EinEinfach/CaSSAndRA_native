@@ -7,7 +7,7 @@ import 'package:cassandra_native/models/landscape.dart';
 import 'package:cassandra_native/models/robot.dart';
 
 // should be refactored to make rover size selectable
-const minRoverImageSize = 20.0;
+const double minRoverImageSize = 20;
 const double baseLineWidth = 2.0;
 
 class MapPainter extends CustomPainter {
@@ -204,7 +204,7 @@ class MapPainter extends CustomPainter {
 
     // draw rover image
     if (roverImage != null) {
-      double imageSize = 1 * scale;
+      double imageSize = 1 * currentMap.mapScale;
       imageSize = max(imageSize, minRoverImageSize);
 
       // rotate rover image

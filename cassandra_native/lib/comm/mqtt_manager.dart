@@ -10,7 +10,8 @@ class MqttManager {
   static final MqttManager instance = MqttManager._privateConstructor();
 
   final Map<String, MqttServerClient> _clients = {};
-  final Map<String, List<Function(String, String, String)>> _messageCallbacks = {};
+  final Map<String, List<Function(String, String, String)>> _messageCallbacks =
+      {};
   final Map<String, Timer?> _reconnectTimers = {};
   final Map<String, Timer?> _offlineTimers = {};
   final Duration offlineDuration = const Duration(minutes: 1);
@@ -48,7 +49,6 @@ class MqttManager {
 
   Future<void> connect(String clientId) async {
     MqttServerClient? client = _clients[clientId];
-
     try {
       await client?.connect();
       if (client?.connectionStatus!.state == MqttConnectionState.connected) {
@@ -155,7 +155,7 @@ class MqttManager {
   void _handleDisconnection(String clientId) {
     //print('Disconnected: $clientId');
     _messageCallbacks[clientId]?.forEach((callback) {
-         callback.call(clientId, '/status', 'offline');
+      callback.call(clientId, '/status', 'offline');
     });
     _startReconnectTimer(clientId);
     _cancelOfflineTimer(clientId);
@@ -178,8 +178,8 @@ class MqttManager {
   void _startOfflineTimer(String clientId) {
     _cancelOfflineTimer(clientId);
     _offlineTimers[clientId] = Timer(offlineDuration, () {
-    //print('Client $clientId marked as offline due to inactivity.');
-    _handleDisconnection(clientId);
+      //print('Client $clientId marked as offline due to inactivity.');
+      _handleDisconnection(clientId);
     });
   }
 
@@ -190,5 +190,14 @@ class MqttManager {
   void _cancelOfflineTimer(String clientId) {
     _offlineTimers[clientId]?.cancel();
     _offlineTimers.remove(clientId);
+  }
+
+  bool isNotConnected(String clientId) {
+    if (_clients.containsKey(clientId)) {
+      final client = _clients[clientId];
+      return !(client?.connectionStatus?.state ==
+          MqttConnectionState.connected);
+    }
+    return true;
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-//import 'package:url_launcher/url_launcher.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:cassandra_native/theme/theme_provider.dart';
 import 'package:cassandra_native/data/app_data.dart';
@@ -36,9 +36,9 @@ class _InfoItemState extends State<InfoItem> {
             RichText(
               text: TextSpan(
                 text: 'Find the latest informations and updates on ',
-                style: TextStyle(
-                  fontSize: 12,
+                style: GoogleFonts.montserrat(
                   color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 12,
                 ),
                 children: <TextSpan>[
                   TextSpan(
@@ -58,13 +58,13 @@ class _InfoItemState extends State<InfoItem> {
             const SizedBox(
               height: 60,
             ),
-            const Text(
+            Text(
               'App version: $appVersion',
-              style: TextStyle(fontSize: 10),
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
-            const Text(
+            Text(
               'Required server version: $requiredServerVersion',
-              style: TextStyle(fontSize: 10),
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(
               height: 40,
@@ -73,9 +73,9 @@ class _InfoItemState extends State<InfoItem> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Text(
+                Text(
                   "dark mode",
-                  style: TextStyle(fontSize: 10),
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 CupertinoSwitch(
                   value: Provider.of<ThemeProvider>(context, listen: false)

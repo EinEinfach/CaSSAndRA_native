@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:cassandra_native/components/joystick/joystick.dart';
 import 'package:cassandra_native/models/server.dart';
-import 'package:cassandra_native/comm/mqtt_manager.dart';
 
 class JoystickDrawer extends StatelessWidget {
   final Server server;
@@ -17,10 +16,7 @@ class JoystickDrawer extends StatelessWidget {
         (-1 * maxSpeed * position.dy / radius).toStringAsFixed(2);
     String angularSpeed =
         (-1 * maxSpeed * position.dx / radius).toStringAsFixed(2);
-    MqttManager.instance.publish(
-        server.id,
-        '${server.serverNamePrefix}/api_cmd',
-        '{"robot":{"command": "move", "value": [$linearSpeed, $angularSpeed]}}');
+    server.cmdList.commandMove(double.parse(linearSpeed), double.parse(angularSpeed));
   }
 
   @override
