@@ -16,7 +16,7 @@ class JoystickDrawer extends StatelessWidget {
         (-1 * maxSpeed * position.dy / radius).toStringAsFixed(2);
     String angularSpeed =
         (-1 * maxSpeed * position.dx / radius).toStringAsFixed(2);
-    server.cmdList.commandMove(double.parse(linearSpeed), double.parse(angularSpeed));
+    server.serverInterface.commandMove(double.parse(linearSpeed), double.parse(angularSpeed));
   }
 
   @override

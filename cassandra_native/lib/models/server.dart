@@ -3,7 +3,7 @@ import 'package:uuid/uuid.dart';
 
 import 'package:cassandra_native/models/robot.dart';
 import 'package:cassandra_native/models/landscape.dart';
-import 'package:cassandra_native/comm/cmd_list.dart';
+import 'package:cassandra_native/comm/server_interface.dart';
 
 const uuid = Uuid();
 
@@ -25,8 +25,14 @@ class Server {
     required this.port,
     required this.user,
     required this.password,
-    required this.cmdList,
-  });
+  }) : serverInterface = ServerInterface(
+          id: id,
+          mqttServer: mqttServer,
+          port: port,
+          serverNamePrefix: serverNamePrefix,
+          user: user,
+          password: password,
+        );
 
   final String id;
   final Category category;
@@ -35,7 +41,8 @@ class Server {
   final int port;
   final String user;
   final String password;
-  final CmdList cmdList;
+
+  ServerInterface serverInterface;
   String status = "offline";
   Color stateColor = Colors.deepOrange;
 
@@ -45,14 +52,14 @@ class Server {
   Landscape currentMap = Landscape();
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'category': category.name,
-    'mqttServer': mqttServer,
-    'serverNamePrefix': serverNamePrefix,
-    'port': port,
-    'user': user,
-    'password': password,
-  };
+        'id': id,
+        'category': category.name,
+        'mqttServer': mqttServer,
+        'serverNamePrefix': serverNamePrefix,
+        'port': port,
+        'user': user,
+        'password': password,
+      };
 
   factory Server.fromJson(Map<String, dynamic> json) {
     return Server(
@@ -63,31 +70,30 @@ class Server {
       port: json['port'],
       user: json['user'],
       password: json['password'],
-      cmdList: CmdList(id: json['id'], serverNamePrefix: json['serverNamePrefix']),
     );
   }
 
   void onMessageReceived(String clientId, String topic, String message) {
     if (topic.contains('/status')) {
-        status = message;
-        if (status == 'offline') {
-          robot.status = 'offline';
-        }
-      } else if (topic.contains('/robot')) {
-          robot.jsonToClassData(message);
-      } else if (topic.contains('/map')) {
-        currentMap.mapJsonToClassData(message);
-        if (currentMap.receivedMapId != currentMap.mapId) {
-          cmdList.commandUpdateCoords('currentMap');
-        } else if (currentMap.receivedPreviewId != currentMap.previewId) {
-          cmdList.commandUpdateCoords('preview');
-        } else if (currentMap.receivedMowPathId != currentMap.mowPathId) {
-          cmdList.commandUpdateCoords('mowPath');
-        }
-      } else if (topic.contains('/coords')) {
-        currentMap.coordsJsonToClassData(message);
+      status = message;
+      if (status == 'offline') {
+        robot.status = 'offline';
       }
+    } else if (topic.contains('/robot')) {
+      robot.jsonToClassData(message);
+    } else if (topic.contains('/map')) {
+      currentMap.mapJsonToClassData(message);
+      if (currentMap.receivedMapId != currentMap.mapId) {
+        serverInterface.commandUpdateCoords('currentMap');
+      } else if (currentMap.receivedPreviewId != currentMap.previewId) {
+        serverInterface.commandUpdateCoords('preview');
+      } else if (currentMap.receivedMowPathId != currentMap.mowPathId) {
+        serverInterface.commandUpdateCoords('mowPath');
+      }
+    } else if (topic.contains('/coords')) {
+      currentMap.coordsJsonToClassData(message);
     }
+  }
 }
 
 class Servers {
@@ -96,16 +102,16 @@ class Servers {
   List<Server> get servers => _servers;
 
   // add server
-  void addServer(Server server){
+  void addServer(Server server) {
     _servers.add(server);
   }
 
   //remove server
-  void removeServer(Server server){
+  void removeServer(Server server) {
     _servers.remove(server);
   }
 
-  void editServer(Server editedServer){
+  void editServer(Server editedServer) {
     final index = _servers.indexWhere((server) => server.id == editedServer.id);
     _servers[index] = editedServer;
   }

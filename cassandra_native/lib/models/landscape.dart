@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
@@ -30,6 +32,7 @@ class Landscape {
   List<Offset> mowPath = [];
   // selection lasso etc.
   List<Offset> selectedArea = [];
+  Offset gotoPoint = Offset.zero;
   // min and max of map x and y coordinates
   double minX = double.infinity;
   double minY = double.infinity;
@@ -146,6 +149,10 @@ class Landscape {
   void lassoSelectionToJsonData(List<Offset> selection, double scale) {
     selectedArea = _canvasCoordsToCartesian(selection, scale);
   } 
+
+  void gotoPointToJsonData(Offset selection, double scale) {
+    gotoPoint = _canvasCoordsToCartesian([selection], scale)[0]; 
+  }
 
   List<Offset> _canvasCoordsToCartesian(List<Offset> shape, double scale) {
     shape = shape.map((p) => Offset(p.dx - offsetX, p.dy - offsetY)).toList();

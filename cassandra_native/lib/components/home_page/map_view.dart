@@ -34,6 +34,9 @@ class _MapViewState extends State<MapView> {
   bool lassoSelected = false;
   Offset? lastLassoPosition;
 
+  //go to
+  Offset? gotoPoint;
+
   //ui
   ui.Image? roverImage;
   bool focusOnMowerActive = false;
@@ -125,6 +128,21 @@ class _MapViewState extends State<MapView> {
     lastLassoPosition = scaledAndMovedPosition;
   }
 
+  void _setGoToPoint(TapDownDetails details) {
+    final Offset scaledAndMovedPosition =
+        (details.localPosition - _offset) / _scale;
+    if (isPointInsidePolygon(
+        scaledAndMovedPosition, widget.server.currentMap.scaledPerimeter)) {
+      for (List<Offset> exclusion
+          in widget.server.currentMap.scaledExclusions) {
+        if (isPointInsidePolygon(scaledAndMovedPosition, exclusion)) {
+          return;
+        }
+      }
+      gotoPoint = scaledAndMovedPosition;
+    }
+  }
+
   void _checkCancelButton() {
     lassoSelectionActive = false;
     focusOnMowerActive = false;
@@ -132,18 +150,28 @@ class _MapViewState extends State<MapView> {
     lassoSelectionPoints = [];
     lassoSelectedPointIndex = null;
     lassoSelected = false;
+    gotoPoint = null;
   }
 
   void _handlePlayButton({bool cmd = false}) {
     if (cmd) {
       if (jobActive) {
-        widget.server.cmdList.commandStop();
-      } else if (lassoSelection.isNotEmpty) {
-        widget.server.currentMap.lassoSelectionToJsonData(lassoSelection, widget.server.currentMap.mapScale);
-        widget.server.cmdList.commandSetSelection(widget.server.currentMap.selectedArea);
-        widget.server.cmdList.commandMow('selection');
-      } else {
-        widget.server.cmdList.commandMow('all');
+        widget.server.serverInterface.commandStop();
+      } else if (widget.server.preparedCmd == 'calc' &&
+          lassoSelection.isNotEmpty) {
+        widget.server.currentMap.lassoSelectionToJsonData(
+            lassoSelection, widget.server.currentMap.mapScale);
+        widget.server.serverInterface
+            .commandSetSelection(widget.server.currentMap.selectedArea);
+        widget.server.serverInterface.commandMow('selection');
+      } else if (widget.server.preparedCmd == 'calc') {
+        widget.server.serverInterface.commandMow('all');
+      } else if (widget.server.preparedCmd == 'home') {
+        widget.server.serverInterface.commandDock();
+      } else if (widget.server.preparedCmd == 'go to' && gotoPoint != null) {
+        widget.server.currentMap
+            .gotoPointToJsonData(gotoPoint!, widget.server.currentMap.mapScale);
+            widget.server.serverInterface.commandGoto(widget.server.currentMap.gotoPoint);
       }
     } else if (widget.server.robot.status == 'idle' ||
         widget.server.robot.status == 'charging' ||
@@ -155,6 +183,10 @@ class _MapViewState extends State<MapView> {
       jobActive = true;
       playButtonIcon = Icons.pause;
     }
+  }
+
+  void _handlePlayButtonLongPressed() {
+    widget.server.serverInterface.commandMow('resume');
   }
 
   @override
@@ -217,7 +249,8 @@ class _MapViewState extends State<MapView> {
                   //selection or zoom and pan
 
                   //selection
-                  if (lassoSelectionActive) {
+                  if (lassoSelectionActive &&
+                      widget.server.preparedCmd == 'calc') {
                     RenderBox box = context.findRenderObject() as RenderBox;
                     Offset widgetGlobalPosition =
                         box.localToGlobal(Offset.zero);
@@ -278,6 +311,12 @@ class _MapViewState extends State<MapView> {
                 lassoSelected = false;
                 setState(() {});
               },
+              onTapDown: (details) {
+                if (widget.server.preparedCmd == 'go to') {
+                  _setGoToPoint(details);
+                  setState(() {});
+                }
+              },
               child: SizedBox(
                 width: constraints.maxWidth,
                 height: constraints.maxHeight,
@@ -294,6 +333,7 @@ class _MapViewState extends State<MapView> {
                         lassoPointSelected:
                             (lassoSelectedPointIndex == null) ? false : true,
                         lassoSelected: lassoSelected,
+                        gotoPoint: gotoPoint,
                         colors: Theme.of(context).colorScheme),
                   ),
                 ),
@@ -303,6 +343,9 @@ class _MapViewState extends State<MapView> {
               icon: playButtonIcon,
               onPressed: () {
                 _handlePlayButton(cmd: true);
+              },
+              onLongPressed: () {
+                _handlePlayButtonLongPressed();
               },
             ),
             Row(
@@ -333,12 +376,14 @@ class _MapViewState extends State<MapView> {
                   icon: Icons.gesture_outlined,
                   isActive: lassoSelectionActive,
                   onPressed: () {
-                    //currentTransformation = _transformationController.value.clone();
-                    focusOnMowerActive = false;
-                    lassoSelectionActive = !lassoSelectionActive;
-                    lassoSelection = [];
-                    lassoSelectionPoints = [];
-                    setState(() {});
+                    if (widget.server.preparedCmd == 'calc') {
+                      focusOnMowerActive = false;
+                      lassoSelectionActive = !lassoSelectionActive;
+                      lassoSelection = [];
+                      lassoSelectionPoints = [];
+                      gotoPoint = null;
+                      setState(() {});
+                    }
                   },
                 ),
                 MapButton(

@@ -19,6 +19,7 @@ class MapPainter extends CustomPainter {
   final List<Offset> lassoSelectionPoints;
   final bool lassoPointSelected;
   final bool lassoSelected;
+  final Offset? gotoPoint;
   final ColorScheme colors;
 
   const MapPainter({
@@ -30,6 +31,7 @@ class MapPainter extends CustomPainter {
     required this.lassoSelectionPoints,
     required this.lassoPointSelected,
     required this.lassoSelected,
+    required this.gotoPoint,
     required this.colors,
   });
 
@@ -100,7 +102,7 @@ class MapPainter extends CustomPainter {
       ..strokeWidth = adjustedLineWidth;
 
     var exclusionsFillColor = Paint()
-      ..color = colors.primary
+      ..color = colors.secondary
       ..style = PaintingStyle.fill;
 
     Path pathExclusions = Path();
@@ -201,6 +203,15 @@ class MapPainter extends CustomPainter {
       }
     }
 
+    // draw go to point
+    if (gotoPoint != null) {
+      var gotoPointBrush = Paint()
+        ..color = colors.error
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(gotoPoint!, 3/scale, gotoPointBrush);
+      canvas.drawLine(Offset(gotoPoint!.dx-5, gotoPoint!.dy), Offset(gotoPoint!.dx+5, gotoPoint!.dy), gotoPointBrush);
+      canvas.drawLine(Offset(gotoPoint!.dx, gotoPoint!.dy+5), Offset(gotoPoint!.dx, gotoPoint!.dy-5), gotoPointBrush);
+    }
 
     // draw rover image
     if (roverImage != null) {
@@ -221,8 +232,8 @@ class MapPainter extends CustomPainter {
       // restore saved canvas
       canvas.restore();
     }
-
     canvas.restore();
+    
   }
 
   @override

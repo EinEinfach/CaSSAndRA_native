@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:cassandra_native/models/server.dart';
-import 'package:cassandra_native/comm/cmd_list.dart';
 import 'package:cassandra_native/components/customized_elevated_button.dart';
 
 const uuid = Uuid();
@@ -57,7 +56,6 @@ class _NewServerState extends State<NewServer> {
         port: enteredPort,
         user: _userController.text,
         password: _passwordController.text,
-        cmdList: CmdList(id: id, serverNamePrefix: _serverNamePrefixController.text),
       ),
     );
     Navigator.pop(context);

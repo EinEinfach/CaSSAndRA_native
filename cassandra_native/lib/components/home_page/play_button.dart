@@ -3,8 +3,14 @@ import 'package:flutter/services.dart';
 
 class PlayButton extends StatelessWidget {
   final IconData icon;
-  final void Function()? onPressed;
-  const PlayButton({super.key, required this.icon, required this.onPressed});
+  final void Function() onPressed;
+  final void Function() onLongPressed;
+  const PlayButton({
+    super.key,
+    required this.icon,
+    required this.onPressed,
+    required this.onLongPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +26,15 @@ class PlayButton extends StatelessWidget {
           ),
           minimumSize: const Size(80, 80),
         ),
-        onPressed: onPressed,
+        onPressed: () {
+          onPressed();
+          HapticFeedback.lightImpact();
+        },
+        onLongPress: () {
+          onLongPressed();
+          HapticFeedback.mediumImpact();
+        },
+        //onPressed: onPressed,
         // onPressed: () {
         //   HapticFeedback.lightImpact();
         // },
