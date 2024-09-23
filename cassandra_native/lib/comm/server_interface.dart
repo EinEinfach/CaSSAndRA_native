@@ -89,7 +89,8 @@ class ServerInterface {
 
   void commandGoto(Offset gotoPoint) {
     final Map<String, List<double>> gotoCoords = _coordsToMap([gotoPoint]);
-    final Map<String, dynamic> cmdGoto = _addTopicAndCommandToValue('robot', 'go to', gotoCoords);
+    final Map<String, dynamic> cmdGoto =
+        _addTopicAndCommandToValue('robot', 'go to', gotoCoords);
     final String cmdGotoJson = jsonEncode(cmdGoto);
     _sendCommand(cmdGotoJson);
   }

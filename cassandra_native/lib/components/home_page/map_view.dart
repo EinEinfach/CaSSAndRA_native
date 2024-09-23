@@ -42,6 +42,8 @@ class _MapViewState extends State<MapView> {
   bool focusOnMowerActive = false;
   bool jobActive = false;
   IconData playButtonIcon = Icons.play_arrow;
+  Offset screenSizeDelta = Offset.zero;
+  Size? oldScreenSize;
 
   @override
   void dispose() {
@@ -78,7 +80,7 @@ class _MapViewState extends State<MapView> {
   }
 
   void onMessageReceived(String clientId, String topic, String message) {
-    //widget.server.onMessageReceived(clientId, topic, message);
+    widget.server.onMessageReceived(clientId, topic, message);
     setState(() {
       _handlePlayButton();
     });
@@ -143,14 +145,25 @@ class _MapViewState extends State<MapView> {
     }
   }
 
-  void _checkCancelButton() {
+  void _resetLassoSelection() {
     lassoSelectionActive = false;
-    focusOnMowerActive = false;
     lassoSelection = [];
     lassoSelectionPoints = [];
     lassoSelectedPointIndex = null;
     lassoSelected = false;
+    lastLassoPosition = null;
+    widget.server.currentMap.selectedArea = [];
+  }
+
+  void _resetGotoPoint() {
     gotoPoint = null;
+    widget.server.currentMap.gotoPoint = null;
+  }
+
+  void _handleCancelButton() {
+    _resetLassoSelection();
+    _resetGotoPoint();
+    focusOnMowerActive = false;
   }
 
   void _handlePlayButton({bool cmd = false}) {
@@ -171,7 +184,8 @@ class _MapViewState extends State<MapView> {
       } else if (widget.server.preparedCmd == 'go to' && gotoPoint != null) {
         widget.server.currentMap
             .gotoPointToJsonData(gotoPoint!, widget.server.currentMap.mapScale);
-            widget.server.serverInterface.commandGoto(widget.server.currentMap.gotoPoint);
+        widget.server.serverInterface
+            .commandGoto(widget.server.currentMap.gotoPoint!);
       }
     } else if (widget.server.robot.status == 'idle' ||
         widget.server.robot.status == 'charging' ||
@@ -191,7 +205,18 @@ class _MapViewState extends State<MapView> {
 
   @override
   Widget build(BuildContext context) {
-    //Size screenSize = MediaQuery.of(context).size;
+
+    // Screen size is changed (could happened on desktop) then add additional offset on lasso and go to
+    Size screenSize = MediaQuery.of(context).size;
+    if (oldScreenSize == null) {
+      oldScreenSize = screenSize;
+    } else {
+      screenSizeDelta = Offset(screenSize.width - oldScreenSize!.width, screenSize.height - oldScreenSize!.height);
+      if (screenSizeDelta != Offset.zero){
+        _resetLassoSelection();
+        //_resetGotoPoint();
+      }
+    }
     return Listener(
       onPointerSignal: (pointerSignal) {
         if (pointerSignal is PointerScrollEvent) {
@@ -390,7 +415,7 @@ class _MapViewState extends State<MapView> {
                   icon: Icons.cancel,
                   isActive: false,
                   onPressed: () {
-                    _checkCancelButton();
+                    _handleCancelButton();
                     setState(() {});
                   },
                 ),

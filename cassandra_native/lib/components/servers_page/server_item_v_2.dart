@@ -18,7 +18,7 @@ class ServerItemV2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     void _navigateToHomePage(Server server) {
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => HomePage(server: server),

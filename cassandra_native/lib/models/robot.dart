@@ -17,6 +17,7 @@ class Robot {
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
     try{
       position = Offset(decodedMessage['position']['x'], decodedMessage['position']['y']);
+      target = Offset(decodedMessage['target']['x'], decodedMessage['target']['y']);
       angle = decodedMessage['angle'];
       status = decodedMessage['status'];
       mowPointIdx = decodedMessage['mowPointIdx'];
@@ -31,6 +32,7 @@ class Robot {
   void scalePosition(double scale, double width, double height, Landscape currentMap){
     if (currentMap.perimeter.isNotEmpty) {
       scaledPosition = Offset((position.dx - currentMap.minX) * scale + currentMap.offsetX,  -(position.dy -currentMap.minY) * scale + currentMap.offsetY);
+      scaledTarget = Offset((target.dx - currentMap.minX) * scale + currentMap.offsetX,  -(target.dy -currentMap.minY) * scale + currentMap.offsetY);
     } else {
       scaledPosition = Offset(width/2, height/2);
     }

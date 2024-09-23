@@ -14,7 +14,7 @@ class NavDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     void navigateTo(Widget page) {
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => page,

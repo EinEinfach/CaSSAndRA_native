@@ -113,32 +113,32 @@ class MapPainter extends CustomPainter {
     canvas.drawPath(pathExclusions, exclusionsStrokeBrusch);
 
     // draw preview
-    var previewBrush = Paint()
-      ..color = const Color.fromARGB(255, 113, 161, 143)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.5 * adjustedLineWidth;
+    // var previewBrush = Paint()
+    //   ..color = const Color.fromARGB(255, 113, 161, 143)
+    //   ..style = PaintingStyle.stroke
+    //   ..strokeWidth = 0.5 * adjustedLineWidth;
 
-    Path pathPreview = Path();
-    pathPreview = drawLine(pathPreview, currentMap.scaledPreview);
-    canvas.drawPath(pathPreview, previewBrush);
+    // Path pathPreview = Path();
+    // pathPreview = drawLine(pathPreview, currentMap.scaledPreview);
+    // canvas.drawPath(pathPreview, previewBrush);
 
     // draw mow path
-    var mowPathBrush = Paint()
-      ..color = Colors.green
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.5 * adjustedLineWidth;
+    if (currentMap.scaledMowPath.isNotEmpty &&
+        robot.status == 'mow') {
+      var mowPathBrush = Paint()
+        ..color = Colors.green
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.5 * adjustedLineWidth;
 
-    var mowPathFinishedBrush = Paint()
-      ..color = Colors.grey.shade300
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.5 * adjustedLineWidth;
+      var mowPathFinishedBrush = Paint()
+        ..color = Colors.grey.shade300
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.5 * adjustedLineWidth;
 
-    var mowPathCurrent = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.5 * adjustedLineWidth;
-
-    if (currentMap.scaledMowPath.isNotEmpty) {
+      var mowPathCurrent = Paint()
+        ..color = Colors.black
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.5 * adjustedLineWidth;
       //finished
       Path pathMowPathFinished = Path();
       pathMowPathFinished = drawLine(pathMowPathFinished,
@@ -185,8 +185,10 @@ class MapPainter extends CustomPainter {
     // draw lassoSelection
     if (lassoSelection.isNotEmpty) {
       var lassoSelectionBrush = Paint()
-        ..color = lassoPointSelected? colors.error : colors.onSurface.withOpacity(0.4)
-        ..style = lassoSelected? PaintingStyle.fill : PaintingStyle.stroke
+        ..color = lassoPointSelected
+            ? colors.error
+            : colors.onSurface.withOpacity(0.4)
+        ..style = lassoSelected ? PaintingStyle.fill : PaintingStyle.stroke
         ..strokeWidth = 0.5 * adjustedLineWidth;
       Path pathLassoSelection = Path();
       pathLassoSelection = drawPolygon(pathLassoSelection, lassoSelection);
@@ -196,21 +198,40 @@ class MapPainter extends CustomPainter {
     // draw lassoSelectionPoints
     if (lassoSelectionPoints.isNotEmpty) {
       var lassoSelectionPointsBrush = Paint()
-        ..color = lassoPointSelected? colors.error : colors.onSurface.withOpacity(0.5)
+        ..color = lassoPointSelected
+            ? colors.error
+            : colors.onSurface.withOpacity(0.5)
         ..style = PaintingStyle.fill;
       for (Offset point in lassoSelectionPoints) {
-        canvas.drawCircle(point, 2/scale, lassoSelectionPointsBrush);
+        canvas.drawCircle(point, 2 / scale, lassoSelectionPointsBrush);
       }
     }
 
     // draw go to point
     if (gotoPoint != null) {
       var gotoPointBrush = Paint()
-        ..color = colors.error
-        ..style = PaintingStyle.fill;
-      canvas.drawCircle(gotoPoint!, 3/scale, gotoPointBrush);
-      canvas.drawLine(Offset(gotoPoint!.dx-5, gotoPoint!.dy), Offset(gotoPoint!.dx+5, gotoPoint!.dy), gotoPointBrush);
-      canvas.drawLine(Offset(gotoPoint!.dx, gotoPoint!.dy+5), Offset(gotoPoint!.dx, gotoPoint!.dy-5), gotoPointBrush);
+        ..color = colors.onSurface
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = adjustedLineWidth
+        ..strokeCap = StrokeCap.round;
+      //canvas.drawCircle(gotoPoint!, 3 / scale, gotoPointBrush);
+      canvas.drawLine(Offset(gotoPoint!.dx - 6/scale, gotoPoint!.dy),
+          Offset(gotoPoint!.dx + 6/scale, gotoPoint!.dy), gotoPointBrush);
+      canvas.drawLine(Offset(gotoPoint!.dx, gotoPoint!.dy + 6/scale),
+          Offset(gotoPoint!.dx, gotoPoint!.dy - 6/scale), gotoPointBrush);
+    }
+
+    // draw target point
+    if (robot.status == 'mow' || robot.status == 'transit' || robot.status == 'docking') {
+      var targetPointBrush = Paint()
+        ..color = Colors.lightGreen
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = adjustedLineWidth
+        ..strokeCap = StrokeCap.round;
+      canvas.drawLine(Offset(robot.scaledTarget.dx - 6/scale, robot.scaledTarget.dy),
+          Offset(robot.scaledTarget.dx + 6/scale, robot.scaledTarget.dy), targetPointBrush);
+      canvas.drawLine(Offset(robot.scaledTarget.dx, robot.scaledTarget.dy + 6/scale),
+          Offset(robot.scaledTarget.dx, robot.scaledTarget.dy - 6/scale), targetPointBrush);
     }
 
     // draw rover image
@@ -233,7 +254,6 @@ class MapPainter extends CustomPainter {
       canvas.restore();
     }
     canvas.restore();
-    
   }
 
   @override

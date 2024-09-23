@@ -6,9 +6,12 @@ import 'package:cassandra_native/models/server.dart';
 class BottomCmdBar extends StatelessWidget {
   final Server server;
 
-  const BottomCmdBar({super.key, required this.server});
+  const BottomCmdBar({
+    super.key,
+    required this.server,
+  });
 
-  void setCmdBarState(String state){
+  void setCmdBarState(String state) {
     server.preparedCmd = state;
   }
 
@@ -28,25 +31,33 @@ class BottomCmdBar extends StatelessWidget {
           GButton(
             icon: Icons.home_rounded,
             text: 'home',
-            onPressed: () {setCmdBarState('home');},
+            onPressed: () {
+              setCmdBarState('home');
+            },
             iconColor: Theme.of(context).colorScheme.primary,
           ),
           GButton(
             icon: Icons.map_outlined,
             text: 'calc',
-            onPressed: () {setCmdBarState('calc');},
+            onPressed: () {
+              setCmdBarState('calc');
+            },
             iconColor: Theme.of(context).colorScheme.primary,
           ),
           GButton(
             icon: Icons.place_outlined,
             text: 'go to',
-            onPressed: () {setCmdBarState('go to');},
+            onPressed: () {
+              setCmdBarState('go to');
+            },
             iconColor: Theme.of(context).colorScheme.primary,
           ),
           GButton(
             icon: Icons.list,
             text: 'tasks',
-            onPressed: () {setCmdBarState('tasks');},
+            onPressed: () {
+              setCmdBarState('tasks');
+            },
             iconColor: Theme.of(context).colorScheme.primary,
           ),
         ],

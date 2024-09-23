@@ -2,7 +2,8 @@ import 'dart:async';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 
-import 'package:cassandra_native/models/server.dart';
+//import 'package:cassandra_native/models/server.dart';
+import 'package:cassandra_native/comm/server_interface.dart';
 
 class MqttManager {
   MqttManager._privateConstructor();
@@ -14,10 +15,11 @@ class MqttManager {
       {};
   final Map<String, Timer?> _reconnectTimers = {};
   final Map<String, Timer?> _offlineTimers = {};
-  final Duration offlineDuration = const Duration(minutes: 1);
+  Timer? appLifecycleStateTimer;
+  final Duration offlineDuration = const Duration(seconds: 30);
 
   Future<void> create(
-      Server server, Function(String, String, String) onMessageReceived) async {
+      ServerInterface server, Function(String, String, String) onMessageReceived) async {
     if (_clients.containsKey(server.id)) {
       _addCallback(server.id, onMessageReceived);
       return;
@@ -102,7 +104,7 @@ class MqttManager {
     }
   }
 
-  void _subscribeTopics(Server server) {
+  void _subscribeTopics(ServerInterface server) {
     subscribe(server.id, '${server.serverNamePrefix}/status');
     subscribe(server.id, '${server.serverNamePrefix}/robot');
     subscribe(server.id, '${server.serverNamePrefix}/map');
@@ -143,17 +145,16 @@ class MqttManager {
   }
 
   void disconnectAll() {
-    for (var clientId in _clients.keys) {
+    var clients = Map.from(_clients);
+    for (var clientId in clients.keys) {
       disconnect(clientId);
       _cancelReconnectTimer(clientId);
     }
     _clients.clear();
     _messageCallbacks.clear();
-    //print('All clients disconnected');
   }
 
   void _handleDisconnection(String clientId) {
-    //print('Disconnected: $clientId');
     _messageCallbacks[clientId]?.forEach((callback) {
       callback.call(clientId, '/status', 'offline');
     });
@@ -165,7 +166,6 @@ class MqttManager {
     _cancelReconnectTimer(clientId);
     _reconnectTimers[clientId] =
         Timer.periodic(const Duration(seconds: 5), (timer) {
-      //print('Attempting to reconnect: $clientId');
       connect(clientId);
     });
   }
@@ -178,7 +178,6 @@ class MqttManager {
   void _startOfflineTimer(String clientId) {
     _cancelOfflineTimer(clientId);
     _offlineTimers[clientId] = Timer(offlineDuration, () {
-      //print('Client $clientId marked as offline due to inactivity.');
       _handleDisconnection(clientId);
     });
   }
@@ -190,6 +189,18 @@ class MqttManager {
   void _cancelOfflineTimer(String clientId) {
     _offlineTimers[clientId]?.cancel();
     _offlineTimers.remove(clientId);
+  }
+
+  void startAppLifecycleStateTimer() {
+    appLifecycleStateTimer = Timer(const Duration(seconds: 30), () {
+      disconnectAll();
+    });
+  }
+
+  void cancelAppLifecycleStateTimer() {
+    if (appLifecycleStateTimer != null) {
+      appLifecycleStateTimer!.cancel();
+    }
   }
 
   bool isNotConnected(String clientId) {

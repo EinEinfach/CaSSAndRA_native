@@ -32,7 +32,7 @@ class Landscape {
   List<Offset> mowPath = [];
   // selection lasso etc.
   List<Offset> selectedArea = [];
-  Offset gotoPoint = Offset.zero;
+  Offset? gotoPoint;
   // min and max of map x and y coordinates
   double minX = double.infinity;
   double minY = double.infinity;
@@ -131,7 +131,6 @@ class Landscape {
         mowPathId = decodedMessage["features"][0]["properties"]["id"];
         return;
       }
-      _resetPreviewCoords();
       for (var feature in decodedMessage["features"]) {
         if (feature['properties']['name'] == 'mow path') {
           for (var coord in feature['geometry']['coordinates'][0]) {

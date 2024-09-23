@@ -44,6 +44,7 @@ class Server {
 
   ServerInterface serverInterface;
   String status = "offline";
+  String? _lastStatus;
   Color stateColor = Colors.deepOrange;
 
   String preparedCmd = "home";
@@ -78,7 +79,7 @@ class Server {
       status = message;
       if (status == 'offline') {
         robot.status = 'offline';
-      }
+      } 
     } else if (topic.contains('/robot')) {
       robot.jsonToClassData(message);
     } else if (topic.contains('/map')) {
@@ -92,6 +93,16 @@ class Server {
       }
     } else if (topic.contains('/coords')) {
       currentMap.coordsJsonToClassData(message);
+    }
+  }
+
+  void storeStatus() {
+    _lastStatus = status;
+  }
+
+  void restoreStatus() {
+    if (_lastStatus != null) {
+      status = _lastStatus!;
     }
   }
 }

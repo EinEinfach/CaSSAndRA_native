@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import 'package:cassandra_native/utils/ui_state_storage.dart';
 import 'package:cassandra_native/utils/server_storage.dart';
+import 'package:cassandra_native/utils/life_cycle_manager.dart';
 
 import 'package:cassandra_native/data/app_data.dart';
 
@@ -34,11 +36,14 @@ class ServersPage extends StatefulWidget {
 
 class _ServersPageState extends State<ServersPage> {
   late IconData listViewIcon;
+  AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
 
   @override
   void dispose() {
-    MqttManager.instance.disconnectAll();
     super.dispose();
+    for (var server in user.registredServers.servers) {
+      MqttManager.instance.unregisterCallback(server.id, onMessageReceived);
+    }
   }
 
   @override
@@ -48,8 +53,32 @@ class _ServersPageState extends State<ServersPage> {
     _loadServers();
   }
 
+  void _handleAppLifecycleState() {
+    if (context.watch<LifecycleManager>().appLifecycleState ==
+        AppLifecycleState.paused) {
+      for (var server in user.registredServers.servers) {
+        server.storeStatus();
+      }
+      MqttManager.instance.startAppLifecycleStateTimer();
+    } else if (context.watch<LifecycleManager>().appLifecycleState ==
+            AppLifecycleState.resumed &&
+        appLifecycleState != AppLifecycleState.resumed) {
+      MqttManager.instance.cancelAppLifecycleStateTimer();
+      for (var server in user.registredServers.servers) {
+        if (MqttManager.instance.isNotConnected(server.id)) {
+          _connectToServer(server);
+          server.restoreStatus();
+          server.stateColor = _createItemColor(server);
+        }
+      }
+    }
+    appLifecycleState = context.watch<LifecycleManager>().appLifecycleState;
+  }
+
   Future<void> _connectToServer(Server server) async {
-    await MqttManager.instance.create(server, onMessageReceived);
+    await MqttManager.instance
+        .create(server.serverInterface, onMessageReceived);
+    //server.serverInterface.connect(context);
   }
 
   Future<void> _loadServers() async {
@@ -64,6 +93,8 @@ class _ServersPageState extends State<ServersPage> {
     for (var server in user.registredServers.servers) {
       if (MqttManager.instance.isNotConnected(server.id)) {
         _connectToServer(server);
+      } else {
+        MqttManager.instance.registerCallback(server.id, onMessageReceived);
       }
     }
   }
@@ -73,15 +104,20 @@ class _ServersPageState extends State<ServersPage> {
     setState(() {});
   }
 
+  Color _createItemColor(server) {
+    if (server.status == 'offline') {
+      return Theme.of(context).colorScheme.errorContainer;
+    } else {
+      return Theme.of(context).colorScheme.primary;
+    }
+  }
+
   void onMessageReceived(String clientId, String topic, String message) {
-    var server = user.registredServers.servers.firstWhere((s) => s.id == clientId);
+    var server =
+        user.registredServers.servers.firstWhere((s) => s.id == clientId);
     server.onMessageReceived(clientId, topic, message);
     setState(() {
-      if (server.status == 'offline'){
-        server.stateColor = Theme.of(context).colorScheme.errorContainer;
-      } else {
-        server.stateColor = Theme.of(context).colorScheme.primary;
-      }
+      server.stateColor = _createItemColor(server);
     });
   }
 
@@ -218,6 +254,8 @@ class _ServersPageState extends State<ServersPage> {
 
   @override
   Widget build(BuildContext context) {
+    _handleAppLifecycleState();
+
     Widget mainContent = Center(
       child: const Text('No Server found. Start with add button')
           .animate()
