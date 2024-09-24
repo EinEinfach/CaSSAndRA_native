@@ -83,7 +83,9 @@ class MqttManager {
   void _addCallback(
       String clientId, Function(String, String, String) onMessageReceived) {
     if (_messageCallbacks.containsKey(clientId)) {
-      _messageCallbacks[clientId]!.add(onMessageReceived);
+      if (!_messageCallbacks[clientId]!.contains(onMessageReceived)) {
+        _messageCallbacks[clientId]!.add(onMessageReceived);  
+      }
     } else {
       _messageCallbacks[clientId] = [onMessageReceived];
     }

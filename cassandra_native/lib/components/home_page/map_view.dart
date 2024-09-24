@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui' as ui;
+import 'package:provider/provider.dart';
 
-import '../../models/server.dart';
+import 'package:cassandra_native/cassandra_native.dart';
+import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/comm/mqtt_manager.dart';
 import 'package:cassandra_native/components/home_page/map_painter.dart';
 import 'package:cassandra_native/components/home_page/map_button.dart';
@@ -19,6 +21,9 @@ class MapView extends StatefulWidget {
 }
 
 class _MapViewState extends State<MapView> {
+  //app lifecycle
+  AppLifecycleState _appLifecycleState = AppLifecycleState.resumed;
+
   //zoom and pan
   Offset _offset = Offset.zero;
   double _scale = 1.0;
@@ -56,11 +61,28 @@ class _MapViewState extends State<MapView> {
   void initState() {
     super.initState();
     _loadImage('lib/images/rover0grad.png');
-    _registerCallback();
+    _connectToServer();
     setState(() {
-      //mapForPlot = widget.server.currentMap.mapForPlot;
       _handlePlayButton();
     });
+  }
+
+  void _handleAppLifecycleState(
+      AppLifecycleState oldState, AppLifecycleState newState) {
+    if (newState == AppLifecycleState.resumed &&
+        oldState != AppLifecycleState.resumed) {
+      _connectToServer();
+    }
+  }
+
+  Future<void> _connectToServer() async {
+    if (MqttManager.instance.isNotConnected(widget.server.id)) {
+      await MqttManager.instance
+          .create(widget.server.serverInterface, onMessageReceived);
+    } else {
+      MqttManager.instance
+          .registerCallback(widget.server.id, onMessageReceived);
+    }
   }
 
   Future<void> _loadImage(String asset) async {
@@ -205,14 +227,19 @@ class _MapViewState extends State<MapView> {
 
   @override
   Widget build(BuildContext context) {
+    _handleAppLifecycleState(_appLifecycleState,
+        Provider.of<CassandraNative>(context).appLifecycleState);
+    _appLifecycleState =
+        Provider.of<CassandraNative>(context).appLifecycleState;
 
     // Screen size is changed (could happened on desktop) then add additional offset on lasso and go to
     Size screenSize = MediaQuery.of(context).size;
     if (oldScreenSize == null) {
       oldScreenSize = screenSize;
     } else {
-      screenSizeDelta = Offset(screenSize.width - oldScreenSize!.width, screenSize.height - oldScreenSize!.height);
-      if (screenSizeDelta != Offset.zero){
+      screenSizeDelta = Offset(screenSize.width - oldScreenSize!.width,
+          screenSize.height - oldScreenSize!.height);
+      if (screenSizeDelta != Offset.zero) {
         _resetLassoSelection();
         //_resetGotoPoint();
       }

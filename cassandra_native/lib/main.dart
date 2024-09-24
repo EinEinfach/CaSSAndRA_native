@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:desktop_window/desktop_window.dart';
 
+import 'package:cassandra_native/cassandra_native.dart';
 import 'package:cassandra_native/theme/theme_provider.dart';
-import 'package:cassandra_native/utils/life_cycle_manager.dart';
 import 'package:cassandra_native/pages/servers_page.dart';
 
 Future setWindowSize() async {
@@ -25,7 +25,7 @@ void main() {
           create: (context) => ThemeProvider(),
         ),
         ChangeNotifierProvider(
-          create: (context) => LifecycleManager(),
+          create: (context) => CassandraNative(),
         ),
         // ChangeNotifierProvider(
         //   create: (context) => Robot(),
