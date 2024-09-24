@@ -111,7 +111,6 @@ class NavDrawer extends StatelessWidget {
                         title: "Overview",
                         leading: const Icon(Icons.home),
                         onTap: () {
-                          Navigator.pop(context);
                           navigateTo(
                             HomePage(server: server),
                           );

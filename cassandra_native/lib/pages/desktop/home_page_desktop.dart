@@ -1,3 +1,4 @@
+import 'package:cassandra_native/components/nav_button.dart';
 import 'package:flutter/material.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 
@@ -17,41 +18,39 @@ class HomePageDesktop extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       bottomNavigationBar: BottomCmdBar(server: server),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        actions: [
-          Builder(
-            builder: (context) {
-              return IconButton(
-                icon: Icon(
-                  BootstrapIcons.joystick,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                onPressed: () {
-                  Scaffold.of(context).openEndDrawer();
-                },
-              );
-            },
-          ),
-        ],
-      ),
       endDrawer: JoystickDrawer(server: server),
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          NavDrawer(
-            server: server,
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: MapView(server: server),
+      body: Builder(builder: (context) {
+        return Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                NavButton(
+                    icon: BootstrapIcons.joystick,
+                    onPressed: () {
+                      Scaffold.of(context).openEndDrawer();
+                    }),
+              ],
             ),
-          ),
-        ],
-      ),
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  NavDrawer(
+                    server: server,
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: MapView(server: server),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      }),
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:cassandra_native/components/nav_drawer.dart';
 import 'package:cassandra_native/components/home_page/bottom_cmd_bar.dart';
 import 'package:cassandra_native/components/home_page/map_view.dart';
 import 'package:cassandra_native/models/server.dart';
+import 'package:cassandra_native/components/nav_button.dart';
 
 class HomePageTablet extends StatelessWidget {
   final Server server;
@@ -17,45 +18,44 @@ class HomePageTablet extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       bottomNavigationBar: BottomCmdBar(server: server),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: Builder(builder: (context) {
-          return IconButton(
-            icon: Icon(
-              Icons.menu,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
-          );
-        }),
-        actions: [
-          Builder(
-            builder: (context) {
-              return IconButton(
-                icon: Icon(
-                  BootstrapIcons.joystick,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                onPressed: () {
-                  Scaffold.of(context).openEndDrawer();
-                },
-              );
-            },
-          ),
-        ],
-      ),
       endDrawer: JoystickDrawer(server: server),
       drawer: NavDrawer(
         server: server,
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(0),
-          child: MapView(server: server),
-        ),
+      body: Builder(
+        builder: (context) {
+          return SafeArea(
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    NavButton(
+                      icon: Icons.menu,
+                      onPressed: () {
+                        Scaffold.of(context).openDrawer();
+                      },
+                    ),
+                    NavButton(
+                      icon: BootstrapIcons.joystick,
+                      onPressed: () {
+                        Scaffold.of(context).openEndDrawer();
+                      },
+                    ),
+                  ],
+                ),
+                Expanded(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(0),
+                      child: MapView(server: server),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
       ),
     );
   }

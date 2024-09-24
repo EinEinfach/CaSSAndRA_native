@@ -97,10 +97,6 @@ class _MapViewState extends State<MapView> {
     });
   }
 
-  void _registerCallback() {
-    MqttManager.instance.registerCallback(widget.server.id, onMessageReceived);
-  }
-
   void onMessageReceived(String clientId, String topic, String message) {
     widget.server.onMessageReceived(clientId, topic, message);
     setState(() {

@@ -26,20 +26,20 @@ class ServerItemV2 extends StatelessWidget {
       );
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: serverItemColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      height: 80,
-      margin: const EdgeInsets.all(2),
-      padding: const EdgeInsets.fromLTRB(8, 5, 5, 5),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          GestureDetector(
-            onTap: () => _navigateToHomePage(server),
-            child: Column(
+    return GestureDetector(
+      onTap: () => _navigateToHomePage(server),
+      child: Container(
+        decoration: BoxDecoration(
+          color: serverItemColor,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        height: 80,
+        margin: const EdgeInsets.all(2),
+        padding: const EdgeInsets.fromLTRB(8, 5, 5, 5),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(server.serverNamePrefix),
@@ -49,13 +49,37 @@ class ServerItemV2 extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-          const SizedBox(
-            width: 8,
-          ),
-          GestureDetector(
-            onTap: openEditServer,
-            child: Container(
+            const SizedBox(
+              width: 8,
+            ),
+            GestureDetector(
+              onTap: openEditServer,
+              child: Container(
+                width: 50,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondary,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.computer,
+                      color: Theme.of(context).colorScheme.inversePrimary,
+                      size: 40,
+                    ),
+                    Text(
+                      server.status,
+                      style: const TextStyle(fontSize: 10),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(
+              width: 8,
+            ),
+            Container(
               width: 50,
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.secondary,
@@ -64,46 +88,22 @@ class ServerItemV2 extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.computer,
-                    color: Theme.of(context).colorScheme.inversePrimary,
-                    size: 40,
+                  SizedBox(
+                    height: 40,
+                    child: Image.asset(
+                      'lib/images/mower_icon.png',
+                      color: Theme.of(context).colorScheme.inversePrimary,
+                    ),
                   ),
                   Text(
-                    server.status,
+                    server.robot.status,
                     style: const TextStyle(fontSize: 10),
                   ),
                 ],
               ),
             ),
-          ),
-          const SizedBox(
-            width: 8,
-          ),
-          Container(
-            width: 50,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.secondary,
-              borderRadius: BorderRadius.circular(5),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  height: 40,
-                  child: Image.asset(
-                    'lib/images/mower_icon.png',
-                    color: Theme.of(context).colorScheme.inversePrimary,
-                  ),
-                ),
-                Text(
-                  server.robot.status,
-                  style: const TextStyle(fontSize: 10),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
