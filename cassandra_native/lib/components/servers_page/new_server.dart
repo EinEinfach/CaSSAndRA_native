@@ -18,6 +18,7 @@ class NewServer extends StatefulWidget {
 
 class _NewServerState extends State<NewServer> {
   String id = "";
+  final _aliasController = TextEditingController();
   final _mqttServerController = TextEditingController();
   final _serverNamePrefixController = TextEditingController();
   final _portController = TextEditingController();
@@ -28,7 +29,8 @@ class _NewServerState extends State<NewServer> {
   void _submitServerData() {
     final enteredPort = int.tryParse(_portController.text);
     final enteredPortIsInvalid = enteredPort == null || enteredPort <= 0;
-    if (_mqttServerController.text.trim().isEmpty ||
+    if (_aliasController.text.trim().isEmpty ||
+        _mqttServerController.text.trim().isEmpty ||
         _serverNamePrefixController.text.trim().isEmpty ||
         enteredPortIsInvalid) {
       showDialog(
@@ -51,6 +53,7 @@ class _NewServerState extends State<NewServer> {
       Server(
         id: id,
         category: _selectedCategory,
+        alias: _aliasController.text,
         mqttServer: _mqttServerController.text,
         serverNamePrefix: _serverNamePrefixController.text,
         port: enteredPort,
@@ -63,6 +66,7 @@ class _NewServerState extends State<NewServer> {
 
   @override
   void dispose() {
+    _aliasController.dispose();
     _mqttServerController.dispose();
     _serverNamePrefixController.dispose();
     _portController.dispose();
@@ -76,6 +80,7 @@ class _NewServerState extends State<NewServer> {
     super.initState();
     if (widget.server != null) {
       id = widget.server!.id;
+      _aliasController.text = widget.server!.alias;
       _mqttServerController.text = widget.server!.mqttServer;
       _serverNamePrefixController.text = widget.server!.serverNamePrefix;
       _portController.text = widget.server!.port.toString();
@@ -91,10 +96,19 @@ class _NewServerState extends State<NewServer> {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 300,
-      height: 290,
+      height: 310,
       child: SingleChildScrollView(
         child: Column(
           children: [
+            TextField(
+              controller: _aliasController,
+              decoration: InputDecoration(
+                label: Text(
+                  'Alias',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+            ),
             TextField(
               controller: _serverNamePrefixController,
               decoration: InputDecoration(

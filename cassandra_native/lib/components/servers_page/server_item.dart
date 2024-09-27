@@ -66,7 +66,7 @@ class ServerItem extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      server.serverNamePrefix,
+                      server.alias,
                       style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.bold),
                     ),

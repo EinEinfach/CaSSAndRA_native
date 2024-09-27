@@ -42,7 +42,7 @@ class ServerItemV2 extends StatelessWidget {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(server.serverNamePrefix),
+                Text(server.alias),
                 Text(
                   server.id,
                   style: const TextStyle(fontSize: 6),

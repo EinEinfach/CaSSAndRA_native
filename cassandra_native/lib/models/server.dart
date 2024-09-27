@@ -20,6 +20,7 @@ class Server {
   Server({
     required this.id,
     required this.category,
+    required this.alias,
     required this.mqttServer,
     required this.serverNamePrefix,
     required this.port,
@@ -36,6 +37,7 @@ class Server {
 
   final String id;
   final Category category;
+  final String alias;
   final String mqttServer;
   final String serverNamePrefix;
   final int port;
@@ -54,6 +56,7 @@ class Server {
   Map<String, dynamic> toJson() => {
         'id': id,
         'category': category.name,
+        'alias': alias,
         'mqttServer': mqttServer,
         'serverNamePrefix': serverNamePrefix,
         'port': port,
@@ -65,6 +68,7 @@ class Server {
     return Server(
       id: json['id'],
       category: Category.values.byName(json['category']),
+      alias: json['alias'],
       mqttServer: json['mqttServer'],
       serverNamePrefix: json['serverNamePrefix'],
       port: json['port'],
