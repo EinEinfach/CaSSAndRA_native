@@ -16,7 +16,8 @@ class MqttManager {
   final Map<String, Timer?> _reconnectTimers = {};
   final Map<String, Timer?> _offlineTimers = {};
   Timer? appLifecycleStateTimer;
-  final Duration offlineDuration = const Duration(seconds: 30);
+  final Duration offlineDuration = const Duration(seconds: 5);
+  final Duration offlineDurationAppLifecycle = const Duration(seconds: 20);
 
   Future<void> create(
       ServerInterface server, Function(String, String, String) onMessageReceived) async {
@@ -193,17 +194,17 @@ class MqttManager {
     _offlineTimers.remove(clientId);
   }
 
-  void startAppLifecycleStateTimer() {
-    appLifecycleStateTimer = Timer(const Duration(seconds: 30), () {
-      disconnectAll();
-    });
-  }
+  // void startAppLifecycleStateTimer() {
+  //   appLifecycleStateTimer = Timer(offlineDurationAppLifecycle, () {
+  //     disconnectAll();
+  //   });
+  // }
 
-  void cancelAppLifecycleStateTimer() {
-    if (appLifecycleStateTimer != null) {
-      appLifecycleStateTimer!.cancel();
-    }
-  }
+  // void cancelAppLifecycleStateTimer() {
+  //   if (appLifecycleStateTimer != null) {
+  //     appLifecycleStateTimer!.cancel();
+  //   }
+  // }
 
   bool isNotConnected(String clientId) {
     if (_clients.containsKey(clientId)) {

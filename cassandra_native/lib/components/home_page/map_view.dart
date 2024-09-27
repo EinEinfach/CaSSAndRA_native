@@ -10,6 +10,7 @@ import 'package:cassandra_native/comm/mqtt_manager.dart';
 import 'package:cassandra_native/components/home_page/map_painter.dart';
 import 'package:cassandra_native/components/home_page/map_button.dart';
 import 'package:cassandra_native/components/home_page/play_button.dart';
+import 'package:cassandra_native/components/home_page/status_bar.dart';
 import 'package:cassandra_native/utils/custom_shape_calcs.dart';
 
 class MapView extends StatefulWidget {
@@ -396,51 +397,56 @@ class _MapViewState extends State<MapView> {
                 _handlePlayButtonLongPressed();
               },
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            Column(
               children: [
-                MapButton(
-                  icon: Icons.zoom_in_map,
-                  isActive: false,
-                  onPressed: () {
-                    focusOnMowerActive = false;
-                    lassoSelectionActive = false;
-                    _offset = Offset.zero;
-                    _scale = 1.0;
-                    setState(() {});
-                  },
-                ),
-                MapButton(
-                  icon: Icons.center_focus_weak_outlined,
-                  isActive: focusOnMowerActive,
-                  onPressed: () {
-                    focusOnMowerActive = !focusOnMowerActive;
-                    lassoSelectionActive = false;
-                    _focusOnMower();
-                    setState(() {});
-                  },
-                ),
-                MapButton(
-                  icon: Icons.gesture_outlined,
-                  isActive: lassoSelectionActive,
-                  onPressed: () {
-                    if (widget.server.preparedCmd == 'calc') {
-                      focusOnMowerActive = false;
-                      lassoSelectionActive = !lassoSelectionActive;
-                      lassoSelection = [];
-                      lassoSelectionPoints = [];
-                      gotoPoint = null;
-                      setState(() {});
-                    }
-                  },
-                ),
-                MapButton(
-                  icon: Icons.cancel,
-                  isActive: false,
-                  onPressed: () {
-                    _handleCancelButton();
-                    setState(() {});
-                  },
+                StatusBar(robot: widget.server.robot),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    MapButton(
+                      icon: Icons.zoom_in_map,
+                      isActive: false,
+                      onPressed: () {
+                        focusOnMowerActive = false;
+                        lassoSelectionActive = false;
+                        _offset = Offset.zero;
+                        _scale = 1.0;
+                        setState(() {});
+                      },
+                    ),
+                    MapButton(
+                      icon: Icons.center_focus_weak_outlined,
+                      isActive: focusOnMowerActive,
+                      onPressed: () {
+                        focusOnMowerActive = !focusOnMowerActive;
+                        lassoSelectionActive = false;
+                        _focusOnMower();
+                        setState(() {});
+                      },
+                    ),
+                    MapButton(
+                      icon: Icons.gesture_outlined,
+                      isActive: lassoSelectionActive,
+                      onPressed: () {
+                        if (widget.server.preparedCmd == 'calc') {
+                          focusOnMowerActive = false;
+                          lassoSelectionActive = !lassoSelectionActive;
+                          lassoSelection = [];
+                          lassoSelectionPoints = [];
+                          gotoPoint = null;
+                          setState(() {});
+                        }
+                      },
+                    ),
+                    MapButton(
+                      icon: Icons.cancel,
+                      isActive: false,
+                      onPressed: () {
+                        _handleCancelButton();
+                        setState(() {});
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),

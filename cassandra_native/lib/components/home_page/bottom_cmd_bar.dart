@@ -30,6 +30,7 @@ class BottomCmdBar extends StatelessWidget {
         tabs: [
           GButton(
             icon: Icons.home_rounded,
+            //backgroundColor: Theme.of(context).colorScheme.onSecondary,
             text: 'home',
             onPressed: () {
               setCmdBarState('home');

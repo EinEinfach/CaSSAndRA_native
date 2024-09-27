@@ -91,20 +91,11 @@ class _ServersPageState extends State<ServersPage> {
     setState(() {});
   }
 
-  Color _createItemColor(server) {
-    if (server.status == 'offline') {
-      return Theme.of(context).colorScheme.errorContainer;
-    } else {
-      return Theme.of(context).colorScheme.primary;
-    }
-  }
-
   void onMessageReceived(String clientId, String topic, String message) {
     var server =
         user.registredServers.servers.firstWhere((s) => s.id == clientId);
     server.onMessageReceived(clientId, topic, message);
     setState(() {
-      server.stateColor = _createItemColor(server);
     });
   }
 
@@ -262,7 +253,7 @@ class _ServersPageState extends State<ServersPage> {
               final server = user.registredServers.servers[index];
               return ServerItem(
                 server: server,
-                serverItemColor: server.stateColor,
+                serverItemColor: server.setStateColor(context),
                 onRemoveServer: () => removeServer(context, server),
                 openEditServer: () => openEditServerOverlay(context, server),
               ).animate().fadeIn().scale();
@@ -286,7 +277,7 @@ class _ServersPageState extends State<ServersPage> {
                 onDismissed: (direction) => _onDismissedServer(context, server),
                 child: ServerItemV2(
                   server: server,
-                  serverItemColor: server.stateColor,
+                  serverItemColor: server.setStateColor(context),
                   openEditServer: () => openEditServerOverlay(context, server),
                 ).animate().fadeIn().scale(),
               );

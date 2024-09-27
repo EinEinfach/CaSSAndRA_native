@@ -22,41 +22,37 @@ class HomePageMobile extends StatelessWidget {
       drawer: NavDrawer(
         server: server,
       ),
-      body: Builder(
-        builder: (context) {
-          return SafeArea(
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    NavButton(
-                      icon: Icons.menu,
-                      onPressed: () {
-                        Scaffold.of(context).openDrawer();
-                      },
-                    ),
-                    NavButton(
-                      icon: BootstrapIcons.joystick,
-                      onPressed: () {
-                        Scaffold.of(context).openEndDrawer();
-                      },
-                    ),
-                  ],
+      body: Builder(builder: (context) {
+        return SafeArea(
+          child: Stack(
+            children: [ 
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(0),
+                  child: MapView(server: server),
                 ),
-                Expanded(
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(0),
-                      child: MapView(server: server),
-                    ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  NavButton(
+                    icon: Icons.menu,
+                    onPressed: () {
+                      Scaffold.of(context).openDrawer();
+                    },
                   ),
-                ),
-              ],
-            ),
-          );
-        }
-      ),
+                  NavButton(
+                    icon: BootstrapIcons.joystick,
+                    onPressed: () {
+                      Scaffold.of(context).openEndDrawer();
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 }

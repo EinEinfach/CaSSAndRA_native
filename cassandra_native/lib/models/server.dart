@@ -45,7 +45,6 @@ class Server {
   ServerInterface serverInterface;
   String status = "offline";
   String? _lastStatus;
-  Color stateColor = Colors.deepOrange;
 
   String preparedCmd = "home";
 
@@ -98,11 +97,21 @@ class Server {
 
   void storeStatus() {
     _lastStatus = status;
+    robot.lastStatus = robot.status;
   }
 
   void restoreStatus() {
     if (_lastStatus != null) {
       status = _lastStatus!;
+      robot.status = robot.lastStatus!;
+    }
+  }
+
+  Color setStateColor(BuildContext context) {
+    if (status != 'offline'){
+      return Theme.of(context).colorScheme.primary;
+    } else {
+      return Theme.of(context).colorScheme.errorContainer;
     }
   }
 }

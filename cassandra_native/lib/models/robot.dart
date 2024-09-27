@@ -6,12 +6,20 @@ import 'package:cassandra_native/models/landscape.dart';
 
 class Robot {
   String status = 'offline';
+  String? lastStatus;
   Offset position = const Offset(0, 0);
   Offset target = const Offset(0, 0);
   Offset scaledPosition = const Offset(0, 0);
   Offset scaledTarget = const Offset(0, 0);
   double angle = 0;
   int mowPointIdx = 0;
+  int soc = 0;
+  double voltage = 0;
+  double current = 0;
+  String rtkSolution = 'invalid';
+  int visibleSatellites = 0;
+  int dgpsSatellites = 0;
+  String rtkAge = '99+d';
 
   void jsonToClassData(String message){
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
@@ -21,6 +29,13 @@ class Robot {
       angle = decodedMessage['angle'];
       status = decodedMessage['status'];
       mowPointIdx = decodedMessage['mowPointIdx'];
+      soc = decodedMessage['battery']['soc'];
+      voltage = decodedMessage['battery']['voltage'];
+      current = decodedMessage['battery']['electricCurrent'];
+      visibleSatellites = decodedMessage['gps']['visible'];
+      dgpsSatellites = decodedMessage['gps']['dgps'];
+      rtkAge = decodedMessage['gps']['age'];
+      rtkSolution = decodedMessage['gps']['solution'];
 
       //notifyListeners();
     }

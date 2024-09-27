@@ -15,17 +15,22 @@ class CassandraNative extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void _handleAppLifecycleState(AppLifecycleState newState) {
-    if (newState == AppLifecycleState.paused) {
+    if (newState == AppLifecycleState.paused || newState == AppLifecycleState.detached) {
       for (var server in user.registredServers.servers) {
         server.storeStatus();
       }
-      MqttManager.instance.startAppLifecycleStateTimer();
-      //MqttManager.instance.disconnectAll();
-    } else if (newState == AppLifecycleState.resumed) {
-      MqttManager.instance.cancelAppLifecycleStateTimer();
-    } else if (newState == AppLifecycleState.detached) {
+      //MqttManager.instance.startAppLifecycleStateTimer();
       MqttManager.instance.disconnectAll();
-    }
+      for (var server in user.registredServers.servers) {
+        server.restoreStatus();
+      }
+    } 
+    // } else if (newState == AppLifecycleState.resumed) {
+    //   MqttManager.instance.cancelAppLifecycleStateTimer();
+    // }
+    // } else if (newState == AppLifecycleState.detached) {
+    //   MqttManager.instance.disconnectAll();
+    // }
   }
 
   @override

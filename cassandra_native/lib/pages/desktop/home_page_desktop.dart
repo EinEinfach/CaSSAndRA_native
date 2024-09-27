@@ -20,7 +20,7 @@ class HomePageDesktop extends StatelessWidget {
       bottomNavigationBar: BottomCmdBar(server: server),
       endDrawer: JoystickDrawer(server: server),
       body: Builder(builder: (context) {
-        return Column(
+        return Stack(
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
