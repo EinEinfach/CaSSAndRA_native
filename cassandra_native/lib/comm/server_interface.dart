@@ -61,9 +61,16 @@ class ServerInterface {
   void commandSetSelection(List<Offset> selection) {
     final Map<String, List<double>> selectionCoords = _coordsToMap(selection);
     final Map<String, dynamic> cmdSetSelection =
-        _addTopicAndCommandToValue('map', 'set selection', selectionCoords);
+        _addTopicAndCommandToValue('map', 'setSelection', selectionCoords);
     final String cmdSetSelectionJson = jsonEncode(cmdSetSelection);
     _sendCommand(cmdSetSelectionJson);
+  }
+
+  void commandSetMowParameters(Map<String, dynamic> mowParameters) {
+    final Map<String, dynamic> cmdSetMowParameters =
+        _addTopicAndCommandToValue('map', 'setMowParameters', mowParameters);
+    final String cmdSetMowParametersJson = jsonEncode(cmdSetMowParameters);
+    _sendCommand(cmdSetMowParametersJson);
   }
 
   void commandMow(String value) {

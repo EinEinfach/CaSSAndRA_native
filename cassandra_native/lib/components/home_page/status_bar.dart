@@ -25,7 +25,7 @@ class StatusBar extends StatelessWidget {
       return Icons.battery_4_bar_rounded;
     } else if (robot.soc > 50) {
       return Icons.battery_3_bar_rounded;
-    } else if (robot.soc > 40) {
+    } else if (robot.soc > 30) {
       return Icons.battery_2_bar_rounded;
     } else if (robot.soc > 20) {
       return Icons.battery_1_bar_rounded;

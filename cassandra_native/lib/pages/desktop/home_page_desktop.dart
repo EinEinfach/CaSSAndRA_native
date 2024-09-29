@@ -32,8 +32,7 @@ class HomePageDesktop extends StatelessWidget {
                     }),
               ],
             ),
-            Expanded(
-              child: Row(
+               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   NavDrawer(
@@ -47,7 +46,6 @@ class HomePageDesktop extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
           ],
         );
       }),

@@ -1,3 +1,5 @@
+import 'package:cassandra_native/models/mow_parameters.dart';
+import 'package:cassandra_native/utils/mow_parameters_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +14,10 @@ import 'package:cassandra_native/components/home_page/map_button.dart';
 import 'package:cassandra_native/components/home_page/play_button.dart';
 import 'package:cassandra_native/components/home_page/status_bar.dart';
 import 'package:cassandra_native/utils/custom_shape_calcs.dart';
+import 'package:cassandra_native/components/new_mow_parameters.dart';
+
+// globals
+import 'package:cassandra_native/data/user_data.dart' as user;
 
 class MapView extends StatefulWidget {
   final Server server;
@@ -113,12 +119,13 @@ class _MapViewState extends State<MapView> {
     //setState(() {});
   }
 
-  void _lookForSelectedPointIndex(LongPressStartDetails details) {
+  void _lookForSelectedPointIndex(LongPressStartDetails details, double scale) {
+    double minDistance = 20/scale;
     double currentDistance = double.infinity;
     final Offset scaledAndMovedPosition =
         (details.localPosition - _offset) / _scale;
     for (int i = 0; i < lassoSelection.length; i++) {
-      if ((lassoSelection[i] - scaledAndMovedPosition).distance < 20 &&
+      if ((lassoSelection[i] - scaledAndMovedPosition).distance < minDistance &&
           (lassoSelection[i] - scaledAndMovedPosition).distance <
               currentDistance) {
         currentDistance = (lassoSelection[i] - scaledAndMovedPosition).distance;
@@ -195,8 +202,10 @@ class _MapViewState extends State<MapView> {
             lassoSelection, widget.server.currentMap.mapScale);
         widget.server.serverInterface
             .commandSetSelection(widget.server.currentMap.selectedArea);
+        widget.server.serverInterface.commandSetMowParameters(user.currentMowParameters.toJson());
         widget.server.serverInterface.commandMow('selection');
       } else if (widget.server.preparedCmd == 'calc') {
+        widget.server.serverInterface.commandSetMowParameters(user.currentMowParameters.toJson());
         widget.server.serverInterface.commandMow('all');
       } else if (widget.server.preparedCmd == 'home') {
         widget.server.serverInterface.commandDock();
@@ -209,7 +218,8 @@ class _MapViewState extends State<MapView> {
     } else if (widget.server.robot.status == 'idle' ||
         widget.server.robot.status == 'charging' ||
         widget.server.robot.status == 'docked' ||
-        widget.server.robot.status == 'stop') {
+        widget.server.robot.status == 'stop' || 
+        widget.server.robot.status == 'offline') {
       jobActive = false;
       playButtonIcon = Icons.play_arrow;
     } else {
@@ -220,6 +230,32 @@ class _MapViewState extends State<MapView> {
 
   void _handlePlayButtonLongPressed() {
     widget.server.serverInterface.commandMow('resume');
+  }
+
+  void setMowParameters(MowParameters mowParameters) {
+    user.currentMowParameters = mowParameters;
+    MowParametersStorage.saveMowParameters(mowParameters);
+    //widget.server.serverInterface.commandSetMowParameters(mowParameters.toJson());
+  }
+
+  void openMowParametersOverlay() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        title: const Text(
+          'Mow parameters',
+          style: TextStyle(fontSize: 14),
+        ),
+        content: NewMowParameters(
+          onSetMowParameters: setMowParameters,
+          mowParameters: user.currentMowParameters,
+        ),
+      ),
+    );
   }
 
   @override
@@ -342,7 +378,7 @@ class _MapViewState extends State<MapView> {
               },
               onLongPressStart: (details) {
                 if (lassoSelection.isNotEmpty) {
-                  _lookForSelectedPointIndex(details);
+                  _lookForSelectedPointIndex(details, _scale);
                   setState(() {});
                 }
               },
@@ -397,6 +433,32 @@ class _MapViewState extends State<MapView> {
                 _handlePlayButtonLongPressed();
               },
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    MapButton(
+                      icon: Icons.cancel,
+                      isActive: false,
+                      onPressed: () {
+                        _handleCancelButton();
+                        setState(() {});
+                      },
+                    ),
+                    MapButton(
+                      icon: Icons.settings,
+                      isActive: false,
+                      onPressed: openMowParametersOverlay,
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  width: 3,
+                ),
+              ],
+            ),
             Column(
               children: [
                 StatusBar(robot: widget.server.robot),
@@ -436,14 +498,6 @@ class _MapViewState extends State<MapView> {
                           gotoPoint = null;
                           setState(() {});
                         }
-                      },
-                    ),
-                    MapButton(
-                      icon: Icons.cancel,
-                      isActive: false,
-                      onPressed: () {
-                        _handleCancelButton();
-                        setState(() {});
                       },
                     ),
                   ],

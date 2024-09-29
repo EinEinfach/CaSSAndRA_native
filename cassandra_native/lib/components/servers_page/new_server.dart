@@ -35,15 +35,24 @@ class _NewServerState extends State<NewServer> {
         enteredPortIsInvalid) {
       showDialog(
         context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('Invalid input'),
+        builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          title: const Text(
+            'Invalid input',
+            style: TextStyle(fontSize: 14),
+          ),
           content: const Text(
               'Please make sure a valid MQTT server adress, port and client ID was entered'),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('okay'),
-            ),
+            CustomizedElevatedButton(
+                    text: 'ok',
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
           ],
         ),
       );
@@ -96,7 +105,7 @@ class _NewServerState extends State<NewServer> {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 300,
-      height: 310,
+      height: 350,
       child: SingleChildScrollView(
         child: Column(
           children: [
@@ -161,6 +170,7 @@ class _NewServerState extends State<NewServer> {
                 Expanded(
                   child: TextField(
                     controller: _passwordController,
+                    keyboardType: TextInputType.visiblePassword,
                     decoration: InputDecoration(
                       label: Text(
                         'Password',

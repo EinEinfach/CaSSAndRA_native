@@ -1,3 +1,4 @@
+import 'package:cassandra_native/utils/mow_parameters_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -50,6 +51,7 @@ class _ServersPageState extends State<ServersPage> {
   void initState() {
     super.initState();
     _loadStoragedUiState();
+    _loadStoredMowParameters();
     _loadServers();
   }
 
@@ -89,6 +91,10 @@ class _ServersPageState extends State<ServersPage> {
   Future<void> _loadStoragedUiState() async {
     user.storedUiState = await UiStateStorage.loadUiState();
     setState(() {});
+  }
+
+  Future<void> _loadStoredMowParameters() async {
+    user.currentMowParameters = await MowParametersStorage.loadMowParameters();
   }
 
   void onMessageReceived(String clientId, String topic, String message) {
