@@ -93,6 +93,8 @@ class Server {
         serverInterface.commandUpdateCoords('preview');
       } else if (currentMap.receivedMowPathId != currentMap.mowPathId) {
         serverInterface.commandUpdateCoords('mowPath');
+      } else if (currentMap.receivedObstaclesId != currentMap.obstaclesId) {
+        serverInterface.commandUpdateCoords('obstacles');
       }
     } else if (topic.contains('/coords')) {
       currentMap.coordsJsonToClassData(message);

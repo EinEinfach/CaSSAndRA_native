@@ -101,4 +101,10 @@ class ServerInterface {
     final String cmdGotoJson = jsonEncode(cmdGoto);
     _sendCommand(cmdGotoJson);
   }
+
+  void commandResetObstacles() {
+    final Map<String, dynamic> cmdResetObstacles = _addTopicAndCommandToValue('map', 'resetObstacles', []);
+    final String cmdResetObstaclesJson = jsonEncode(cmdResetObstacles);
+    _sendCommand(cmdResetObstaclesJson);
+  }
 }

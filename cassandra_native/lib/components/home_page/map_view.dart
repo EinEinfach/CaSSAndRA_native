@@ -120,7 +120,7 @@ class _MapViewState extends State<MapView> {
   }
 
   void _lookForSelectedPointIndex(LongPressStartDetails details, double scale) {
-    double minDistance = 20/scale;
+    double minDistance = 20 / scale;
     double currentDistance = double.infinity;
     final Offset scaledAndMovedPosition =
         (details.localPosition - _offset) / _scale;
@@ -187,9 +187,14 @@ class _MapViewState extends State<MapView> {
   }
 
   void _handleCancelButton() {
-    _resetLassoSelection();
-    _resetGotoPoint();
-    focusOnMowerActive = false;
+    if (widget.server.currentMap.scaledObstacles.isNotEmpty) {
+      widget.server.serverInterface.commandResetObstacles();
+      widget.server.currentMap.resetObstaclesCoords();
+    } else {
+      _resetLassoSelection();
+      _resetGotoPoint();
+      focusOnMowerActive = false;
+    }
   }
 
   void _handlePlayButton({bool cmd = false}) {
@@ -202,10 +207,12 @@ class _MapViewState extends State<MapView> {
             lassoSelection, widget.server.currentMap.mapScale);
         widget.server.serverInterface
             .commandSetSelection(widget.server.currentMap.selectedArea);
-        widget.server.serverInterface.commandSetMowParameters(user.currentMowParameters.toJson());
+        widget.server.serverInterface
+            .commandSetMowParameters(user.currentMowParameters.toJson());
         widget.server.serverInterface.commandMow('selection');
       } else if (widget.server.preparedCmd == 'calc') {
-        widget.server.serverInterface.commandSetMowParameters(user.currentMowParameters.toJson());
+        widget.server.serverInterface
+            .commandSetMowParameters(user.currentMowParameters.toJson());
         widget.server.serverInterface.commandMow('all');
       } else if (widget.server.preparedCmd == 'home') {
         widget.server.serverInterface.commandDock();
@@ -218,7 +225,8 @@ class _MapViewState extends State<MapView> {
     } else if (widget.server.robot.status == 'idle' ||
         widget.server.robot.status == 'charging' ||
         widget.server.robot.status == 'docked' ||
-        widget.server.robot.status == 'stop' || 
+        widget.server.robot.status == 'stop' ||
+        widget.server.robot.status == 'move' ||
         widget.server.robot.status == 'offline') {
       jobActive = false;
       playButtonIcon = Icons.play_arrow;
@@ -307,6 +315,7 @@ class _MapViewState extends State<MapView> {
             .scaleShapes(constraints.maxWidth, constraints.maxHeight);
         widget.server.currentMap.scalePreview();
         widget.server.currentMap.scaleMowPath();
+        widget.server.currentMap.scaleObstacles();
         widget.server.robot.scalePosition(mapScale, constraints.maxWidth,
             constraints.maxHeight, widget.server.currentMap);
 

@@ -6,30 +6,39 @@ import 'dart:convert';
 class Landscape {
   String mapId = '';
   String receivedMapId = '';
+  List<Offset> perimeter = [];
+  List<Offset> shiftedPerimeter = [];
+  List<Offset> scaledPerimeter = [];
+  List<List<Offset>> exclusions = [];
+  List<List<Offset>> shiftedExclusions = [];
+  List<List<Offset>> scaledExclusions = [];
+  List<Offset> dockPath = [];
+  List<Offset> shiftedDockPath = [];
+  List<Offset> scaledDockPath = [];
+  List<Offset> searchWire = [];
+  List<Offset> shiftedSearchWire = [];
+  List<Offset> scaledSearchWire = [];
+
   String previewId = '';
   String receivedPreviewId = '';
+  List<Offset> preview = [];
+  List<Offset> shiftedPreview = [];
+  List<Offset> scaledPreview = [];
+
   String mowPathId = '';
   String receivedMowPathId = '';
-  List<Offset> perimeter = [];
-  List<Offset> exclusion = [];
-  List<List<Offset>> exclusions = [];
-  List<Offset> dockPath = [];
-  List<Offset> searchWire = [];
-  List<Offset> shiftedPerimeter = [];
-  List<List<Offset>> shiftedExclusions = [];
-  List<Offset> shiftedDockPath = [];
-  List<Offset> shiftedSearchWire = [];
-  List<Offset> shiftedPreview = [];
-  List<Offset> shiftedMowPath = [];
-  List<Offset> scaledPerimeter = [];
-  List<List<Offset>> scaledExclusions = [];
-  List<Offset> scaledDockPath = [];
-  List<Offset> scaledSearchWire = [];
-  List<Offset> scaledPreview = [];
-  List<Offset> scaledMowPath = [];
-  List<List<Offset>> shapesBouquet = [[]];
-  List<Offset> preview = [];
   List<Offset> mowPath = [];
+  List<Offset> shiftedMowPath = [];
+  List<Offset> scaledMowPath = [];
+
+  String obstaclesId = '';
+  String receivedObstaclesId = '';
+  List<List<Offset>> obstacles = [];
+  List<List<Offset>> shiftedObstacles = [];
+  List<List<Offset>> scaledObstacles = [];
+
+  List<List<Offset>> shapesBouquet = [[]];
+
   // selection lasso etc.
   List<Offset> selectedArea = [];
   Offset? gotoPoint;
@@ -57,6 +66,9 @@ class Landscape {
     } else if (decodedMessage["features"][0]["properties"]["name"] ==
         'current mow path') {
       _mowPathJsonToClassData(decodedMessage);
+    } else if (decodedMessage["features"][0]["properties"]["name"] ==
+        'obstacles') {
+      _obstaclesJsonToClassData(decodedMessage);
     }
   }
 
@@ -65,9 +77,11 @@ class Landscape {
     receivedMapId = decodedMessage['mapId'];
     receivedPreviewId = decodedMessage['previewId'];
     receivedMowPathId = decodedMessage['mowPathId'];
+    receivedObstaclesId = decodedMessage['obstaclesId'];
   }
 
   void _currentMapJsonToClassData(Map decodedMessage) {
+    List<Offset> exclusion = [];
     _resetCoords();
     try {
       for (var feature in decodedMessage["features"]) {
@@ -145,12 +159,36 @@ class Landscape {
     }
   }
 
+  void _obstaclesJsonToClassData(Map decodedMessage) {
+    List<Offset> obstacle = [];
+    resetObstaclesCoords();
+    try {
+      if (decodedMessage['features'][1]['geometry']['coordinates'].isEmpty) {
+        obstaclesId = decodedMessage["features"][0]["properties"]["id"];
+        return;
+      }
+      for (var feature in decodedMessage["features"]) {
+        if (feature['properties']['name'] == 'obstacle') {
+          obstacle = [];
+          for (var coord in feature['geometry']['coordinates'][0]) {
+            obstacle.add(Offset(coord[0], coord[1]));
+          }
+          obstacles.add(obstacle);
+        }
+      }
+      obstaclesId = decodedMessage["features"][0]["properties"]["id"];
+      _shiftObstacles();
+    } catch (e) {
+      print('Invalid obstacles json data: $e');
+    }
+  }
+
   void lassoSelectionToJsonData(List<Offset> selection, double scale) {
     selectedArea = _canvasCoordsToCartesian(selection, scale);
-  } 
+  }
 
   void gotoPointToJsonData(Offset selection, double scale) {
-    gotoPoint = _canvasCoordsToCartesian([selection], scale)[0]; 
+    gotoPoint = _canvasCoordsToCartesian([selection], scale)[0];
   }
 
   List<Offset> _canvasCoordsToCartesian(List<Offset> shape, double scale) {
@@ -198,8 +236,9 @@ class Landscape {
         .map((shape) =>
             shape.map((p) => Offset(p.dx * mapScale, p.dy * mapScale)).toList())
         .toList();
-    scaledDockPath =
-        shiftedDockPath.map((p) => Offset(p.dx * mapScale, p.dy * mapScale)).toList();
+    scaledDockPath = shiftedDockPath
+        .map((p) => Offset(p.dx * mapScale, p.dy * mapScale))
+        .toList();
     scaledSearchWire = shiftedSearchWire
         .map((p) => Offset(p.dx * mapScale, p.dy * mapScale))
         .toList();
@@ -226,8 +265,9 @@ class Landscape {
   }
 
   void scalePreview() {
-    scaledPreview =
-        shiftedPreview.map((p) => Offset(p.dx * mapScale, p.dy * mapScale)).toList();
+    scaledPreview = shiftedPreview
+        .map((p) => Offset(p.dx * mapScale, p.dy * mapScale))
+        .toList();
     scaledPreview = scaledPreview
         .map((p) => Offset(p.dx + offsetX, p.dy + offsetY))
         .toList();
@@ -239,16 +279,34 @@ class Landscape {
   }
 
   void scaleMowPath() {
-    scaledMowPath =
-        shiftedMowPath.map((p) => Offset(p.dx * mapScale, p.dy * mapScale)).toList();
+    scaledMowPath = shiftedMowPath
+        .map((p) => Offset(p.dx * mapScale, p.dy * mapScale))
+        .toList();
     scaledMowPath = scaledMowPath
         .map((p) => Offset(p.dx + offsetX, p.dy + offsetY))
         .toList();
   }
 
+  void _shiftObstacles() {
+    shiftedObstacles = obstacles
+        .map((shape) =>
+            shape.map((p) => Offset(p.dx - minX, -(p.dy - minY))).toList())
+        .toList();
+  }
+
+  void scaleObstacles() {
+    scaledObstacles = shiftedObstacles
+        .map((shape) =>
+            shape.map((p) => Offset(p.dx * mapScale, p.dy * mapScale)).toList())
+        .toList();
+    scaledObstacles = scaledObstacles
+        .map((shape) =>
+            shape.map((p) => Offset(p.dx + offsetX, p.dy + offsetY)).toList())
+        .toList();
+  }
+
   void _resetCoords() {
     perimeter = [];
-    exclusion = [];
     exclusions = [];
     dockPath = [];
     searchWire = [];
@@ -271,5 +329,11 @@ class Landscape {
     mowPath = [];
     shiftedMowPath = [];
     scaledMowPath = [];
+  }
+
+  void resetObstaclesCoords() {
+    obstacles = [];
+    shiftedObstacles = [];
+    scaledObstacles = [];
   }
 }

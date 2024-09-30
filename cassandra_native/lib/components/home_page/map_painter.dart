@@ -112,6 +112,25 @@ class MapPainter extends CustomPainter {
     canvas.drawPath(pathExclusions, exclusionsFillColor);
     canvas.drawPath(pathExclusions, exclusionsStrokeBrusch);
 
+    // draw obstacles
+    if (currentMap.scaledObstacles.isNotEmpty) {
+      var obstaclesStrokeBrush = Paint()
+        ..color = colors.errorContainer
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = adjustedLineWidth;
+
+      var obstaclesFillColor = Paint()
+        ..color = colors.errorContainer.withOpacity(0.6)
+        ..style = PaintingStyle.fill;
+
+      Path pathObstacles = Path();
+      for (var obstacle in currentMap.scaledObstacles) {
+        pathObstacles = drawPolygon(pathObstacles, obstacle);
+      }
+      canvas.drawPath(pathObstacles, obstaclesFillColor);
+      canvas.drawPath(pathObstacles, obstaclesStrokeBrush);
+    }
+
     // draw preview
     // var previewBrush = Paint()
     //   ..color = const Color.fromARGB(255, 113, 161, 143)
