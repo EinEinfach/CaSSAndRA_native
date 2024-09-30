@@ -1,20 +1,21 @@
-import 'package:cassandra_native/models/mow_parameters.dart';
-import 'package:cassandra_native/utils/mow_parameters_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui' as ui;
 import 'package:provider/provider.dart';
+import 'dart:async';
 
 import 'package:cassandra_native/cassandra_native.dart';
 import 'package:cassandra_native/models/server.dart';
+import 'package:cassandra_native/models/mow_parameters.dart';
 import 'package:cassandra_native/comm/mqtt_manager.dart';
 import 'package:cassandra_native/components/home_page/map_painter.dart';
 import 'package:cassandra_native/components/home_page/map_button.dart';
 import 'package:cassandra_native/components/home_page/play_button.dart';
 import 'package:cassandra_native/components/home_page/status_bar.dart';
-import 'package:cassandra_native/utils/custom_shape_calcs.dart';
 import 'package:cassandra_native/components/new_mow_parameters.dart';
+import 'package:cassandra_native/utils/custom_shape_calcs.dart';
+import 'package:cassandra_native/utils/mow_parameters_storage.dart';
 
 // globals
 import 'package:cassandra_native/data/user_data.dart' as user;
@@ -56,6 +57,8 @@ class _MapViewState extends State<MapView> {
   IconData playButtonIcon = Icons.play_arrow;
   Offset screenSizeDelta = Offset.zero;
   Size? oldScreenSize;
+  bool _isBusy = false;
+  Timer? _isBusyTimer;
 
   @override
   void dispose() {
@@ -107,6 +110,12 @@ class _MapViewState extends State<MapView> {
   void onMessageReceived(String clientId, String topic, String message) {
     widget.server.onMessageReceived(clientId, topic, message);
     setState(() {
+      if (widget.server.status == 'busy') {
+        _startBusyTimer();
+      } else {
+        _cancelBusyTimer();
+        _isBusy = false;
+      }
       _handlePlayButton();
     });
   }
@@ -264,6 +273,20 @@ class _MapViewState extends State<MapView> {
         ),
       ),
     );
+  }
+
+  void _startBusyTimer() {
+    if (!_isBusy) {
+      _isBusyTimer = Timer(const Duration(seconds: 2), () {
+        _isBusy = true;
+      });
+    }
+  }
+
+  void _cancelBusyTimer() {
+    if (_isBusyTimer != null) {
+      _isBusyTimer!.cancel();
+    }
   }
 
   @override
@@ -513,6 +536,15 @@ class _MapViewState extends State<MapView> {
                 ),
               ],
             ),
+            if (_isBusy)
+              Positioned.fill(
+                child: BackdropFilter(
+                  filter: ui.ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+              ),
           ],
         );
       }),
