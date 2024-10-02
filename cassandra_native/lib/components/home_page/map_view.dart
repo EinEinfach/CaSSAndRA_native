@@ -28,7 +28,7 @@ class MapView extends StatefulWidget {
   State<MapView> createState() => _MapViewState();
 }
 
-class _MapViewState extends State<MapView> {
+class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   //app lifecycle
   AppLifecycleState _appLifecycleState = AppLifecycleState.resumed;
 
@@ -51,6 +51,7 @@ class _MapViewState extends State<MapView> {
   Offset? gotoPoint;
 
   //ui
+  List<String> statePlayPlayButton = ['idle', 'charging', 'docked', 'stop', 'move', 'offline'];
   ui.Image? roverImage;
   bool focusOnMowerActive = false;
   bool jobActive = false;
@@ -60,21 +61,83 @@ class _MapViewState extends State<MapView> {
   bool _isBusy = false;
   Timer? _isBusyTimer;
 
+  //animation
+  bool animationIsActive = false;
+  List<String> statesForAnimation = ['mow', 'transit', 'docking', 'move'];
+  late AnimationController _controller;
+  late Animation<Offset> _animatedPosition;
+  late Animation<double> _animatedAngle;
+  late DateTime _lastUpdateTime;
+  late Offset _currentPosition;
+  late double _currentAngle;
+  late Offset _newPosition;
+  late double _newAngle;
+
   @override
   void dispose() {
     MqttManager.instance
         .unregisterCallback(widget.server.id, onMessageReceived);
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-    _loadImage('lib/images/rover0grad.png');
+    _loadImage(categoryImages[widget.server.category]!.elementAt(1)); //'lib/images/rover0grad.png');
     _connectToServer();
-    setState(() {
-      _handlePlayButton();
-    });
+    _handlePlayButton();
+    _currentPosition = widget.server.robot.scaledPosition;
+    _currentAngle = widget.server.robot.angle;
+    _controller = AnimationController(vsync: this)
+      ..addListener(() {
+        setState(() {
+          _currentPosition = _animatedPosition.value;
+          _currentAngle = _animatedAngle.value;
+        });
+      });
+    _lastUpdateTime = DateTime.now();
+  }
+
+  void _onNewCoordinatesReceived(Offset newOffset, double newAngle) {
+    DateTime now = DateTime.now();
+    Duration animationDuration = now.difference(_lastUpdateTime);
+    _lastUpdateTime = now;
+    newAngle = normalizeAngle(_currentAngle, newAngle);
+    // Setze die aktuelle Position als neuen Startpunkt, falls die Animation noch läuft
+    if (_controller.isAnimating) {
+      _currentPosition = _animatedPosition.value;
+      _currentAngle = _animatedAngle.value;
+    }
+
+    // Setze die neue Position als Zielposition
+    _newPosition = newOffset;
+    _newAngle = newAngle;
+
+    if (animationIsActive) {
+      // Stoppe die laufende Animation
+      _controller.stop();
+
+      // Aktualisiere die Animation
+      _controller.duration =
+          animationDuration; // Animationsdauer entspricht der Zeit zwischen Updates
+
+      _animatedPosition = Tween<Offset>(
+        begin: _currentPosition, // Start von der aktuellen Position
+        end: _newPosition, // Ende bei der neuen Position
+      ).animate(_controller); // Lineare Animation
+
+      _animatedAngle = Tween<double>(
+        begin: _currentAngle, // Start von der aktuellen Position
+        end: _newAngle, // Ende bei der neuen Position
+      ).animate(_controller); // Lineare Animation
+
+      // Starte die Animation
+      _controller.forward(from: 0.0);
+    } else { 
+        _currentPosition = _newPosition;
+        _currentAngle = _newAngle;
+    }
   }
 
   void _handleAppLifecycleState(
@@ -109,6 +172,15 @@ class _MapViewState extends State<MapView> {
 
   void onMessageReceived(String clientId, String topic, String message) {
     widget.server.onMessageReceived(clientId, topic, message);
+    if (topic.contains('/robot')) {
+      if (statesForAnimation.contains(widget.server.robot.status)) {
+        animationIsActive = true;
+      } else {
+        animationIsActive = false;
+      }
+      _onNewCoordinatesReceived(
+          widget.server.robot.scaledPosition, widget.server.robot.angle);
+    }
     setState(() {
       if (widget.server.status == 'busy') {
         _startBusyTimer();
@@ -123,9 +195,8 @@ class _MapViewState extends State<MapView> {
   void _focusOnMower() {
     Size screenSize = MediaQuery.of(context).size;
     _offset = Offset(
-        screenSize.width / 2 - widget.server.robot.scaledPosition.dx * _scale,
-        screenSize.height / 2 - widget.server.robot.scaledPosition.dy * _scale);
-    //setState(() {});
+        screenSize.width / 2 - _currentPosition.dx * _scale,
+        screenSize.height / 2 - _currentPosition.dy * _scale);
   }
 
   void _lookForSelectedPointIndex(LongPressStartDetails details, double scale) {
@@ -231,12 +302,7 @@ class _MapViewState extends State<MapView> {
         widget.server.serverInterface
             .commandGoto(widget.server.currentMap.gotoPoint!);
       }
-    } else if (widget.server.robot.status == 'idle' ||
-        widget.server.robot.status == 'charging' ||
-        widget.server.robot.status == 'docked' ||
-        widget.server.robot.status == 'stop' ||
-        widget.server.robot.status == 'move' ||
-        widget.server.robot.status == 'offline') {
+    } else if (statePlayPlayButton.contains(widget.server.robot.status)) {
       jobActive = false;
       playButtonIcon = Icons.play_arrow;
     } else {
@@ -451,6 +517,8 @@ class _MapViewState extends State<MapView> {
                             (lassoSelectedPointIndex == null) ? false : true,
                         lassoSelected: lassoSelected,
                         gotoPoint: gotoPoint,
+                        currentPostion: _currentPosition,
+                        currentAngle: _currentAngle,
                         colors: Theme.of(context).colorScheme),
                   ),
                 ),

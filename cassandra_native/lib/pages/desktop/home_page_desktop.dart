@@ -32,20 +32,18 @@ class HomePageDesktop extends StatelessWidget {
                     }),
               ],
             ),
-               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  NavDrawer(
-                    server: server,
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: MapView(server: server),
-                    ),
-                  ),
-                ],
-              ),
+            Stack(
+              //crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: MapView(server: server),
+                ),
+                NavDrawer(
+                  server: server,
+                ),
+              ],
+            ),
           ],
         );
       }),

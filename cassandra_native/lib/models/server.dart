@@ -10,10 +10,10 @@ const uuid = Uuid();
 enum Category { ardumower, alfred, landrumower, other }
 
 final categoryImages = {
-  Category.ardumower: Image.asset('lib/images/artic_hare.png'),
-  Category.alfred: Image.asset('lib/images/artic_hare.png'),
-  Category.landrumower: Image.asset('lib/images/landrumower.png'),
-  Category.other: Image.asset('lib/images/in_app_icon.png'),
+  Category.ardumower: ['lib/images/artic_hare.png', 'lib/images/ardumower/rover0grad.png'],
+  Category.alfred: ['lib/images/artic_hare.png', 'lib/images/alfred/rover0grad.png'],
+  Category.landrumower: ['lib/images/landrumower.png', 'lib/images/landrumower/rover0grad.png'],
+  Category.other: ['lib/images/in_app_icon.png', 'lib/images/other/rover0grad.png']
 };
 
 class Server {

@@ -54,7 +54,7 @@ class ServerItem extends StatelessWidget {
                     ),
                     width: double.infinity,
                     padding: const EdgeInsets.all(25),
-                    child: categoryImages[server.category],
+                    child: Image.asset(categoryImages[server.category]!.elementAt(0)),
                   ),
                   onTap: () => _navigateToHomePage(server),
                 ),

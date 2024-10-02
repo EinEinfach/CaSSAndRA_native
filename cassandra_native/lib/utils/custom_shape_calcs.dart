@@ -60,3 +60,14 @@ bool isPointInsidePolygon(Offset point, List<Offset> polygon) {
   path.close();
   return path.contains(point);
 }
+
+// Normalisiere den Winkel auf die kurzeste Drehung
+double normalizeAngle(double startAngle, double endAngle) {
+  double delta = endAngle - startAngle;
+  if (delta > pi) {
+    delta -= 2*pi;
+  } else if (delta < -pi) {
+    delta += 2*pi;
+  }
+  return startAngle + delta;
+}

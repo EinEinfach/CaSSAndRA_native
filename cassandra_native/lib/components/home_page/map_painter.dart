@@ -21,6 +21,8 @@ class MapPainter extends CustomPainter {
   final bool lassoSelected;
   final Offset? gotoPoint;
   final ColorScheme colors;
+  final Offset currentPostion;
+  final double currentAngle;
 
   const MapPainter({
     required this.offset,
@@ -32,7 +34,10 @@ class MapPainter extends CustomPainter {
     required this.lassoPointSelected,
     required this.lassoSelected,
     required this.gotoPoint,
+    required this.currentPostion,
+    required this.currentAngle,
     required this.colors,
+   
   });
 
   Path drawPolygon(Path path, List<Offset> points) {
@@ -257,15 +262,14 @@ class MapPainter extends CustomPainter {
     if (roverImage != null) {
       double imageSize = 1 * currentMap.mapScale;
       imageSize = max(imageSize, minRoverImageSize);
-
       // rotate rover image
       canvas.save();
-      canvas.translate(robot.scaledPosition.dx, robot.scaledPosition.dy);
-      canvas.rotate(-robot.angle);
-      canvas.translate(-robot.scaledPosition.dx, -robot.scaledPosition.dy);
+      canvas.translate(currentPostion.dx, currentPostion.dy);
+      canvas.rotate(-currentAngle);
+      canvas.translate(-currentPostion.dx, -currentPostion.dy);
 
       final rect = Rect.fromCenter(
-          center: robot.scaledPosition, width: imageSize, height: imageSize);
+          center: currentPostion, width: imageSize, height: imageSize);
       paintImage(
           canvas: canvas, rect: rect, image: roverImage!, fit: BoxFit.cover);
 

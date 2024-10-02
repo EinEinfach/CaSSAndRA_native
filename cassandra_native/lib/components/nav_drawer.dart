@@ -98,7 +98,7 @@ class NavDrawer extends StatelessWidget {
         // drawer without close button
         return SafeArea(
           child: Drawer(
-            backgroundColor: Theme.of(context).colorScheme.surface,
+            backgroundColor: Theme.of(context).colorScheme.surface.withOpacity(0),
             child: Column(
               children: [
                 Expanded(
