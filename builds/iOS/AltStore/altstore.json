@@ -7,37 +7,35 @@
   "website": "https://example.com",
   "tintColor": "#F54F32",
   "featuredApps": [
-    "com.lexsoftware.cassandraNative",
+    "com.lexsoftware.cassandraNative"
   ],
   "apps": [
-	{
-        "name": "CaSSAndRA native",
-        "bundleIdentifier": "com.lexsoftware.cassandraNative",
-        "marketplaceID": "12345678",
-        "developerName": "Alexander Weiss",
-        "subtitle": "Cascaded sunray server and rover application",
-        "localizedDescription": "Cascaded sunray server and rover application",
-        "iconURL": "https://example.com/myapp_icon.png",
-        "tintColor": "#F54F32",
-        "category": "other",
-        "screenshots": [
-        ],
-        "versions": [
-		{
-    "version": "1.0",
-    "buildVersion": "60",
-    "date": "2023-03-30",
-    "localizedDescription": "First AltStore release!",
-    "downloadURL": "https://myapp.com/myapp-1.0.ipa",
-    "size": 79821,
-    "minOSVersion": "12.0",
-    "maxOSVersion": "16.3"
-  },
-	],
-        "appPermissions": {},
-        "patreon": {},
-    },
-],
-  "news": [],
+    {
+      "name": "CaSSAndRA native",
+      "bundleIdentifier": "com.lexsoftware.cassandraNative",
+      "marketplaceID": "12345678",
+      "developerName": "Alexander Weiss",
+      "subtitle": "Cascaded sunray server and rover application",
+      "localizedDescription": "Cascaded sunray server and rover application",
+      "iconURL": "https://example.com/myapp_icon.png",
+      "tintColor": "#F54F32",
+      "category": "other",
+      "screenshots": [],
+      "versions": [
+        {
+          "version": "1.0",
+          "buildVersion": "60",
+          "date": "2023-03-30",
+          "localizedDescription": "First AltStore release!",
+          "downloadURL": "https://myapp.com/myapp-1.0.ipa",
+          "size": 79821,
+          "minOSVersion": "12.0",
+          "maxOSVersion": "16.3"
+        }
+      ],
+      "appPermissions": {},
+      "patreon": {}
+    }
+  ],
+  "news": []
 }
-
