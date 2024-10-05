@@ -1,41 +1,22 @@
 {
-  "name": "Lex Software Solutions",
-  "subtitle": "Source for distributing apps created by LSS",
-  "description": "Welcome to my source! Here you'll find all of my apps.",
-  "iconURL": "https://example.com/source_icon.png",
-  "headerURL": "https://example.com/source_header.png",
-  "website": "https://example.com",
-  "tintColor": "#F54F32",
-  "featuredApps": [
-    "com.lexsoftware.cassandraNative"
-  ],
+  "repo": {
+    "name": "Lex Software Solutions"
+  },
   "apps": [
     {
       "name": "CaSSAndRA native",
       "bundleIdentifier": "com.lexsoftware.cassandraNative",
-      "marketplaceID": "12345678",
+      "filename": "cassandra_native.ipa",
+      "githubOwner": "EinEinfach",
+      "githubRepository": "CaSSAndRA native",
       "developerName": "Alexander Weiss",
       "subtitle": "Cascaded sunray server and rover application",
-      "localizedDescription": "Cascaded sunray server and rover application",
-      "iconURL": "https://example.com/myapp_icon.png",
-      "tintColor": "#F54F32",
-      "category": "other",
-      "screenshots": [],
-      "versions": [
-        {
-          "version": "1.0",
-          "buildVersion": "60",
-          "date": "2023-03-30",
-          "localizedDescription": "First AltStore release!",
-          "downloadURL": "https://myapp.com/myapp-1.0.ipa",
-          "size": 79821,
-          "minOSVersion": "12.0",
-          "maxOSVersion": "16.3"
-        }
-      ],
-      "appPermissions": {},
-      "patreon": {}
+      "localizedDescription": "",
+      "iconURL": "https://github.com/EinEinfach/CaSSAndRA_native/blob/master/builds/iOS/AltStore/cassandra_native.png",
+      "tintColor": "78209d",
+      "screenshotURLs": [
+        
+      ]
     }
-  ],
-  "news": []
+  ]
 }
