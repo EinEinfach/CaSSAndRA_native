@@ -1,7 +1,7 @@
 {
-  "name": "Lex software soulutions app store",
-  "subtitle": "Home of all out applications",
-  "description": "Welcome to lex software solutions source!",
+  "name": "Lex software soulutions",
+  "subtitle": "Home made beautiful applications",
+  "description": "Lex Software Solutions! We specialize in providing innovative, customized software solutions tailored to your unique needs. Whether you’re looking for desktop, mobile, or cloud-based applications, we deliver cutting-edge technology designed to perform seamlessly across all platforms. Our expert team is dedicated to transforming your vision into reality, ensuring efficient, scalable, and user-friendly solutions for businesses of all sizes. Explore our range of services and experience the future of software, built just for you!",
   "iconURL": "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/lexstore.png",
   "headerURL": "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/lexstore.png",
   "website": "https://github.com/EinEinfach/CaSSAndRA",
@@ -14,8 +14,8 @@
       "name": "CaSSAndRA native",
       "bundleIdentifier": "com.lexsoftware.cassandraNative",
       "developerName": "Alexander Weiss",
-      "subtitle": "Control UI for CaSSAndRA",
-      "localizedDescription": "This is an awesome app only available on AltStore.",
+      "subtitle": "CaSSAndRA native is an innovative app designed to transform the way you manage your robotic lawn mowers. With its sleek, intuitive interface, this app allows you to monitor, configure, and control your entire fleet of mowers seamlessly from one central dashboard. Key features include real-time performance tracking, easy scheduling, and customizable mowing patterns, giving you complete control over every mower. Whether you manage one robot or a whole fleet, our solution offers unparalleled simplicity and efficiency across all devices. Take charge of your mowing fleet with CaSSAndRA native",
+      "localizedDescription": "For more information, visit forum.ardumower.de or check out the GitHub page to join the community and stay up to date with the latest updates and features!",
       "iconURL": "https://EinEinfach.github.io/CaSSAndRA_native/cassandra_native/lib/images/app_icon.png",
       "tintColor": "#5CA399",
       "screenshots": [
@@ -23,11 +23,10 @@
         "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/2.PNG",
         "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/3.PNG",
         "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/4.PNG",
-        {
-          "imageURL": "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/landscape.PNG",
-          "width": 2556,
-          "height": 1179
-        }
+        "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/5.PNG",
+        "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/6.PNG",
+        "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/7.PNG",
+        "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/8.PNG"
       ],
       "versions": [
         {
