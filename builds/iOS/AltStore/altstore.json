@@ -44,5 +44,14 @@
         }
       }
     }
+  ],
+  "news": [
+    {
+      "title": "Test release of CaSSAndRA native",
+      "identifier": "test_release_cassandra_native",
+      "caption": "We’re thrilled to announce the first test release of the CaSSAndRA native is now available for download via AltStore!",
+      "date": "2024-10-06",
+      "tintColor": "#F54F32",
+    }
   ]
 }
