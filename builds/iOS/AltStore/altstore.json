@@ -14,8 +14,8 @@
       "name": "CaSSAndRA native",
       "bundleIdentifier": "com.lexsoftware.cassandraNative",
       "developerName": "Alexander Weiss",
-      "subtitle": "CaSSAndRA native is an innovative app designed to transform the way you manage your robotic lawn mowers. With its sleek, intuitive interface, this app allows you to monitor, configure, and control your entire fleet of mowers seamlessly from one central dashboard. Key features include real-time performance tracking, easy scheduling, and customizable mowing patterns, giving you complete control over every mower. Whether you manage one robot or a whole fleet, our solution offers unparalleled simplicity and efficiency across all devices. Take charge of your mowing fleet with CaSSAndRA native",
-      "localizedDescription": "For more information, visit forum.ardumower.de or check out the GitHub page to join the community and stay up to date with the latest updates and features!",
+      "subtitle": "CaSSAndRA native. A new UI for CaSSAndRA",
+      "localizedDescription": "CaSSAndRA native is an innovative app designed to transform the way you manage your robotic lawn mowers. With its sleek, intuitive interface, this app allows you to monitor, configure, and control your entire fleet of mowers seamlessly from one central dashboard. Key features include real-time performance tracking, easy scheduling, and customizable mowing patterns, giving you complete control over every mower. Whether you manage one robot or a whole fleet, our solution offers unparalleled simplicity and efficiency across all devices. Take charge of your mowing fleet with CaSSAndRA native. For more information, visit forum.ardumower.de or check out the GitHub page to join the community and stay up to date with the latest updates and features!",
       "iconURL": "https://EinEinfach.github.io/CaSSAndRA_native/cassandra_native/lib/images/app_icon.png",
       "tintColor": "#5CA399",
       "screenshots": [
