@@ -1,8 +1,13 @@
+import 'package:package_info_plus/package_info_plus.dart';
+
+// Package info
+late PackageInfo packageInfo;
+
 // App version
-const String appVersion = '1.0.0';
+late String appVersion;
 const String requiredServerVersion = '0.129.0';
 
 // Temporarly data for UI
 int smallWidth = 500;
-int largeWidth = 1100;
+int largeWidth = 2000;
 

@@ -2,10 +2,18 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:desktop_window/desktop_window.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+
+import 'package:cassandra_native/data/app_data.dart';
 
 import 'package:cassandra_native/cassandra_native.dart';
 import 'package:cassandra_native/theme/theme_provider.dart';
 import 'package:cassandra_native/pages/servers_page.dart';
+
+Future<void> _initPackageInfo() async {
+    packageInfo = await PackageInfo.fromPlatform();
+    appVersion = packageInfo.version;
+  }
 
 Future setWindowSize() async {
   await DesktopWindow.setMinWindowSize(
@@ -18,6 +26,7 @@ void main() {
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     setWindowSize();
   }
+  _initPackageInfo();
   runApp(
     MultiProvider(
       providers: [

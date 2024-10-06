@@ -5,3 +5,6 @@ Generate App Icon:
 
 Generate App in release state:
 1. Run this command in terminal: flutter run --release
+
+Generate iOS ipa
+1. Run this command in terminal: flutter build ipa --export-method development 
