@@ -38,25 +38,7 @@
                     "localizedDescription": "Test release",
                     "minOSVersion": "16.0"
                 }
-            ],
-            "appPermissions": {
-                "entitlements": [
-                    "com.apple.security.application-groups",
-                    "com.apple.developer.siri"
-                ],
-                "privacy": {
-                    "NSLocalNetworkUsageDescription": "App scans the local network for nearby computers."
-                }
-            }
-        }
-    ],
-    "news": [
-        {
-            "title": "Welcome to my source",
-            "identifier": "welcome",
-            "caption": "Introducing a new feature in AltStore!",
-            "date": "2023-03-15",
-            "tintColor": "#5CA399"
+            ]
         }
     ]
 }
