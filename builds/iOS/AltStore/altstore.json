@@ -16,13 +16,13 @@
             "developerName": "Alexander Weiss",
             "subtitle": "Control UI for CaSSAndRA",
             "localizedDescription": "This is an awesome app only available on AltStore.",
-            "iconURL": "https://github.com/EinEinfach/CaSSAndRA_native/blob/master/cassandra_native/lib/images/app_icon.png",
+            "iconURL": "https://EinEinfach.github.io/CaSSAndRA_native/lib/images/app_icon.png",
             "tintColor": "#5CA399",
             "screenshots": [
                 "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/1.PNG",
                 "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/2.PNG",
                 "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/3.PNG",
-                "s/iOS/AltStore/screenshots/4.PNG",
+                "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/4.PNG",
                 {
                     "imageURL": "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/landscape.PNG",
                     "width": 2556,
