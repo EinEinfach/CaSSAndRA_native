@@ -1,44 +1,49 @@
 {
-    "name": "Lex software soulutions app store",
-    "subtitle": "Home of all out applications",
-    "description": "Welcome to lex software solutions source!",
-    "iconURL": "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/lexstore.png",
-    "headerURL": "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/lexstore.png",
-    "website": "https://github.com/EinEinfach/CaSSAndRA",
-    "tintColor": "#4185A9",
-    "featuredApps": [
-        "com.lexsoftware.cassandraNative"
-    ],
-    "apps": [
+  "name": "Lex software soulutions app store",
+  "subtitle": "Home of all out applications",
+  "description": "Welcome to lex software solutions source!",
+  "iconURL": "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/lexstore.png",
+  "headerURL": "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/lexstore.png",
+  "website": "https://github.com/EinEinfach/CaSSAndRA",
+  "tintColor": "#4185A9",
+  "featuredApps": [
+    "com.lexsoftware.cassandraNative"
+  ],
+  "apps": [
+    {
+      "name": "CaSSAndRA native",
+      "bundleIdentifier": "com.lexsoftware.cassandraNative",
+      "developerName": "Alexander Weiss",
+      "subtitle": "Control UI for CaSSAndRA",
+      "localizedDescription": "This is an awesome app only available on AltStore.",
+      "iconURL": "https://EinEinfach.github.io/CaSSAndRA_native/cassandra_native/lib/images/app_icon.png",
+      "tintColor": "#5CA399",
+      "screenshots": [
+        "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/1.PNG",
+        "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/2.PNG",
+        "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/3.PNG",
+        "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/4.PNG",
         {
-            "name": "CaSSAndRA native",
-            "bundleIdentifier": "com.lexsoftware.cassandraNative",
-            "developerName": "Alexander Weiss",
-            "subtitle": "Control UI for CaSSAndRA",
-            "localizedDescription": "This is an awesome app only available on AltStore.",
-            "iconURL": "https://EinEinfach.github.io/CaSSAndRA_native/cassandra_native/lib/images/app_icon.png",
-            "tintColor": "#5CA399",
-            "screenshots": [
-                "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/1.PNG",
-                "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/2.PNG",
-                "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/3.PNG",
-                "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/4.PNG",
-                {
-                    "imageURL": "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/landscape.PNG",
-                    "width": 2556,
-                    "height": 1179
-                }
-            ],
-            "versions": [
-                {
-                    "version": "0.1",
-                    "date": "2024-10-06T09:00:00-08:00",
-                    "size": 18000000,
-                    "downloadURL": "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/cassandra_native.ipa",
-                    "localizedDescription": "Test release",
-                    "minOSVersion": "16.0"
-                }
-            ]
+          "imageURL": "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/landscape.PNG",
+          "width": 2556,
+          "height": 1179
         }
-    ]
+      ],
+      "versions": [
+        {
+          "version": "0.1",
+          "date": "2024-10-06T09:00:00-08:00",
+          "size": 18000000,
+          "downloadURL": "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/cassandra_native.ipa",
+          "localizedDescription": "Test release",
+          "minOSVersion": "16.0"
+        }
+      ],
+      "appPermissions": {
+        "privacy": {
+          "NSLocalNetworkUsageDescription": "App scans the local network for nearby computers."
+        }
+      }
+    }
+  ]
 }
