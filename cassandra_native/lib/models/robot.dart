@@ -44,12 +44,20 @@ class Robot {
     }
   }
 
-  void scalePosition(double scale, double width, double height, Landscape currentMap){
+  void scalePosition(double width, double height, Landscape currentMap) {
     if (currentMap.perimeter.isNotEmpty) {
-      scaledPosition = Offset((position.dx - currentMap.minX) * scale + currentMap.offsetX,  -(position.dy -currentMap.minY) * scale + currentMap.offsetY);
-      scaledTarget = Offset((target.dx - currentMap.minX) * scale + currentMap.offsetX,  -(target.dy -currentMap.minY) * scale + currentMap.offsetY);
+      scaledPosition = Offset(
+          (position.dx - currentMap.minX) * currentMap.mapScale +
+              currentMap.offsetX,
+          -(position.dy - currentMap.minY) * currentMap.mapScale +
+              currentMap.offsetY);
+      scaledTarget = Offset(
+          (target.dx - currentMap.minX) * currentMap.mapScale +
+              currentMap.offsetX,
+          -(target.dy - currentMap.minY) * currentMap.mapScale +
+              currentMap.offsetY);
     } else {
-      scaledPosition = Offset(width/2, height/2);
+      scaledPosition = Offset(width / 2, height / 2);
     }
   }
 }
