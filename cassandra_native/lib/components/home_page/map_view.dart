@@ -83,8 +83,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _loadImage(categoryImages[widget.server.category]!
-        .elementAt(1)); 
+    _loadImage(categoryImages[widget.server.category]!.elementAt(1));
     _connectToServer();
     _handlePlayButton();
     _currentPosition = widget.server.robot.scaledPosition;
@@ -215,72 +214,18 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     }
     widget.server.currentMap.scaleShapes(screenSize.width, screenSize.height);
     _scaleRobotCoords();
-    //animationIsActive = false;
-    //_onNewCoordinatesReceived(widget.server.robot.scaledPosition, widget.server.robot.angle);
   }
 
   void _scaleCoords() {
     widget.server.currentMap.scalePreview();
     widget.server.currentMap.scaleMowPath();
     widget.server.currentMap.scaleObstacles();
-    //widget.server.robot.scalePosition(screenSize.width, screenSize.height, widget.server.currentMap);
   }
 
   void _scaleRobotCoords() {
     final Size screenSize = MediaQuery.of(context).size;
-    widget.server.robot.scalePosition(screenSize.width, screenSize.height, widget.server.currentMap);
-  }
-
-  void _lookForSelectedPointIndex(LongPressStartDetails details, double scale) {
-    double minDistance = 20 / scale;
-    double currentDistance = double.infinity;
-    final Offset scaledAndMovedPosition =
-        (details.localPosition - zoomPan.offset) / zoomPan.scale;
-    for (int i = 0; i < lasso.selection.length; i++) {
-      if ((lasso.selection[i] - scaledAndMovedPosition).distance < minDistance &&
-          (lasso.selection[i] - scaledAndMovedPosition).distance <
-              currentDistance) {
-        currentDistance = (lasso.selection[i] - scaledAndMovedPosition).distance;
-        lasso.selectedPointIndex = i;
-      }
-    }
-    if (isPointInsidePolygon(scaledAndMovedPosition, lasso.selection) &&
-        lasso.selectedPointIndex == null) {
-      lasso.selected = true;
-      lasso.lastPosition = scaledAndMovedPosition;
-    }
-  }
-
-  void _moveSelectedPoint(LongPressMoveUpdateDetails details) {
-    final Offset scaledAndMovedPosition =
-        (details.localPosition - zoomPan.offset) / zoomPan.scale;
-    lasso.selection[lasso.selectedPointIndex!] = scaledAndMovedPosition;
-    lasso.selectionPoints[lasso.selectedPointIndex!] = scaledAndMovedPosition;
-  }
-
-  void _moveLasso(LongPressMoveUpdateDetails details) {
-    final Offset scaledAndMovedPosition =
-        (details.localPosition - zoomPan.offset) / zoomPan.scale;
-    final Offset delta = scaledAndMovedPosition - lasso.lastPosition!;
-    lasso.selection = lasso.selection.map((point) => point + delta).toList();
-    lasso.selectionPoints =
-        lasso.selectionPoints.map((point) => point + delta).toList();
-    lasso.lastPosition = scaledAndMovedPosition;
-  }
-
-  void _setGoToPoint(TapDownDetails details) {
-    final Offset scaledAndMovedPosition =
-        (details.localPosition - zoomPan.offset) / zoomPan.scale;
-    if (isPointInsidePolygon(
-        scaledAndMovedPosition, widget.server.currentMap.scaledPerimeter)) {
-      for (List<Offset> exclusion
-          in widget.server.currentMap.scaledExclusions) {
-        if (isPointInsidePolygon(scaledAndMovedPosition, exclusion)) {
-          return;
-        }
-      }
-      gotoPoint.coords = scaledAndMovedPosition;
-    }
+    widget.server.robot.scalePosition(
+        screenSize.width, screenSize.height, widget.server.currentMap);
   }
 
   void _resetLassoSelection() {
@@ -309,9 +254,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
       if (jobActive) {
         widget.server.serverInterface.commandStop();
       } else if (widget.server.preparedCmd == 'calc' &&
-          lasso.selection.isNotEmpty) {
-        widget.server.currentMap.lassoSelectionToJsonData(
-            lasso.selection, widget.server.currentMap.mapScale);
+          widget.server.currentMap.selectedArea.isNotEmpty) {
         widget.server.serverInterface
             .commandSetSelection(widget.server.currentMap.selectedArea);
         widget.server.serverInterface
@@ -323,9 +266,8 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
         widget.server.serverInterface.commandMow('all');
       } else if (widget.server.preparedCmd == 'home') {
         widget.server.serverInterface.commandDock();
-      } else if (widget.server.preparedCmd == 'go to' && gotoPoint.coords != null) {
-        widget.server.currentMap
-            .gotoPointToJsonData(gotoPoint.coords!, widget.server.currentMap.mapScale);
+      } else if (widget.server.preparedCmd == 'go to' &&
+          widget.server.currentMap.gotoPoint != null) {
         widget.server.serverInterface
             .commandGoto(widget.server.currentMap.gotoPoint!);
       }
@@ -390,7 +332,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     _appLifecycleState =
         Provider.of<CassandraNative>(context).appLifecycleState;
 
-     Size screenSize = MediaQuery.of(context).size;
+    Size screenSize = MediaQuery.of(context).size;
 
     // Screen size is changed (could happened on desktop) then add additional offset on lasso and go to
     if (oldScreenSize == null) {
@@ -398,11 +340,16 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     } else {
       screenSizeDelta = Offset(screenSize.width - oldScreenSize!.width,
           screenSize.height - oldScreenSize!.height);
+      oldScreenSize = screenSize;
       if (screenSizeDelta != Offset.zero) {
+        animationIsActive = false;
         _scalePerimeterCoords();
         _scaleCoords();
-        _resetLassoSelection();
-        //_resetGotoPoint();
+        _scaleRobotCoords();
+        _onNewCoordinatesReceived(
+            widget.server.robot.scaledPosition, widget.server.robot.angle);
+        gotoPoint.onScreenSizeChanged(widget.server.currentMap);
+        lasso.onScreenSizeChanged(widget.server.currentMap);
       }
     }
 
@@ -417,7 +364,6 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
         }
       },
       child: LayoutBuilder(builder: (context, constraints) {
-
         // zoom focus on mower
         if (focusOnMowerActive) {
           zoomPan.focusOnPoint(_currentPosition, screenSize);
@@ -442,14 +388,14 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                   //selection or zoom and pan
 
                   //selection
-                  if (lasso.active &&
-                      widget.server.preparedCmd == 'calc') {
+                  if (lasso.active && widget.server.preparedCmd == 'calc') {
                     RenderBox box = context.findRenderObject() as RenderBox;
                     Offset widgetGlobalPosition =
                         box.localToGlobal(Offset.zero);
-                    Offset selection =
-                        (details.focalPoint - widgetGlobalPosition - zoomPan.offset) /
-                            zoomPan.scale;
+                    Offset selection = (details.focalPoint -
+                            widgetGlobalPosition -
+                            zoomPan.offset) /
+                        zoomPan.scale;
                     lasso.selection.add(selection);
 
                     //zoom and pan
@@ -459,9 +405,10 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                         .clamp(0.5, double.infinity);
 
                     //calc new offset to center zoom between focal point
-                    Offset focalPointDelta = zoomPan.initialFocalPoint - zoomPan.offset;
-                    zoomPan.offset =
-                        zoomPan.offset - (focalPointDelta * (newScale / zoomPan.scale - 1));
+                    Offset focalPointDelta =
+                        zoomPan.initialFocalPoint - zoomPan.offset;
+                    zoomPan.offset = zoomPan.offset -
+                        (focalPointDelta * (newScale / zoomPan.scale - 1));
                     zoomPan.scale = zoomPan.previousScale * details.scale;
 
                     //if map is just moved, callc new offset
@@ -479,34 +426,36 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                 if (lasso.active) {
                   setState(() {
                     lasso.active = false;
-                    lasso.selection = simplifyPath(lasso.selection, 2.0 / zoomPan.scale);
+                    lasso.selection =
+                        simplifyPath(lasso.selection, 2.0 / zoomPan.scale);
                     lasso.selectionPoints = lasso.selection;
+                    widget.server.currentMap
+                        .lassoSelectionToJsonData(lasso.selection);
                   });
                 }
               },
               onLongPressStart: (details) {
                 if (lasso.selection.isNotEmpty) {
-                  _lookForSelectedPointIndex(details, zoomPan.scale);
+                  lasso.onLongPressedStart(details, zoomPan);
                   setState(() {});
                 }
               },
               onLongPressMoveUpdate: (details) {
-                if (lasso.selectedPointIndex != null) {
-                  _moveSelectedPoint(details);
-                  setState(() {});
-                } else if (lasso.selected) {
-                  _moveLasso(details);
-                  setState(() {});
-                }
+                lasso.onLongPressedMoveUpdate(details, zoomPan);
+                widget.server.currentMap
+                    .lassoSelectionToJsonData(lasso.selection);
+                setState(() {});
               },
               onLongPressEnd: (_) {
-                lasso.selectedPointIndex = null;
-                lasso.selected = false;
+                lasso.onLongPressedEnd();
                 setState(() {});
               },
               onTapDown: (details) {
                 if (widget.server.preparedCmd == 'go to') {
-                  _setGoToPoint(details);
+                  gotoPoint.setCoords(
+                      details, zoomPan, widget.server.currentMap);
+                  widget.server.currentMap
+                      .gotoPointToJsonData(gotoPoint.coords!);
                   setState(() {});
                 }
               },

@@ -183,12 +183,12 @@ class Landscape {
     }
   }
 
-  void lassoSelectionToJsonData(List<Offset> selection, double scale) {
-    selectedArea = _canvasCoordsToCartesian(selection, scale);
+  void lassoSelectionToJsonData(List<Offset> selection) {
+    selectedArea = _canvasCoordsToCartesian(selection, mapScale);
   }
 
-  void gotoPointToJsonData(Offset selection, double scale) {
-    gotoPoint = _canvasCoordsToCartesian([selection], scale)[0];
+  void gotoPointToJsonData(Offset selection) {
+    gotoPoint = _canvasCoordsToCartesian([selection], mapScale)[0];
   }
 
   List<Offset> _canvasCoordsToCartesian(List<Offset> shape, double scale) {
