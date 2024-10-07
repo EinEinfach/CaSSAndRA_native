@@ -2,7 +2,7 @@ import 'package:cassandra_native/models/ui_state.dart';
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/models/mow_parameters.dart';
 
-UiState storedUiState = UiState(serversListViewOrientation: 'vertical');
+UiState storedUiState = UiState(serversListViewOrientation: 'vertical', theme: 'light');
 Servers registredServers = Servers();
 MowParameters currentMowParameters = MowParameters(
   mowPattern: Pattern.lines,

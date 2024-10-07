@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'package:cassandra_native/theme/theme.dart';
+import 'package:cassandra_native/utils/ui_state_storage.dart';
+
+// globals
+import 'package:cassandra_native/data/user_data.dart' as user;
 
 class ThemeProvider with ChangeNotifier {
   // initially, theme is light mode
@@ -15,6 +19,7 @@ class ThemeProvider with ChangeNotifier {
   // setter method to set the new theme
   set themeData(ThemeData themeData){
     _themeData = themeData;
+    UiStateStorage.saveUiState(user.storedUiState);
     notifyListeners();
   }
 
@@ -22,8 +27,10 @@ class ThemeProvider with ChangeNotifier {
   void toggleTheme() {
     if (_themeData == lightMode) {
       themeData = darkMode;
+      user.storedUiState.theme = 'dark';
     } else {
       themeData = lightMode;
+      user.storedUiState.theme = 'light';
     }
   }
 
@@ -33,5 +40,9 @@ class ThemeProvider with ChangeNotifier {
 
   void lightTheme() {
     themeData = lightMode;
+  }
+
+  void initTheme() {
+    _themeData = user.storedUiState.theme == 'light' ? lightMode : darkMode;
   }
 }

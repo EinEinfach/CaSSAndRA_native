@@ -18,6 +18,6 @@ class UiStateStorage {
       final dynamic uiStateJson = jsonDecode(uiStateString);
       return UiState.fromJson(uiStateJson);
     }
-    return UiState(serversListViewOrientation: 'vertical');
+    return UiState(serversListViewOrientation: 'vertical', theme: 'light');
   }
 }

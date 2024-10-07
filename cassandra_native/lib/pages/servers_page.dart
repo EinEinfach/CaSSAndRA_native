@@ -50,7 +50,6 @@ class _ServersPageState extends State<ServersPage> {
   @override
   void initState() {
     super.initState();
-    _loadStoragedUiState();
     _loadStoredMowParameters();
     _loadServers();
   }
@@ -86,11 +85,6 @@ class _ServersPageState extends State<ServersPage> {
   Future<void> _connectToServer(Server server) async {
     await MqttManager.instance
         .create(server.serverInterface, onMessageReceived);
-  }
-
-  Future<void> _loadStoragedUiState() async {
-    user.storedUiState = await UiStateStorage.loadUiState();
-    setState(() {});
   }
 
   Future<void> _loadStoredMowParameters() async {

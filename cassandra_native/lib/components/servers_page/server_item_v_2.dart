@@ -55,7 +55,7 @@ class ServerItemV2 extends StatelessWidget {
             GestureDetector(
               onTap: openEditServer,
               child: Container(
-                width: 50,
+                width: 100,
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.secondary,
                   borderRadius: BorderRadius.circular(5),
@@ -80,7 +80,7 @@ class ServerItemV2 extends StatelessWidget {
               width: 8,
             ),
             Container(
-              width: 50,
+              width: 100,
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.secondary,
                 borderRadius: BorderRadius.circular(5),

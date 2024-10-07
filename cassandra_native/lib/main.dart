@@ -4,16 +4,24 @@ import 'package:provider/provider.dart';
 import 'package:desktop_window/desktop_window.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import 'package:cassandra_native/utils/ui_state_storage.dart';
 import 'package:cassandra_native/data/app_data.dart';
 
 import 'package:cassandra_native/cassandra_native.dart';
 import 'package:cassandra_native/theme/theme_provider.dart';
 import 'package:cassandra_native/pages/servers_page.dart';
 
+// globals
+import 'package:cassandra_native/data/user_data.dart' as user;
+
 Future<void> _initPackageInfo() async {
     packageInfo = await PackageInfo.fromPlatform();
     appVersion = packageInfo.version;
   }
+
+ Future<void> _loadStoredUiState() async {
+    user.storedUiState = await UiStateStorage.loadUiState();
+ }
 
 Future setWindowSize() async {
   await DesktopWindow.setMinWindowSize(
@@ -27,6 +35,7 @@ void main() {
     setWindowSize();
   }
   _initPackageInfo();
+  _loadStoredUiState();
   runApp(
     MultiProvider(
       providers: [
@@ -50,6 +59,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Provider.of<ThemeProvider>(context).initTheme();
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       // scrollBehavior: const MaterialScrollBehavior().copyWith(
