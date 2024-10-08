@@ -224,9 +224,14 @@ class Landscape {
         searchWire.map((p) => Offset(p.dx - minX, -(p.dy - minY))).toList();
   }
 
-  void scaleShapes(double width, double height) {
-    offsetX = (width - shiftedMaxX * mapScale) / 2;
-    offsetY = (height + shiftedMaxY * mapScale) / 2;
+  void scaleShapes(Size screenSize) {
+    if (shiftedMaxX / shiftedMaxY > screenSize.width / screenSize.height) {
+      mapScale = screenSize.width / shiftedMaxX;
+    } else {
+      mapScale = screenSize.height / shiftedMaxY;
+    }
+    offsetX = (screenSize.width - shiftedMaxX * mapScale) / 2;
+    offsetY = (screenSize.height + shiftedMaxY * mapScale) / 2;
 
     // 1st. scale shapes for canvas screen size
     scaledPerimeter = shiftedPerimeter

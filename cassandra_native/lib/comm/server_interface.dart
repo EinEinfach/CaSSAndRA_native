@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 import 'package:cassandra_native/comm/mqtt_manager.dart';
 
@@ -48,6 +49,9 @@ class ServerInterface {
     final Map<String, dynamic> cmdMove =
         _addTopicAndCommandToValue('robot', 'move', movementValue);
     final String cmdMoveJson = jsonEncode(cmdMove);
+    if (kDebugMode) {
+      debugPrint(cmdMoveJson);
+    }
     _sendCommand(cmdMoveJson);
   }
 
@@ -55,6 +59,9 @@ class ServerInterface {
     final Map<String, dynamic> cmdUpdateCoords =
         _addTopicAndCommandToValue('coords', 'update', [value]);
     final String cmdUpdateCoordsJson = jsonEncode(cmdUpdateCoords);
+    if (kDebugMode) {
+      debugPrint(cmdUpdateCoordsJson);
+    }
     _sendCommand(cmdUpdateCoordsJson);
   }
 
@@ -63,6 +70,9 @@ class ServerInterface {
     final Map<String, dynamic> cmdSetSelection =
         _addTopicAndCommandToValue('map', 'setSelection', selectionCoords);
     final String cmdSetSelectionJson = jsonEncode(cmdSetSelection);
+    if (kDebugMode) {
+      debugPrint(cmdSetSelectionJson);
+    }
     _sendCommand(cmdSetSelectionJson);
   }
 
@@ -70,6 +80,9 @@ class ServerInterface {
     final Map<String, dynamic> cmdSetMowParameters =
         _addTopicAndCommandToValue('map', 'setMowParameters', mowParameters);
     final String cmdSetMowParametersJson = jsonEncode(cmdSetMowParameters);
+    if (kDebugMode) {
+      debugPrint(cmdSetMowParametersJson);
+    }
     _sendCommand(cmdSetMowParametersJson);
   }
 
@@ -77,6 +90,9 @@ class ServerInterface {
     final Map<String, dynamic> cmdMow =
         _addTopicAndCommandToValue('robot', 'mow', [value]);
     final String cmdMowJson = jsonEncode(cmdMow);
+    if (kDebugMode) {
+      debugPrint(cmdMowJson);
+    }
     _sendCommand(cmdMowJson);
   }
 
@@ -84,6 +100,9 @@ class ServerInterface {
     final Map<String, dynamic> cmdStop =
         _addTopicAndCommandToValue('robot', 'stop', []);
     final String cmdStopJson = jsonEncode(cmdStop);
+    if (kDebugMode) {
+      debugPrint(cmdStopJson);
+    }
     _sendCommand(cmdStopJson);
   }
 
@@ -91,6 +110,9 @@ class ServerInterface {
     final Map<String, dynamic> cmdDock =
         _addTopicAndCommandToValue('robot', 'dock', []);
     final String cmdDockJson = jsonEncode(cmdDock);
+    if (kDebugMode) {
+      debugPrint(cmdDockJson);
+    }
     _sendCommand(cmdDockJson);
   }
 
@@ -99,12 +121,29 @@ class ServerInterface {
     final Map<String, dynamic> cmdGoto =
         _addTopicAndCommandToValue('robot', 'go to', gotoCoords);
     final String cmdGotoJson = jsonEncode(cmdGoto);
+    if (kDebugMode) {
+      debugPrint(cmdGotoJson);
+    }
     _sendCommand(cmdGotoJson);
   }
 
   void commandResetObstacles() {
-    final Map<String, dynamic> cmdResetObstacles = _addTopicAndCommandToValue('map', 'resetObstacles', []);
+    final Map<String, dynamic> cmdResetObstacles =
+        _addTopicAndCommandToValue('map', 'resetObstacles', []);
     final String cmdResetObstaclesJson = jsonEncode(cmdResetObstacles);
+    if (kDebugMode) {
+      debugPrint(cmdResetObstaclesJson);
+    }
     _sendCommand(cmdResetObstaclesJson);
+  }
+
+  void commandSelectTasks(List<String> tasks) {
+    final Map<String, dynamic> cmdSelectTasks =
+        _addTopicAndCommandToValue('tasks', 'select', tasks);
+    final String cmdSelectTasksJson = jsonEncode(cmdSelectTasks);
+    if (kDebugMode) {
+      debugPrint(cmdSelectTasksJson);
+    }
+    _sendCommand(cmdSelectTasksJson);
   }
 }

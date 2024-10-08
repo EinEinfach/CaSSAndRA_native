@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter/widgets.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:cassandra_native/models/landscape.dart';
 
@@ -21,11 +22,13 @@ class Robot {
   int dgpsSatellites = 0;
   String rtkAge = '99+d';
 
-  void jsonToClassData(String message){
+  void jsonToClassData(String message) {
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
-    try{
-      position = Offset(decodedMessage['position']['x'], decodedMessage['position']['y']);
-      target = Offset(decodedMessage['target']['x'], decodedMessage['target']['y']);
+    try {
+      position = Offset(
+          decodedMessage['position']['x'], decodedMessage['position']['y']);
+      target =
+          Offset(decodedMessage['target']['x'], decodedMessage['target']['y']);
       angle = decodedMessage['angle'];
       status = decodedMessage['status'];
       mowPointIdx = decodedMessage['mowPointIdx'];
@@ -38,13 +41,14 @@ class Robot {
       rtkSolution = decodedMessage['gps']['solution'];
 
       //notifyListeners();
-    }
-    catch(e){
-      print('Invalid robot json data: $e');
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Invalid robot json data: $e');
+      }
     }
   }
 
-  void scalePosition(double width, double height, Landscape currentMap) {
+  void scalePosition(Size screenSize, Landscape currentMap) {
     if (currentMap.perimeter.isNotEmpty) {
       scaledPosition = Offset(
           (position.dx - currentMap.minX) * currentMap.mapScale +
@@ -57,7 +61,7 @@ class Robot {
           -(target.dy - currentMap.minY) * currentMap.mapScale +
               currentMap.offsetY);
     } else {
-      scaledPosition = Offset(width / 2, height / 2);
+      scaledPosition = Offset(screenSize.width / 2, screenSize.height / 2);
     }
   }
 }

@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:provider/provider.dart';
 
 import 'package:cassandra_native/data/app_data.dart';
-import 'package:cassandra_native/theme/theme_provider.dart';
 import 'package:cassandra_native/components/nav_drawer.dart';
 import 'package:cassandra_native/models/server.dart';
 
@@ -34,31 +31,7 @@ class SettingsPage extends StatelessWidget {
             drawer: NavDrawer(
               server: server,
             ),
-            body: Container(
-              decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary,
-                  borderRadius: BorderRadius.circular(12)),
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 25),
-              margin: const EdgeInsets.only(left: 25, right: 25, top: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Dark Mode",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.inversePrimary),
-                  ),
-                  CupertinoSwitch(
-                    value: Provider.of<ThemeProvider>(context, listen: false)
-                        .isDarkMode,
-                    onChanged: (value) =>
-                        Provider.of<ThemeProvider>(context, listen: false)
-                            .toggleTheme(),
-                  ),
-                ],
-              ),
-            ),
+            
           );
           //+++++++++++++++++++++++++++++++++++++++++++++++tablet page++++++++++++++++++++++++++++++++++++++++++++++++++++
         } else if (constrains.maxWidth < largeWidth) {
@@ -79,31 +52,6 @@ class SettingsPage extends StatelessWidget {
             drawer: NavDrawer(
               server: server,
             ),
-            body: Container(
-              decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary,
-                  borderRadius: BorderRadius.circular(12)),
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 25),
-              margin: const EdgeInsets.only(left: 25, right: 25, top: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Dark Mode",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.inversePrimary),
-                  ),
-                  CupertinoSwitch(
-                    value: Provider.of<ThemeProvider>(context, listen: false)
-                        .isDarkMode,
-                    onChanged: (value) =>
-                        Provider.of<ThemeProvider>(context, listen: false)
-                            .toggleTheme(),
-                  ),
-                ],
-              ),
-            ),
           );
           //+++++++++++++++++++++++++++++++++++++++++++++++desktop page++++++++++++++++++++++++++++++++++++++++++++++++++++
         } else {
@@ -119,36 +67,7 @@ class SettingsPage extends StatelessWidget {
                 NavDrawer(
                   server: server,
                 ),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(12)),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 20, horizontal: 25),
-                    margin: const EdgeInsets.only(left: 25, right: 25, top: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Dark Mode",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color:
-                                  Theme.of(context).colorScheme.inversePrimary),
-                        ),
-                        CupertinoSwitch(
-                          value:
-                              Provider.of<ThemeProvider>(context, listen: false)
-                                  .isDarkMode,
-                          onChanged: (value) =>
-                              Provider.of<ThemeProvider>(context, listen: false)
-                                  .toggleTheme(),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                
               ],
             ),
           );

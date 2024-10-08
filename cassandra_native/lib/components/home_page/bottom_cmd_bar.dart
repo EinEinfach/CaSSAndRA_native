@@ -5,10 +5,12 @@ import 'package:cassandra_native/models/server.dart';
 
 class BottomCmdBar extends StatelessWidget {
   final Server server;
+  final void Function() onOpenTasksOverlay;
 
   const BottomCmdBar({
     super.key,
     required this.server,
+    required this.onOpenTasksOverlay,
   });
 
   void setCmdBarState(String state) {
@@ -58,6 +60,7 @@ class BottomCmdBar extends StatelessWidget {
             text: 'tasks',
             onPressed: () {
               setCmdBarState('tasks');
+              onOpenTasksOverlay();
             },
             iconColor: Theme.of(context).colorScheme.primary,
           ),

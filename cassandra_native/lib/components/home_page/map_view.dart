@@ -7,23 +7,26 @@ import 'dart:async';
 
 import 'package:cassandra_native/cassandra_native.dart';
 import 'package:cassandra_native/models/server.dart';
-import 'package:cassandra_native/models/mow_parameters.dart';
 import 'package:cassandra_native/comm/mqtt_manager.dart';
 import 'package:cassandra_native/components/home_page/logic/widget_logic.dart';
 import 'package:cassandra_native/components/home_page/map_painter.dart';
 import 'package:cassandra_native/components/home_page/map_button.dart';
 import 'package:cassandra_native/components/home_page/play_button.dart';
 import 'package:cassandra_native/components/home_page/status_bar.dart';
-import 'package:cassandra_native/components/new_mow_parameters.dart';
 import 'package:cassandra_native/utils/custom_shape_calcs.dart';
-import 'package:cassandra_native/utils/mow_parameters_storage.dart';
 
 // globals
 import 'package:cassandra_native/data/user_data.dart' as user;
 
 class MapView extends StatefulWidget {
   final Server server;
-  const MapView({super.key, required this.server});
+  final void Function() openMowParametersOverlay;
+
+  const MapView({
+    super.key,
+    required this.server,
+    required this.openMowParametersOverlay,
+  });
 
   @override
   State<MapView> createState() => _MapViewState();
@@ -43,19 +46,10 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   MapPoint gotoPoint = MapPoint();
 
   //ui
-  List<String> statePlayPlayButton = [
-    'idle',
-    'charging',
-    'docked',
-    'stop',
-    'move',
-    'offline'
-  ];
+  MapUi mapUi = MapUi();
   ui.Image? roverImage;
-  bool focusOnMowerActive = false;
-  bool jobActive = false;
-  IconData playButtonIcon = Icons.play_arrow;
   Offset screenSizeDelta = Offset.zero;
+  late Size screenSize;
   Size? oldScreenSize;
   bool _isBusy = false;
   Timer? _isBusyTimer;
@@ -96,8 +90,15 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
         });
       });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scalePerimeterCoords();
-      _scaleCoords();
+      screenSize = MediaQuery.of(context).size;
+      animationIsActive = false;
+      widget.server.currentMap.scaleShapes(screenSize);
+      widget.server.robot.scalePosition(screenSize, widget.server.currentMap);
+      widget.server.currentMap.scalePreview();
+      widget.server.currentMap.scaleMowPath();
+      widget.server.currentMap.scaleObstacles();
+      _onNewCoordinatesReceived(
+          widget.server.robot.scaledPosition, widget.server.robot.angle);
     });
     _lastUpdateTime = DateTime.now();
   }
@@ -181,15 +182,18 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
       } else {
         animationIsActive = false;
       }
-      _scaleRobotCoords();
+      widget.server.robot.scalePosition(screenSize, widget.server.currentMap);
       _onNewCoordinatesReceived(
           widget.server.robot.scaledPosition, widget.server.robot.angle);
     }
     if (topic.contains('/coords')) {
       if (message.contains('current map')) {
-        _scalePerimeterCoords();
+        widget.server.currentMap.scaleShapes(screenSize);
+        widget.server.robot.scalePosition(screenSize, widget.server.currentMap);
       } else {
-        _scaleCoords();
+        widget.server.currentMap.scalePreview();
+        widget.server.currentMap.scaleMowPath();
+        widget.server.currentMap.scaleObstacles();
       }
     }
     setState(() {
@@ -201,31 +205,6 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
       }
       _handlePlayButton();
     });
-  }
-
-  void _scalePerimeterCoords() {
-    final Size screenSize = MediaQuery.of(context).size;
-    final shiftedMaxX = widget.server.currentMap.shiftedMaxX;
-    final shiftedMaxY = widget.server.currentMap.shiftedMaxY;
-    if (shiftedMaxX / shiftedMaxY > screenSize.width / screenSize.height) {
-      widget.server.currentMap.mapScale = screenSize.width / shiftedMaxX;
-    } else {
-      widget.server.currentMap.mapScale = screenSize.height / shiftedMaxY;
-    }
-    widget.server.currentMap.scaleShapes(screenSize.width, screenSize.height);
-    _scaleRobotCoords();
-  }
-
-  void _scaleCoords() {
-    widget.server.currentMap.scalePreview();
-    widget.server.currentMap.scaleMowPath();
-    widget.server.currentMap.scaleObstacles();
-  }
-
-  void _scaleRobotCoords() {
-    final Size screenSize = MediaQuery.of(context).size;
-    widget.server.robot.scalePosition(
-        screenSize.width, screenSize.height, widget.server.currentMap);
   }
 
   void _resetLassoSelection() {
@@ -245,13 +224,13 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     } else {
       _resetLassoSelection();
       _resetGotoPoint();
-      focusOnMowerActive = false;
+      mapUi.focusOnMowerActive = false;
     }
   }
 
   void _handlePlayButton({bool cmd = false}) {
     if (cmd) {
-      if (jobActive) {
+      if (mapUi.jobActive) {
         widget.server.serverInterface.commandStop();
       } else if (widget.server.preparedCmd == 'calc' &&
           widget.server.currentMap.selectedArea.isNotEmpty) {
@@ -270,13 +249,11 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
           widget.server.currentMap.gotoPoint != null) {
         widget.server.serverInterface
             .commandGoto(widget.server.currentMap.gotoPoint!);
+      } else if (widget.server.preparedCmd == 'tasks' && widget.server.tasks.selected.isNotEmpty) {
+        widget.server.serverInterface.commandMow('task');
       }
-    } else if (statePlayPlayButton.contains(widget.server.robot.status)) {
-      jobActive = false;
-      playButtonIcon = Icons.play_arrow;
     } else {
-      jobActive = true;
-      playButtonIcon = Icons.pause;
+      mapUi.onRobotStatusCheck(widget.server.robot);
     }
   }
 
@@ -284,31 +261,30 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     widget.server.serverInterface.commandMow('resume');
   }
 
-  void setMowParameters(MowParameters mowParameters) {
-    user.currentMowParameters = mowParameters;
-    MowParametersStorage.saveMowParameters(mowParameters);
-    //widget.server.serverInterface.commandSetMowParameters(mowParameters.toJson());
-  }
+  // void setMowParameters(MowParameters mowParameters) {
+  //   user.currentMowParameters = mowParameters;
+  //   MowParametersStorage.saveMowParameters(mowParameters);
+  // }
 
-  void openMowParametersOverlay() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        title: const Text(
-          'Mow parameters',
-          style: TextStyle(fontSize: 14),
-        ),
-        content: NewMowParameters(
-          onSetMowParameters: setMowParameters,
-          mowParameters: user.currentMowParameters,
-        ),
-      ),
-    );
-  }
+  // void openMowParametersOverlay() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) => AlertDialog(
+  //       shape: RoundedRectangleBorder(
+  //         borderRadius: BorderRadius.circular(12),
+  //       ),
+  //       backgroundColor: Theme.of(context).colorScheme.secondary,
+  //       title: const Text(
+  //         'Mow parameters',
+  //         style: TextStyle(fontSize: 14),
+  //       ),
+  //       content: NewMowParameters(
+  //         onSetMowParameters: setMowParameters,
+  //         mowParameters: user.currentMowParameters,
+  //       ),
+  //     ),
+  //   );
+  // }
 
   void _startBusyTimer() {
     if (!_isBusy) {
@@ -332,7 +308,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     _appLifecycleState =
         Provider.of<CassandraNative>(context).appLifecycleState;
 
-    Size screenSize = MediaQuery.of(context).size;
+    screenSize = MediaQuery.of(context).size;
 
     // Screen size is changed (could happened on desktop) then add additional offset on lasso and go to
     if (oldScreenSize == null) {
@@ -343,9 +319,11 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
       oldScreenSize = screenSize;
       if (screenSizeDelta != Offset.zero) {
         animationIsActive = false;
-        _scalePerimeterCoords();
-        _scaleCoords();
-        _scaleRobotCoords();
+        widget.server.currentMap.scaleShapes(screenSize);
+        widget.server.currentMap.scalePreview();
+        widget.server.currentMap.scaleMowPath();
+        widget.server.currentMap.scaleObstacles();
+        widget.server.robot.scalePosition(screenSize, widget.server.currentMap);
         _onNewCoordinatesReceived(
             widget.server.robot.scaledPosition, widget.server.robot.angle);
         gotoPoint.onScreenSizeChanged(widget.server.currentMap);
@@ -365,7 +343,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
       },
       child: LayoutBuilder(builder: (context, constraints) {
         // zoom focus on mower
-        if (focusOnMowerActive) {
+        if (mapUi.focusOnMowerActive) {
           zoomPan.focusOnPoint(_currentPosition, screenSize);
         }
 
@@ -484,7 +462,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
               ),
             ),
             PlayButton(
-              icon: playButtonIcon,
+              icon: mapUi.playButtonIcon,
               onPressed: () {
                 _handlePlayButton(cmd: true);
               },
@@ -509,7 +487,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                     MapButton(
                       icon: Icons.settings,
                       isActive: false,
-                      onPressed: openMowParametersOverlay,
+                      onPressed: widget.openMowParametersOverlay,
                     ),
                   ],
                 ),
@@ -528,7 +506,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                       icon: Icons.zoom_in_map,
                       isActive: false,
                       onPressed: () {
-                        focusOnMowerActive = false;
+                        mapUi.focusOnMowerActive = false;
                         lasso.active = false;
                         zoomPan.offset = Offset.zero;
                         zoomPan.scale = 1.0;
@@ -537,9 +515,9 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                     ),
                     MapButton(
                       icon: Icons.center_focus_weak_outlined,
-                      isActive: focusOnMowerActive,
+                      isActive: mapUi.focusOnMowerActive,
                       onPressed: () {
-                        focusOnMowerActive = !focusOnMowerActive;
+                        mapUi.focusOnMowerActive = !mapUi.focusOnMowerActive;
                         lasso.active = false;
                         zoomPan.focusOnPoint(_currentPosition, screenSize);
                         setState(() {});
@@ -550,7 +528,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                       isActive: lasso.active,
                       onPressed: () {
                         if (widget.server.preparedCmd == 'calc') {
-                          focusOnMowerActive = false;
+                          mapUi.focusOnMowerActive = false;
                           lasso.active = !lasso.active;
                           lasso.selection = [];
                           lasso.selectionPoints = [];

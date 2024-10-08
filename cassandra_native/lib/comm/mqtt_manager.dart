@@ -112,6 +112,7 @@ class MqttManager {
     subscribe(server.id, '${server.serverNamePrefix}/robot');
     subscribe(server.id, '${server.serverNamePrefix}/map');
     subscribe(server.id, '${server.serverNamePrefix}/coords');
+    subscribe(server.id, '${server.serverNamePrefix}/tasks');
   }
 
   void subscribe(String clientId, String topic) {

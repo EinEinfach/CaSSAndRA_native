@@ -10,27 +10,39 @@ import 'package:cassandra_native/components/nav_button.dart';
 
 class HomePageTablet extends StatelessWidget {
   final Server server;
+  final void Function() onOpenTasksOverlay;
+  final void Function() openMowParametersOverlay;
 
-  const HomePageTablet({super.key, required this.server});
+  const HomePageTablet({
+    super.key,
+    required this.server,
+    required this.onOpenTasksOverlay,
+    required this.openMowParametersOverlay,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      bottomNavigationBar: BottomCmdBar(server: server),
+      bottomNavigationBar: BottomCmdBar(
+        server: server,
+        onOpenTasksOverlay: onOpenTasksOverlay,
+      ),
       endDrawer: JoystickDrawer(server: server),
       drawer: NavDrawer(
         server: server,
       ),
-      body: Builder(
-        builder: (context) {
-          return SafeArea(
+      body: Builder(builder: (context) {
+        return SafeArea(
           child: Stack(
-            children: [ 
+            children: [
               Center(
                 child: Padding(
                   padding: const EdgeInsets.all(0),
-                  child: MapView(server: server),
+                  child: MapView(
+                    server: server,
+                    openMowParametersOverlay: openMowParametersOverlay,
+                  ),
                 ),
               ),
               Row(
@@ -53,8 +65,7 @@ class HomePageTablet extends StatelessWidget {
             ],
           ),
         );
-        }
-      ),
+      }),
     );
   }
 }

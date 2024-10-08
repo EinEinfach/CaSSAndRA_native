@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:cassandra_native/models/landscape.dart';
+import 'package:cassandra_native/models/robot.dart';
 import 'package:cassandra_native/utils/custom_shape_calcs.dart';
 
 class ZoomPan {
@@ -131,6 +132,30 @@ class MapPoint {
               currentMap.offsetX,
           -(currentMap.gotoPoint!.dy - currentMap.minY) * currentMap.mapScale +
               currentMap.offsetY);
+    }
+  }
+}
+
+class MapUi {
+  List<String> statePlayPlayButton = [
+    'idle',
+    'charging',
+    'docked',
+    'stop',
+    'move',
+    'offline'
+  ];
+  bool focusOnMowerActive = false;
+  bool jobActive = false;
+  IconData playButtonIcon = Icons.play_arrow;
+
+  void onRobotStatusCheck(Robot robot) {
+    if (statePlayPlayButton.contains(robot.status)) {
+      jobActive = false;
+      playButtonIcon = Icons.play_arrow;
+    } else {
+      jobActive = true;
+      playButtonIcon = Icons.pause;
     }
   }
 }

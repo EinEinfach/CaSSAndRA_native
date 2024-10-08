@@ -110,7 +110,7 @@ class _NewMowParametersState extends State<NewMowParameters> {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 300,
-      height: 330,
+      height: 310,
       child: SingleChildScrollView(
         child: Column(
           children: [

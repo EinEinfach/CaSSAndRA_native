@@ -10,14 +10,24 @@ import 'package:cassandra_native/models/server.dart';
 
 class HomePageDesktop extends StatelessWidget {
   final Server server;
+  final void Function() onOpenTasksOverlay;
+  final void Function() openMowParametersOverlay;
 
-  const HomePageDesktop({super.key, required this.server});
+  const HomePageDesktop({
+    super.key,
+    required this.server,
+    required this.onOpenTasksOverlay,
+    required this.openMowParametersOverlay,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      bottomNavigationBar: BottomCmdBar(server: server),
+      bottomNavigationBar: BottomCmdBar(
+        server: server,
+        onOpenTasksOverlay: onOpenTasksOverlay,
+      ),
       endDrawer: JoystickDrawer(server: server),
       body: Builder(builder: (context) {
         return Stack(
@@ -37,7 +47,10 @@ class HomePageDesktop extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(10),
-                  child: MapView(server: server),
+                  child: MapView(
+                    server: server,
+                    openMowParametersOverlay: openMowParametersOverlay,
+                  ),
                 ),
                 NavDrawer(
                   server: server,
