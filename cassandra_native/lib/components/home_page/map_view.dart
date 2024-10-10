@@ -77,6 +77,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    widget.server.preparedCmd = 'home';
     _loadImage(categoryImages[widget.server.category]!.elementAt(1));
     _connectToServer();
     _handlePlayButton();
@@ -97,6 +98,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
       widget.server.currentMap.scalePreview();
       widget.server.currentMap.scaleMowPath();
       widget.server.currentMap.scaleObstacles();
+      widget.server.currentMap.scaleTaskPreview();
       _onNewCoordinatesReceived(
           widget.server.robot.scaledPosition, widget.server.robot.angle);
     });
@@ -194,6 +196,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
         widget.server.currentMap.scalePreview();
         widget.server.currentMap.scaleMowPath();
         widget.server.currentMap.scaleObstacles();
+        widget.server.currentMap.scaleTaskPreview();
       }
     }
     setState(() {
@@ -249,7 +252,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
           widget.server.currentMap.gotoPoint != null) {
         widget.server.serverInterface
             .commandGoto(widget.server.currentMap.gotoPoint!);
-      } else if (widget.server.preparedCmd == 'tasks' && widget.server.tasks.selected.isNotEmpty) {
+      } else if (widget.server.preparedCmd == 'tasks' && widget.server.currentMap.tasks.selected.isNotEmpty) {
         widget.server.serverInterface.commandMow('task');
       }
     } else {
@@ -323,6 +326,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
         widget.server.currentMap.scalePreview();
         widget.server.currentMap.scaleMowPath();
         widget.server.currentMap.scaleObstacles();
+        widget.server.currentMap.scaleTaskPreview();
         widget.server.robot.scalePosition(screenSize, widget.server.currentMap);
         _onNewCoordinatesReceived(
             widget.server.robot.scaledPosition, widget.server.robot.angle);

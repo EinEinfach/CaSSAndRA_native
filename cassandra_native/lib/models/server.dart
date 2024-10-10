@@ -3,7 +3,6 @@ import 'package:uuid/uuid.dart';
 
 import 'package:cassandra_native/models/robot.dart';
 import 'package:cassandra_native/models/landscape.dart';
-import 'package:cassandra_native/models/tasks.dart';
 import 'package:cassandra_native/comm/server_interface.dart';
 
 const uuid = Uuid();
@@ -12,7 +11,7 @@ enum Category { ardumower, alfred, landrumower, other }
 
 final categoryImages = {
   Category.ardumower: ['lib/images/ardumower.png', 'lib/images/ardumower/rover0grad.png'],
-  Category.alfred: ['lib/images/artic_hare.png', 'lib/images/alfred/rover0grad.png'],
+  Category.alfred: ['lib/images/alfred.png', 'lib/images/alfred/rover0grad.png'],
   Category.landrumower: ['lib/images/landrumower.png', 'lib/images/landrumower/rover0grad.png'],
   Category.other: ['lib/images/in_app_icon.png', 'lib/images/other/rover0grad.png']
 };
@@ -53,7 +52,6 @@ class Server {
 
   Robot robot = Robot();
   Landscape currentMap = Landscape();
-  Tasks tasks = Tasks();
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -101,7 +99,7 @@ class Server {
     } else if (topic.contains('/coords')) {
       currentMap.coordsJsonToClassData(message);
     } else if (topic.contains('/tasks')) {
-      tasks.jsonToClassData(message);
+      currentMap.tasks.jsonToClassData(message);
     }
   }
 

@@ -1,7 +1,9 @@
 import 'dart:ui';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
+
+import 'package:cassandra_native/models/tasks.dart';
 
 class Landscape {
   String mapId = '';
@@ -56,19 +58,32 @@ class Landscape {
   // ratio meter to available screen size
   double mapScale = 1.0;
 
+  // tasks
+  Tasks tasks = Tasks();
+
   void coordsJsonToClassData(String message) {
-    var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
-    if (decodedMessage["features"][0]["properties"]["name"] == 'current map') {
-      _currentMapJsonToClassData(decodedMessage);
-    } else if (decodedMessage["features"][0]["properties"]["name"] ==
-        'current preview') {
-      _previewJsonToClassData(decodedMessage);
-    } else if (decodedMessage["features"][0]["properties"]["name"] ==
-        'current mow path') {
-      _mowPathJsonToClassData(decodedMessage);
-    } else if (decodedMessage["features"][0]["properties"]["name"] ==
-        'obstacles') {
-      _obstaclesJsonToClassData(decodedMessage);
+    try {
+      var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
+      if (decodedMessage["features"][0]["properties"]["name"] ==
+          'current map') {
+        _currentMapJsonToClassData(decodedMessage);
+      } else if (decodedMessage["features"][0]["properties"]["name"] ==
+          'current preview') {
+        _previewJsonToClassData(decodedMessage);
+      } else if (decodedMessage["features"][0]["properties"]["name"] ==
+          'current mow path') {
+        _mowPathJsonToClassData(decodedMessage);
+      } else if (decodedMessage["features"][0]["properties"]["name"] ==
+          'obstacles') {
+        _obstaclesJsonToClassData(decodedMessage);
+      } else if (decodedMessage["features"][0]["properties"]["name"] ==
+          'task') {
+        _taskPreviewJsonToClassData(decodedMessage);
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Invalid JSON received: $e');
+      }
     }
   }
 
@@ -179,7 +194,9 @@ class Landscape {
       obstaclesId = decodedMessage["features"][0]["properties"]["id"];
       _shiftObstacles();
     } catch (e) {
-      print('Invalid obstacles json data: $e');
+      if (kDebugMode) {
+        debugPrint('JSON to class data for obstacles failed: $e');
+      }
     }
   }
 
@@ -189,6 +206,27 @@ class Landscape {
 
   void gotoPointToJsonData(Offset selection) {
     gotoPoint = _canvasCoordsToCartesian([selection], mapScale)[0];
+  }
+
+  void _taskPreviewJsonToClassData(Map decodedMessage) {
+    final List<List<Offset>> task = [];
+    try {
+      for (var feature in decodedMessage["features"]) {
+        if (feature["properties"]["name"] != 'task') {
+          final List<Offset> subtask = [];
+          for (var coord in feature['geometry']['coordinates'][0]) {
+            subtask.add(Offset(coord[0], coord[1]));
+          }
+          task.add(subtask);
+        }
+      }
+      tasks.previews[decodedMessage["features"][0]["properties"]["id"]] = task;
+      _shiftTaskPreview();
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('JSON to class data for task preivew failed: $e');
+      }
+    }
   }
 
   List<Offset> _canvasCoordsToCartesian(List<Offset> shape, double scale) {
@@ -308,6 +346,31 @@ class Landscape {
         .map((shape) =>
             shape.map((p) => Offset(p.dx + offsetX, p.dy + offsetY)).toList())
         .toList();
+  }
+
+  void _shiftTaskPreview() {
+    for (var taskName in tasks.previews.keys) {
+      tasks.shiftedPreviews[taskName] = tasks.previews[taskName]!
+          .map((shape) =>
+              shape.map((p) => Offset(p.dx - minX, -(p.dy - minY))).toList())
+          .toList();
+    }
+
+    scaleTaskPreview();
+  }
+
+  void scaleTaskPreview() {
+    for (var taskName in tasks.shiftedPreviews.keys) {
+      tasks.scaledPreviews[taskName] = tasks.shiftedPreviews[taskName]!
+          .map((shape) => shape
+              .map((p) => Offset(p.dx * mapScale, p.dy * mapScale))
+              .toList())
+          .toList();
+      tasks.scaledPreviews[taskName] = tasks.scaledPreviews[taskName]!
+          .map((shape) =>
+              shape.map((p) => Offset(p.dx + offsetX, p.dy + offsetY)).toList())
+          .toList();
+    }
   }
 
   void _resetCoords() {

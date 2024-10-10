@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'dart:math';
 
+import 'package:cassandra_native/theme/theme.dart';
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/models/landscape.dart';
 import 'package:cassandra_native/models/robot.dart';
@@ -37,8 +38,16 @@ class MapPainter extends CustomPainter {
     required this.currentPostion,
     required this.currentAngle,
     required this.colors,
-   
   });
+
+  Color _getRandomColor(int min, int max) {
+    final random = Random();
+    int r = min + random.nextInt(max - min);
+    int g = min + random.nextInt(max - min);
+    int b = min + random.nextInt(max - min);
+
+    return Color.fromARGB(255, r, g, b);
+  }
 
   Path drawPolygon(Path path, List<Offset> points) {
     if (points.isNotEmpty) {
@@ -127,9 +136,31 @@ class MapPainter extends CustomPainter {
     // pathPreview = drawLine(pathPreview, currentMap.scaledPreview);
     // canvas.drawPath(pathPreview, previewBrush);
 
+    // draw tasks preview
+    if (currentServer.preparedCmd == 'tasks') {
+      final PreviewColorPalette previewColorPalette = PreviewColorPalette();
+      int previewCounter = 0;
+      for (var task in currentMap.tasks.selected) {
+        Path pathTaskPreview = Path();
+        if (currentMap.tasks.scaledPreviews.containsKey(task)) {
+          var tasksPreviewBrush = Paint()
+            ..color = previewColorPalette.colors[previewCounter]
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 0.5 * adjustedLineWidth;
+          previewCounter++;
+          previewCounter = previewCounter == previewColorPalette.colors.length
+              ? 0
+              : previewCounter;
+          for (var subtask in currentMap.tasks.scaledPreviews[task]!) {
+            pathTaskPreview = drawLine(pathTaskPreview, subtask);
+            canvas.drawPath(pathTaskPreview, tasksPreviewBrush);
+          }
+        }
+      }
+    }
+
     // draw mow path
-    if (currentMap.scaledMowPath.isNotEmpty &&
-        robot.status == 'mow') {
+    if (currentMap.scaledMowPath.isNotEmpty && robot.status == 'mow') {
       var mowPathBrush = Paint()
         ..color = Colors.green
         ..style = PaintingStyle.stroke
@@ -239,23 +270,29 @@ class MapPainter extends CustomPainter {
         ..strokeWidth = adjustedLineWidth
         ..strokeCap = StrokeCap.round;
       //canvas.drawCircle(gotoPoint!, 3 / scale, gotoPointBrush);
-      canvas.drawLine(Offset(gotoPoint!.dx - 6/scale, gotoPoint!.dy),
-          Offset(gotoPoint!.dx + 6/scale, gotoPoint!.dy), gotoPointBrush);
-      canvas.drawLine(Offset(gotoPoint!.dx, gotoPoint!.dy + 6/scale),
-          Offset(gotoPoint!.dx, gotoPoint!.dy - 6/scale), gotoPointBrush);
+      canvas.drawLine(Offset(gotoPoint!.dx - 6 / scale, gotoPoint!.dy),
+          Offset(gotoPoint!.dx + 6 / scale, gotoPoint!.dy), gotoPointBrush);
+      canvas.drawLine(Offset(gotoPoint!.dx, gotoPoint!.dy + 6 / scale),
+          Offset(gotoPoint!.dx, gotoPoint!.dy - 6 / scale), gotoPointBrush);
     }
 
     // draw target point
-    if (robot.status == 'mow' || robot.status == 'transit' || robot.status == 'docking') {
+    if (robot.status == 'mow' ||
+        robot.status == 'transit' ||
+        robot.status == 'docking') {
       var targetPointBrush = Paint()
         ..color = Colors.lightGreen
         ..style = PaintingStyle.stroke
         ..strokeWidth = adjustedLineWidth
         ..strokeCap = StrokeCap.round;
-      canvas.drawLine(Offset(robot.scaledTarget.dx - 6/scale, robot.scaledTarget.dy),
-          Offset(robot.scaledTarget.dx + 6/scale, robot.scaledTarget.dy), targetPointBrush);
-      canvas.drawLine(Offset(robot.scaledTarget.dx, robot.scaledTarget.dy + 6/scale),
-          Offset(robot.scaledTarget.dx, robot.scaledTarget.dy - 6/scale), targetPointBrush);
+      canvas.drawLine(
+          Offset(robot.scaledTarget.dx - 6 / scale, robot.scaledTarget.dy),
+          Offset(robot.scaledTarget.dx + 6 / scale, robot.scaledTarget.dy),
+          targetPointBrush);
+      canvas.drawLine(
+          Offset(robot.scaledTarget.dx, robot.scaledTarget.dy + 6 / scale),
+          Offset(robot.scaledTarget.dx, robot.scaledTarget.dy - 6 / scale),
+          targetPointBrush);
     }
 
     // draw rover image

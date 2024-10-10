@@ -14,18 +14,22 @@ class SelectTasks extends StatefulWidget {
 
 class _SelectTasksState extends State<SelectTasks> {
   final _formKey = GlobalKey<FormState>();
-
   final controller = MultiSelectController<String>();
 
   @override
   Widget build(BuildContext context) {
     List<DropdownItem<String>> items = [];
-    for (var item in widget.server.tasks.available) {
-      items.add(DropdownItem(label: item, value: item));
+    for (var item in widget.server.currentMap.tasks.available) {
+      if (widget.server.currentMap.tasks.selected.contains(item)) {
+        items.add(DropdownItem(label: item, value: item, selected: true));
+      }
+      else {
+        items.add(DropdownItem(label: item, value: item));
+      }
     }
     return SizedBox(
-      width: double.infinity,
-      height: 150,
+      width: 300,
+      height: 130,
       child: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -36,11 +40,22 @@ class _SelectTasksState extends State<SelectTasks> {
                 height: 4,
               ),
               MultiDropdown<String>(
-
                 items: items,
                 controller: controller,
                 enabled: true,
-                searchEnabled: false,
+                searchEnabled: false, 
+                // searchDecoration: SearchFieldDecoration(
+                //   border: OutlineInputBorder(
+                //     borderRadius: BorderRadius.circular(8),
+                //     borderSide: BorderSide(
+                //         color: Theme.of(context).colorScheme.primary),
+                //   ),
+                //   focusedBorder: OutlineInputBorder(
+                //     borderRadius: BorderRadius.circular(8),
+                //     borderSide: BorderSide(
+                //         color: Theme.of(context).colorScheme.primary),
+                //   ),
+                // ),
                 chipDecoration: ChipDecoration(
                   borderRadius: BorderRadius.circular(6),
                   backgroundColor: Theme.of(context).colorScheme.primary,
@@ -53,7 +68,7 @@ class _SelectTasksState extends State<SelectTasks> {
                   hintStyle: Theme.of(context).textTheme.bodyMedium,
                   showClearIcon: false,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(
                         color: Theme.of(context).colorScheme.primary),
                   ),
@@ -66,80 +81,14 @@ class _SelectTasksState extends State<SelectTasks> {
                 dropdownItemDecoration: DropdownItemDecoration(
                   selectedBackgroundColor:
                       Theme.of(context).colorScheme.primary,
-                  selectedIcon:
-                      const Icon(Icons.check_box, color: Colors.green),
-                  disabledIcon: Icon(Icons.lock, color: Colors.grey.shade300),
+                  //selectedIcon: null,
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select at least one task';
-                  }
-                  return null;
-                },
                 onSelectionChange: (selectedItems) {
                   widget.server.serverInterface
                       .commandSelectTasks(selectedItems);
                 },
               ),
-              // const SizedBox(height: 12),
-              // Wrap(
-              //   spacing: 8,
-              //   children: [
-              //     ElevatedButton(
-              //       onPressed: () {
-              //         if (_formKey.currentState?.validate() ?? false) {
-              //           final selectedItems = controller.selectedItems;
-
-              //           debugPrint(selectedItems.toString());
-              //         }
-              //       },
-              //       child: const Text('Submit'),
-              //     ),
-              //     ElevatedButton(
-              //       onPressed: () {
-              //         controller.selectAll();
-              //       },
-              //       child: const Text('Select All'),
-              //     ),
-              //     ElevatedButton(
-              //       onPressed: () {
-              //         controller.clearAll();
-              //       },
-              //       child: const Text('Unselect All'),
-              //     ),
-              //     ElevatedButton(
-              //       onPressed: () {
-              //         controller.addItems([
-              //           DropdownItem(
-              //               label: 'France',
-              //               value: User(name: 'France', id: 8)),
-              //         ]);
-              //       },
-              //       child: const Text('Add Items'),
-              //     ),
-              //     ElevatedButton(
-              //       onPressed: () {
-              //         controller.selectWhere((element) =>
-              //             element.value.id == 1 ||
-              //             element.value.id == 2 ||
-              //             element.value.id == 3);
-              //       },
-              //       child: const Text('Select Where'),
-              //     ),
-              //     ElevatedButton(
-              //       onPressed: () {
-              //         controller.selectAtIndex(0);
-              //       },
-              //       child: const Text('Select At Index'),
-              //     ),
-              //     ElevatedButton(
-              //       onPressed: () {
-              //         controller.openDropdown();
-              //       },
-              //       child: const Text('Open/Close dropdown'),
-              //     ),
-              //   ],
-              // )
+              const SizedBox(height: 5),
               Padding(
                 padding: const EdgeInsets.only(top: 5),
                 child: Row(

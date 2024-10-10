@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -28,6 +29,7 @@ class _NewMowParametersState extends State<NewMowParameters> {
   final _angleController = TextEditingController();
   final _distanceToBorderController = TextEditingController();
   final _borderLapsController = TextEditingController();
+  final controller = MultiSelectController<Pattern>();
   late bool mowArea;
   late bool mowExclusionBorder;
   late bool mowBorderCcw;
@@ -108,6 +110,20 @@ class _NewMowParametersState extends State<NewMowParameters> {
 
   @override
   Widget build(BuildContext context) {
+    List<DropdownItem<Pattern>> items = [
+      DropdownItem(
+          label: 'lines',
+          value: Pattern.lines,
+          selected: mowPattern == Pattern.lines),
+      DropdownItem(
+          label: 'squares',
+          value: Pattern.squares,
+          selected: mowPattern == Pattern.squares),
+      DropdownItem(
+          label: 'rings',
+          value: Pattern.rings,
+          selected: mowPattern == Pattern.rings),
+    ];
     return SizedBox(
       width: 300,
       height: 310,
@@ -231,38 +247,44 @@ class _NewMowParametersState extends State<NewMowParameters> {
                 ),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 10, 8, 5),
-              child: DropdownButton(
-                isExpanded: true,
-                dropdownColor: Theme.of(context).colorScheme.secondary,
-                borderRadius: BorderRadius.circular(8),
-                value: mowPattern,
-                items: Pattern.values
-                    .map(
-                      (pattern) => DropdownMenuItem(
-                        value: pattern,
-                        child: Center(
-                          child: Text(
-                            pattern.name.toUpperCase(),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (value) {
-                  if (value == null) {
-                    return;
-                  }
-                  setState(() {
-                    mowPattern = value;
-                  });
+            const SizedBox(
+              height: 5,
+            ),
+            SizedBox(
+              width: 150,
+              child: MultiDropdown<Pattern>(
+                singleSelect: true,
+                items: items,
+                controller: controller,
+                enabled: true,
+                searchEnabled: false,
+                fieldDecoration: FieldDecoration(
+                  // hintText: mowPattern.name,
+                  // hintStyle: Theme.of(context).textTheme.bodyMedium,
+                  showClearIcon: false,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary),
+                  ),
+                ),
+                dropdownDecoration: DropdownDecoration(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  marginTop: 2,
+                  maxHeight: 300,
+                ),
+                dropdownItemDecoration: DropdownItemDecoration(
+                  //selectedIcon: null,
+                  selectedBackgroundColor:
+                      Theme.of(context).colorScheme.secondary,
+                ),
+                onSelectionChange: (selectedItems) {
+                  mowPattern = selectedItems[0];
                 },
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 5),
+              padding: const EdgeInsets.only(top: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

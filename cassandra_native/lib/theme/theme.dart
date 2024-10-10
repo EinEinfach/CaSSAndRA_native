@@ -41,6 +41,17 @@ ThemeData darkMode = ThemeData(
   ),
 );
 
+class PreviewColorPalette{
+  List<Color> colors = [
+    Colors.blue.shade400,
+    Colors.blue.shade800,
+    Colors.cyan.shade600,
+    Colors.cyan.shade900,
+    Colors.purple.shade300,
+    Colors.purple.shade600,
+  ];
+}
+
 // var lightColorScheme = ColorScheme.fromSeed(
 //   brightness: Brightness.light,
 //   seedColor: const Color.fromARGB(255, 17, 243, 243),

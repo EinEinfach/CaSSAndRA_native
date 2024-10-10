@@ -183,32 +183,34 @@ class _NewServerState extends State<NewServer> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 10, 8, 5),
-              child: DropdownButton(
-                isExpanded: true,
-                dropdownColor: Theme.of(context).colorScheme.secondary,
-                borderRadius: BorderRadius.circular(8),
-                value: _selectedCategory,
-                items: Category.values
-                    .map(
-                      (category) => DropdownMenuItem(
-                        value: category,
-                        child: Center(
-                          child: Text(
-                            category.name.toUpperCase(),
-                            textAlign: TextAlign.center,
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton(
+                  isExpanded: true,
+                  dropdownColor: Theme.of(context).colorScheme.secondary,
+                  borderRadius: BorderRadius.circular(8),
+                  value: _selectedCategory,
+                  items: Category.values
+                      .map(
+                        (category) => DropdownMenuItem(
+                          value: category,
+                          child: Center(
+                            child: Text(
+                              category.name.toUpperCase(),
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (value) {
-                  if (value == null) {
-                    return;
-                  }
-                  setState(() {
-                    _selectedCategory = value;
-                  });
-                },
+                      )
+                      .toList(),
+                  onChanged: (value) {
+                    if (value == null) {
+                      return;
+                    }
+                    setState(() {
+                      _selectedCategory = value;
+                    });
+                  },
+                ),
               ),
             ),
             Padding(
