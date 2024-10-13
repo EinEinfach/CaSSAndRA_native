@@ -25,7 +25,7 @@ Future<void> _initPackageInfo() async {
 
 Future setWindowSize() async {
   await DesktopWindow.setMinWindowSize(
-    const Size(800, 600),
+    const Size(400, 600),
   );
 }
 

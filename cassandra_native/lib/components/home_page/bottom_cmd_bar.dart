@@ -14,7 +14,7 @@ class BottomCmdBar extends StatelessWidget {
   });
 
   void setCmdBarState(String state) {
-    server.preparedCmd = state;
+    //server.preparedCmd = state;
   }
 
   @override

@@ -137,7 +137,7 @@ class MapPainter extends CustomPainter {
     // canvas.drawPath(pathPreview, previewBrush);
 
     // draw tasks preview
-    if (currentServer.preparedCmd == 'tasks') {
+    if (currentMap.tasks.selected.isNotEmpty) {
       final PreviewColorPalette previewColorPalette = PreviewColorPalette();
       int previewCounter = 0;
       for (var task in currentMap.tasks.selected) {

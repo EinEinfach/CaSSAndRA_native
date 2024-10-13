@@ -41,6 +41,12 @@ class Landscape {
 
   List<List<Offset>> shapesBouquet = [[]];
 
+  // mow progress
+  int idxPercent = 0;
+  int distancePercent = 0;
+
+  int areaTotal= 0;
+
   // selection lasso etc.
   List<Offset> selectedArea = [];
   Offset? gotoPoint;
@@ -89,10 +95,19 @@ class Landscape {
 
   void mapJsonToClassData(String message) {
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
-    receivedMapId = decodedMessage['mapId'];
-    receivedPreviewId = decodedMessage['previewId'];
-    receivedMowPathId = decodedMessage['mowPathId'];
-    receivedObstaclesId = decodedMessage['obstaclesId'];
+    try {
+      receivedMapId = decodedMessage['mapId'];
+      receivedPreviewId = decodedMessage['previewId'];
+      receivedMowPathId = decodedMessage['mowPathId'];
+      receivedObstaclesId = decodedMessage['obstaclesId'];
+      idxPercent = decodedMessage['mowprogressIdxPercent'];
+      distancePercent = decodedMessage['mowprogressDistancePercent'];
+      areaTotal = decodedMessage['areaTotal'];
+    } catch (e) {
+      if(kDebugMode) {
+        debugPrint('Invalid map JSON: $e');
+      }
+    }
   }
 
   void _currentMapJsonToClassData(Map decodedMessage) {

@@ -18,6 +18,10 @@ ThemeData lightMode = ThemeData(
     bodyMedium: TextStyle(
       fontSize: 10,
     ),
+    labelLarge: TextStyle(
+      fontSize: 13,
+      fontWeight: FontWeight.bold,
+    ),
   ),
 );
 
@@ -38,10 +42,14 @@ ThemeData darkMode = ThemeData(
     bodyMedium: TextStyle(
       fontSize: 10,
     ),
+    labelLarge: TextStyle(
+      fontSize: 13,
+      fontWeight: FontWeight.bold,
+    ),
   ),
 );
 
-class PreviewColorPalette{
+class PreviewColorPalette {
   List<Color> colors = [
     Colors.blue.shade400,
     Colors.blue.shade800,

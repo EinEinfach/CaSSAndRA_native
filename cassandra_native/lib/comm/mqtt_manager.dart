@@ -16,7 +16,7 @@ class MqttManager {
   final Map<String, Timer?> _reconnectTimers = {};
   final Map<String, Timer?> _offlineTimers = {};
   Timer? appLifecycleStateTimer;
-  final Duration offlineDuration = const Duration(seconds: 5);
+  final Duration offlineDuration = const Duration(seconds: 20);
   final Duration offlineDurationAppLifecycle = const Duration(seconds: 20);
 
   Future<void> create(

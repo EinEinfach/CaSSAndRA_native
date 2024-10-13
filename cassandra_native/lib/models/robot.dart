@@ -21,6 +21,7 @@ class Robot {
   int visibleSatellites = 0;
   int dgpsSatellites = 0;
   String rtkAge = '99+d';
+  double? secondsPerIdx; 
 
   void jsonToClassData(String message) {
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
@@ -39,7 +40,7 @@ class Robot {
       dgpsSatellites = decodedMessage['gps']['dgps'];
       rtkAge = decodedMessage['gps']['age'];
       rtkSolution = decodedMessage['gps']['solution'];
-
+      secondsPerIdx = decodedMessage['secondsPerIdx'];
       //notifyListeners();
     } catch (e) {
       if (kDebugMode) {

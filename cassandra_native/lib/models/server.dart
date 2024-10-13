@@ -48,8 +48,6 @@ class Server {
   String status = "offline";
   String? _lastStatus;
 
-  String preparedCmd = "home";
-
   Robot robot = Robot();
   Landscape currentMap = Landscape();
 

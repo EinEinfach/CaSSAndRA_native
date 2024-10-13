@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/models/landscape.dart';
 import 'package:cassandra_native/models/robot.dart';
 import 'package:cassandra_native/utils/custom_shape_calcs.dart';
 
-class ZoomPan {
+class ZoomPanLogic {
   Offset offset = Offset.zero;
   double scale = 1.0;
   double previousScale = 1.0;
@@ -17,7 +18,7 @@ class ZoomPan {
   }
 }
 
-class Lasso {
+class LassoLogic {
   bool active = false;
   List<Offset> selection = [];
   List<Offset> selectionPoints = [];
@@ -51,7 +52,7 @@ class Lasso {
     }
   }
 
-  void onLongPressedStart(LongPressStartDetails details, ZoomPan zoomPan) {
+  void onLongPressedStart(LongPressStartDetails details, ZoomPanLogic zoomPan) {
     double minDistance = 20 / zoomPan.scale;
     double currentDistance = double.infinity;
     final Offset scaledAndMovedCoords =
@@ -71,7 +72,7 @@ class Lasso {
   }
 
   void onLongPressedMoveUpdate(
-      LongPressMoveUpdateDetails details, ZoomPan zoomPan) {
+      LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
     if (selectedPointIndex != null) {
       _moveSelectedPoint(details, zoomPan);
     } else if (selected) {
@@ -84,14 +85,14 @@ class Lasso {
     selected = false;
   }
 
-  void _moveSelectedPoint(LongPressMoveUpdateDetails details, ZoomPan zoomPan) {
+  void _moveSelectedPoint(LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
     final Offset scaledAndMovedCoords =
         (details.localPosition - zoomPan.offset) / zoomPan.scale;
     selection[selectedPointIndex!] = scaledAndMovedCoords;
     selectionPoints[selectedPointIndex!] = scaledAndMovedCoords;
   }
 
-  void _moveLasso(LongPressMoveUpdateDetails details, ZoomPan zoomPan) {
+  void _moveLasso(LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
     final Offset scaledAndMovedCoords =
         (details.localPosition - zoomPan.offset) / zoomPan.scale;
     final Offset delta = scaledAndMovedCoords - lastPosition!;
@@ -101,15 +102,17 @@ class Lasso {
   }
 }
 
-class MapPoint {
+class MapPointLogic {
+  bool active = false;
   Offset? coords;
 
   void reset() {
+    active = false;
     coords = null;
   }
 
   void setCoords(
-      TapDownDetails details, ZoomPan zoomPan, Landscape currentMap) {
+      TapDownDetails details, ZoomPanLogic zoomPan, Landscape currentMap) {
     final scaledAndMovedCoords =
         (details.localPosition - zoomPan.offset) / zoomPan.scale;
     if (isPointInsidePolygon(
@@ -136,7 +139,15 @@ class MapPoint {
   }
 }
 
-class MapUi {
+class TasksSelectionLogic {
+  bool active = false;
+
+  void reset() {
+    active = false;
+  }
+}
+
+class MapUiLogic {
   List<String> statePlayPlayButton = [
     'idle',
     'charging',
@@ -159,3 +170,77 @@ class MapUi {
     }
   }
 }
+
+class MapAnimationLogic {
+  MapAnimationLogic({required this.robot});
+  Robot robot;
+  bool get active => _checkAnimationState();
+  List<String> statesForAnimation = [
+    'mow',
+    'transit',
+    'docking',
+    'move',
+  ];
+  Offset oldPosition = Offset.zero;
+  double oldAngle = 0;
+  Offset get newPosition => robot.scaledPosition;
+  double get newAngle => robot.angle;
+  bool _checkAnimationState() {
+    return statesForAnimation.contains(robot.status);
+  }
+}
+
+class StatusWindowLogic {
+  StatusWindowLogic({required this.currentServer});
+
+  Server currentServer;
+
+  String get uiEstimationTime => _calcEstimationTime();
+  String get duration => _calcDurataion();
+  String get totalSqm => _calcTotalSqm();
+
+  String _calcEstimationTime() {
+    Robot robot = currentServer.robot;
+    Landscape currentMap = currentServer.currentMap;
+
+    if (robot.status == 'mow' && robot.secondsPerIdx != null && currentMap.scaledMowPath.length > robot.mowPointIdx) {
+      final int nowMilliseconds = DateTime.now().millisecondsSinceEpoch;
+      final estimatedMilliseconds = nowMilliseconds +
+          (currentMap.scaledMowPath.sublist(robot.mowPointIdx).length *
+                  (robot.secondsPerIdx! * 1000))
+              .toInt();
+      DateTime estimatedDateTime =
+          DateTime.fromMillisecondsSinceEpoch(estimatedMilliseconds);
+
+      // round to the next 5min
+      final int minutesToAdd = 5 - (estimatedDateTime.minute % 5);
+      estimatedDateTime = estimatedDateTime.add(
+        Duration(minutes: minutesToAdd),
+      );
+      return '${estimatedDateTime.hour.toString().padLeft(2, '0')}:${estimatedDateTime.minute.toString().padLeft(2, '0')}';
+    }
+    return '--:--';
+  }
+
+  String _calcDurataion() {
+    final Robot robot = currentServer.robot;
+    final Landscape currentMap = currentServer.currentMap;
+
+    if (robot.status == 'mow' && robot.secondsPerIdx != null && currentMap.scaledMowPath.length > robot.mowPointIdx) {
+      final double seconds =
+          currentMap.scaledMowPath.length * robot.secondsPerIdx!;
+      return (seconds / 3600).toStringAsFixed(1);
+    }
+    return '-.-';
+  }
+
+  String _calcTotalSqm() {
+    final Robot robot = currentServer.robot;
+    final Landscape currentMap = currentServer.currentMap;
+    if (robot.status == 'mow') {
+      return '${currentMap.areaTotal.toString()}m\u00B2';
+    }
+    return '--';
+  }
+}
+

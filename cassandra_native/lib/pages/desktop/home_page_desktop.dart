@@ -4,7 +4,6 @@ import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/components/joystick_drawer.dart';
 import 'package:cassandra_native/components/nav_drawer.dart';
-import 'package:cassandra_native/components/home_page/bottom_cmd_bar.dart';
 import 'package:cassandra_native/components/home_page/map_view.dart';
 import 'package:cassandra_native/models/server.dart';
 
@@ -12,22 +11,24 @@ class HomePageDesktop extends StatelessWidget {
   final Server server;
   final void Function() onOpenTasksOverlay;
   final void Function() openMowParametersOverlay;
+  final Widget statusWindow;
+  final Widget playButton;
+  final Widget homeButton;
 
   const HomePageDesktop({
     super.key,
     required this.server,
     required this.onOpenTasksOverlay,
     required this.openMowParametersOverlay,
+    required this.statusWindow,
+    required this.playButton,
+    required this.homeButton,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      bottomNavigationBar: BottomCmdBar(
-        server: server,
-        onOpenTasksOverlay: onOpenTasksOverlay,
-      ),
       endDrawer: JoystickDrawer(server: server),
       body: Builder(builder: (context) {
         return Stack(
@@ -42,18 +43,46 @@ class HomePageDesktop extends StatelessWidget {
                     }),
               ],
             ),
-            Stack(
+            Row(
               //crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: MapView(
-                    server: server,
-                    openMowParametersOverlay: openMowParametersOverlay,
-                  ),
-                ),
                 NavDrawer(
                   server: server,
+                ),
+                Expanded(
+                  child: Stack(
+                    children: [
+                      MapView(
+                        server: server,
+                        openMowParametersOverlay: openMowParametersOverlay,
+                        onOpenTasksOverlay: onOpenTasksOverlay,
+                      ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Container(
+                          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                          height: 80,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Expanded(
+                                child: statusWindow,
+                              ),
+                              const SizedBox(
+                                width: 60,
+                              ),
+                              homeButton,
+                              const SizedBox(
+                                width: 40,
+                              ),
+                              playButton,
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class PlayButton extends StatelessWidget {
+class CommandButton extends StatelessWidget {
   final IconData icon;
   final void Function() onPressed;
   final void Function() onLongPressed;
-  const PlayButton({
+  const CommandButton({
     super.key,
     required this.icon,
     required this.onPressed,
@@ -15,8 +15,6 @@ class PlayButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(5),
-      alignment: const Alignment(1, 1),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor:
@@ -34,10 +32,6 @@ class PlayButton extends StatelessWidget {
           onLongPressed();
           HapticFeedback.mediumImpact();
         },
-        //onPressed: onPressed,
-        // onPressed: () {
-        //   HapticFeedback.lightImpact();
-        // },
         child: Icon(
           icon,
           color: Theme.of(context).colorScheme.primary,

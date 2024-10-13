@@ -3,7 +3,6 @@ import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/components/joystick_drawer.dart';
 import 'package:cassandra_native/components/nav_drawer.dart';
-import 'package:cassandra_native/components/home_page/bottom_cmd_bar.dart';
 import 'package:cassandra_native/components/home_page/map_view.dart';
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/components/nav_button.dart';
@@ -12,22 +11,24 @@ class HomePageMobile extends StatelessWidget {
   final Server server;
   final void Function() onOpenTasksOverlay;
   final void Function() openMowParametersOverlay;
+  final Widget statusWindow;
+  final Widget playButton;
+  final Widget homeButton;
 
   const HomePageMobile({
     super.key,
     required this.server,
     required this.onOpenTasksOverlay,
     required this.openMowParametersOverlay,
+    required this.statusWindow,
+    required this.playButton,
+    required this.homeButton,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      bottomNavigationBar: BottomCmdBar(
-        server: server,
-        onOpenTasksOverlay: onOpenTasksOverlay,
-      ),
       endDrawer: JoystickDrawer(server: server),
       drawer: NavDrawer(
         server: server,
@@ -36,12 +37,32 @@ class HomePageMobile extends StatelessWidget {
         return SafeArea(
           child: Stack(
             children: [
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(0),
-                  child: MapView(
-                    server: server,
-                    openMowParametersOverlay: openMowParametersOverlay,
+              MapView(
+                server: server,
+                openMowParametersOverlay: openMowParametersOverlay,
+                onOpenTasksOverlay: onOpenTasksOverlay,
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  height: 80,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: statusWindow,
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      homeButton,
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      playButton,
+                    ],
                   ),
                 ),
               ),
