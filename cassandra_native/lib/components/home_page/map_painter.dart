@@ -6,6 +6,7 @@ import 'package:cassandra_native/theme/theme.dart';
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/models/landscape.dart';
 import 'package:cassandra_native/models/robot.dart';
+import 'package:cassandra_native/components/home_page/logic/home_page_logic.dart';
 
 // should be refactored to make rover size selectable
 const double minRoverImageSize = 20;
@@ -16,11 +17,8 @@ class MapPainter extends CustomPainter {
   final double scale;
   final ui.Image? roverImage;
   final Server currentServer;
-  final List<Offset> lassoSelection;
-  final List<Offset> lassoSelectionPoints;
-  final bool lassoPointSelected;
-  final bool lassoSelected;
-  final Offset? gotoPoint;
+  final LassoLogic lasso;
+  final MapPointLogic gotoPoint;
   final ColorScheme colors;
   final Offset currentPostion;
   final double currentAngle;
@@ -30,10 +28,7 @@ class MapPainter extends CustomPainter {
     required this.scale,
     required this.roverImage,
     required this.currentServer,
-    required this.lassoSelection,
-    required this.lassoSelectionPoints,
-    required this.lassoPointSelected,
-    required this.lassoSelected,
+    required this.lasso,
     required this.gotoPoint,
     required this.currentPostion,
     required this.currentAngle,
@@ -238,42 +233,64 @@ class MapPainter extends CustomPainter {
     canvas.drawPath(pathSearchWire, dockPathBrush);
 
     // draw lassoSelection
-    if (lassoSelection.isNotEmpty) {
+    if (lasso.selection.isNotEmpty) {
       var lassoSelectionBrush = Paint()
-        ..color = lassoPointSelected
+        ..color = lasso.selectedPointIndex != null
             ? colors.error
             : colors.onSurface.withOpacity(0.4)
-        ..style = lassoSelected ? PaintingStyle.fill : PaintingStyle.stroke
+        ..style = lasso.selected ? PaintingStyle.fill : PaintingStyle.stroke
         ..strokeWidth = 0.5 * adjustedLineWidth;
       Path pathLassoSelection = Path();
-      pathLassoSelection = drawPolygon(pathLassoSelection, lassoSelection);
+      pathLassoSelection = drawPolygon(pathLassoSelection, lasso.selection);
       canvas.drawPath(pathLassoSelection, lassoSelectionBrush);
     }
 
     // draw lassoSelectionPoints
-    if (lassoSelectionPoints.isNotEmpty) {
+    if (lasso.selectionPoints.isNotEmpty) {
       var lassoSelectionPointsBrush = Paint()
-        ..color = lassoPointSelected
+        ..color = lasso.selectedPointIndex != null
             ? colors.error
             : colors.onSurface.withOpacity(0.5)
         ..style = PaintingStyle.fill;
-      for (Offset point in lassoSelectionPoints) {
+      for (Offset point in lasso.selectionPoints) {
         canvas.drawCircle(point, 2 / scale, lassoSelectionPointsBrush);
       }
     }
 
+    // draw selected lasso point
+    if (lasso.selectedPointIndex != null) {
+      final selectedPoint = lasso.selection[lasso.selectedPointIndex!];
+      var lassoSelectedPointBrush = Paint()
+        ..color = colors.error
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = adjustedLineWidth
+        ..strokeCap = StrokeCap.round;
+      canvas.drawLine(
+          Offset(selectedPoint.dx - 6 / scale, selectedPoint.dy),
+          Offset(selectedPoint.dx + 6 / scale, selectedPoint.dy),
+          lassoSelectedPointBrush);
+      canvas.drawLine(
+          Offset(selectedPoint.dx, selectedPoint.dy - 6 / scale),
+          Offset(selectedPoint.dx, selectedPoint.dy + 6 / scale),
+          lassoSelectedPointBrush);
+    }
+
     // draw go to point
-    if (gotoPoint != null) {
+    if (gotoPoint.coords != null) {
       var gotoPointBrush = Paint()
-        ..color = colors.onSurface
+        ..color = gotoPoint.selected ? colors.error : colors.onSurface
         ..style = PaintingStyle.stroke
         ..strokeWidth = adjustedLineWidth
         ..strokeCap = StrokeCap.round;
       //canvas.drawCircle(gotoPoint!, 3 / scale, gotoPointBrush);
-      canvas.drawLine(Offset(gotoPoint!.dx - 6 / scale, gotoPoint!.dy),
-          Offset(gotoPoint!.dx + 6 / scale, gotoPoint!.dy), gotoPointBrush);
-      canvas.drawLine(Offset(gotoPoint!.dx, gotoPoint!.dy + 6 / scale),
-          Offset(gotoPoint!.dx, gotoPoint!.dy - 6 / scale), gotoPointBrush);
+      canvas.drawLine(
+          Offset(gotoPoint.coords!.dx - 6 / scale, gotoPoint.coords!.dy),
+          Offset(gotoPoint.coords!.dx + 6 / scale, gotoPoint.coords!.dy),
+          gotoPointBrush);
+      canvas.drawLine(
+          Offset(gotoPoint.coords!.dx, gotoPoint.coords!.dy + 6 / scale),
+          Offset(gotoPoint.coords!.dx, gotoPoint.coords!.dy - 6 / scale),
+          gotoPointBrush);
     }
 
     // draw target point

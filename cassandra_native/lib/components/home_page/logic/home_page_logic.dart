@@ -105,10 +105,12 @@ class LassoLogic {
 
 class MapPointLogic {
   bool active = false;
+  bool selected = false;
   Offset? coords;
 
   void reset() {
     active = false;
+    selected = false;
     coords = null;
   }
 
@@ -136,6 +138,44 @@ class MapPointLogic {
               currentMap.offsetX,
           -(currentMap.gotoPoint!.dy - currentMap.minY) * currentMap.mapScale +
               currentMap.offsetY);
+    }
+  }
+
+  void onLongPressedStart(LongPressStartDetails details, ZoomPanLogic zoomPan) {
+    double minDistance = 20 / zoomPan.scale;
+    final Offset scaledAndMovedCoords =
+        (details.localPosition - zoomPan.offset) / zoomPan.scale;
+    if (coords != null &&
+        (coords! - scaledAndMovedCoords).distance < minDistance) {
+      selected = true;
+    }
+  }
+
+  void onLongPressedMoveUpdate(
+      LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
+    if (selected) {
+      _moveSelectedPoint(details, zoomPan);
+    }
+  }
+
+  void _moveSelectedPoint(
+      LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
+    final Offset scaledAndMovedCoords =
+        (details.localPosition - zoomPan.offset) / zoomPan.scale;
+    coords = scaledAndMovedCoords;
+  }
+
+  void onLongPressedEnd(Landscape currentMap) {
+    selected = false;
+    if (!isPointInsidePolygon(coords!, currentMap.scaledPerimeter)) {
+      coords = null;
+      return;
+    }
+    for (List<Offset> exclusion in currentMap.scaledExclusions) {
+      if (isPointInsidePolygon(coords!, exclusion)) {
+        coords = null;
+        return;
+      }
     }
   }
 }

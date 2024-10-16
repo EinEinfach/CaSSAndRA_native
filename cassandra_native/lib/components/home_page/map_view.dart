@@ -183,7 +183,6 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-
     screenSize = MediaQuery.of(context).size;
 
     // Screen size is changed (could happened on desktop) then add additional offset on lasso and go to
@@ -299,17 +298,29 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
               onLongPressStart: (details) {
                 if (lasso.selection.isNotEmpty) {
                   lasso.onLongPressedStart(details, zoomPan);
-                  setState(() {});
+                } else if (gotoPoint.coords != null) {
+                  gotoPoint.onLongPressedStart(details, zoomPan);
                 }
+                setState(() {});
               },
               onLongPressMoveUpdate: (details) {
-                lasso.onLongPressedMoveUpdate(details, zoomPan);
-                widget.server.currentMap
-                    .lassoSelectionToJsonData(lasso.selection);
+                if (lasso.selection.isNotEmpty) {
+                  lasso.onLongPressedMoveUpdate(details, zoomPan);
+                  widget.server.currentMap
+                      .lassoSelectionToJsonData(lasso.selection);
+                } else if (gotoPoint.coords != null) {
+                  gotoPoint.onLongPressedMoveUpdate(details, zoomPan);
+                  widget.server.currentMap
+                      .gotoPointToJsonData(gotoPoint.coords!);
+                }
                 setState(() {});
               },
               onLongPressEnd: (_) {
-                lasso.onLongPressedEnd();
+                if (lasso.selection.isNotEmpty) {
+                  lasso.onLongPressedEnd();
+                } else if (gotoPoint.coords != null) {
+                  gotoPoint.onLongPressedEnd(widget.server.currentMap);
+                }
                 setState(() {});
               },
               onTapDown: (details) {
@@ -332,12 +343,8 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                         scale: zoomPan.scale,
                         roverImage: roverImage,
                         currentServer: widget.server,
-                        lassoSelection: lasso.selection,
-                        lassoSelectionPoints: lasso.selectionPoints,
-                        lassoPointSelected:
-                            (lasso.selectedPointIndex == null) ? false : true,
-                        lassoSelected: lasso.selected,
-                        gotoPoint: gotoPoint.coords,
+                        lasso: lasso,
+                        gotoPoint: gotoPoint,
                         currentPostion: _currentPosition,
                         currentAngle: _currentAngle,
                         colors: Theme.of(context).colorScheme),

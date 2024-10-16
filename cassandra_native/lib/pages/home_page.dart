@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
@@ -305,6 +303,7 @@ class _HomePageState extends State<HomePage> {
             );
           }),
         );
+
         //+++++++++++++++++++++++++++++++++++++++++++++++tablet page++++++++++++++++++++++++++++++++++++++++++++++++++++
       } else if (constrains.maxWidth < largeWidth) {
         return HomePageTablet(
@@ -341,6 +340,7 @@ class _HomePageState extends State<HomePage> {
             onLongPressed: () {},
           ),
         );
+
         //+++++++++++++++++++++++++++++++++++++++++++++++desktop page++++++++++++++++++++++++++++++++++++++++++++++++++++
       } else {
         return HomePageDesktop(

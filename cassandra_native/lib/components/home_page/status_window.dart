@@ -137,6 +137,47 @@ class StatusWindow extends StatelessWidget {
               child: SizedBox(),
             ),
             SizedBox(
+              width: 120,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Distance',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  Text(
+                    statusWindowLogic.distanceData,
+                    style: Theme.of(context).textTheme.labelLarge,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    'Index',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  Text(
+                    statusWindowLogic.idxData,
+                    style: Theme.of(context).textTheme.labelLarge,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    'Speed',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  Text(
+                    statusWindowLogic.speedData,
+                    style: Theme.of(context).textTheme.labelLarge,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const Expanded(
+              child: SizedBox(),
+            ),
+            SizedBox(
               width: 80,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -167,44 +208,6 @@ class StatusWindow extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-            const Expanded(
-              child: SizedBox(),
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Distance',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                Text(
-                  statusWindowLogic.distanceData,
-                  style: Theme.of(context).textTheme.labelLarge,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  'Index',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                Text(
-                  statusWindowLogic.idxData,
-                  style: Theme.of(context).textTheme.labelLarge,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  'Speed',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                Text(
-                  statusWindowLogic.speedData,
-                  style: Theme.of(context).textTheme.labelLarge,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
             ),
           ],
         ),
