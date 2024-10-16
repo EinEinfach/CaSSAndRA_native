@@ -46,16 +46,15 @@ class HomePageMobile extends StatelessWidget {
                 alignment: Alignment.bottomCenter,
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                  height: 80,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Expanded(
-                        child: statusWindow,
-                      ),
-                      const SizedBox(
-                        width: 10,
+                      statusWindow,
+                      const Expanded(
+                        child: SizedBox(
+                          width: 10,
+                        ),
                       ),
                       homeButton,
                       const SizedBox(

@@ -46,18 +46,18 @@ class HomePageTablet extends StatelessWidget {
               alignment: Alignment.bottomCenter,
               child: Container(
                 padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                height: 80,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Expanded(child: statusWindow,),
-                    const SizedBox(
-                      width: 40,
+                    statusWindow,
+                    const Expanded(
+                      child: SizedBox(
+                      ),
                     ),
                     homeButton,
                     const SizedBox(
-                      width: 20,
+                      width: 10,
                     ),
                     playButton,
                   ],

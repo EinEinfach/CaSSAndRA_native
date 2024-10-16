@@ -1,15 +1,21 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/cassandra_native.dart';
 import 'package:cassandra_native/comm/mqtt_manager.dart';
 
-import 'package:cassandra_native/pages/mobile/home_page_mobile.dart';
 import 'package:cassandra_native/pages/tablet/home_page_tablet.dart';
 import 'package:cassandra_native/pages/desktop/home_page_desktop.dart';
 import 'package:cassandra_native/data/app_data.dart';
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/models/mow_parameters.dart';
+import 'package:cassandra_native/components/nav_drawer.dart';
+import 'package:cassandra_native/components/nav_button.dart';
+import 'package:cassandra_native/components/joystick_drawer.dart';
+import 'package:cassandra_native/components/home_page/map_view.dart';
 import 'package:cassandra_native/components/home_page/select_tasks.dart';
 import 'package:cassandra_native/components/home_page/status_window.dart';
 import 'package:cassandra_native/components/home_page/command_button.dart';
@@ -35,6 +41,9 @@ class _HomePageState extends State<HomePage> {
   MapUiLogic mapUi = MapUiLogic();
   Offset? newRobotPosition;
   late Size screenSize;
+  bool statusWindwoSizeSmall = true;
+  bool statusWindowReducedContent = true;
+  bool drawCommandButtons = true;
 
   @override
   void dispose() {
@@ -176,6 +185,22 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void changeStatusWindowSize() {
+    setState(() {
+      statusWindowReducedContent = true;
+      statusWindwoSizeSmall = !statusWindwoSizeSmall;
+      if (!statusWindwoSizeSmall) {
+        drawCommandButtons = false;
+      }
+    });
+  }
+
+  void onContainerAnimationEnd() {
+    drawCommandButtons = statusWindwoSizeSmall ? true : false;
+    statusWindowReducedContent = drawCommandButtons;
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     // Do some lifecycle stuff before render the widget
@@ -186,34 +211,99 @@ class _HomePageState extends State<HomePage> {
     return LayoutBuilder(builder: (context, constrains) {
       //+++++++++++++++++++++++++++++++++++++++++++++++mobile page++++++++++++++++++++++++++++++++++++++++++++++++++++
       if (constrains.maxWidth < smallWidth) {
-        return HomePageMobile(
-          server: widget.server,
-          onOpenTasksOverlay: openTasksOverlay,
-          openMowParametersOverlay: openMowParametersOverlay,
-          statusWindow: StatusWindow(
-            backgroundColor: (widget.server.robot.status != 'error' &&
-                    widget.server.robot.status != 'offline')
-                ? Theme.of(context).colorScheme.surface
-                : Theme.of(context).colorScheme.errorContainer,
+        return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          endDrawer: JoystickDrawer(server: widget.server),
+          drawer: NavDrawer(
             server: widget.server,
-            smallSize: true,
           ),
-          playButton: CommandButton(
-            icon: mapUi.playButtonIcon,
-            onPressed: () {
-              _handlePlayButton(cmd: true);
-            },
-            onLongPressed: () {
-              _handlePlayButtonLongPressed();
-            },
-          ),
-          homeButton: CommandButton(
-            icon: Icons.home,
-            onPressed: () {
-              _handleHomeButton();
-            },
-            onLongPressed: () {},
-          ),
+          body: Builder(builder: (context) {
+            return SafeArea(
+              child: Stack(
+                children: [
+                  MapView(
+                    server: widget.server,
+                    openMowParametersOverlay: openMowParametersOverlay,
+                    onOpenTasksOverlay: openTasksOverlay,
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 500),
+                            width: statusWindwoSizeSmall ? 190 : 360,
+                            height: statusWindwoSizeSmall ? 80 : 160,
+                            curve: Curves.easeInOut,
+                            onEnd: onContainerAnimationEnd,
+                            child: StatusWindow(
+                              backgroundColor: (widget.server.robot.status !=
+                                          'error' &&
+                                      widget.server.robot.status != 'offline')
+                                  ? Theme.of(context).colorScheme.surface
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .errorContainer,
+                              server: widget.server,
+                              smallSize: statusWindowReducedContent,
+                              onPressed: changeStatusWindowSize,
+                            ),
+                          ),
+                          const Expanded(
+                            child: SizedBox(),
+                          ),
+                          drawCommandButtons
+                              ? CommandButton(
+                                  icon: mapUi.playButtonIcon,
+                                  onPressed: () {
+                                    _handlePlayButton(cmd: true);
+                                  },
+                                  onLongPressed: () {
+                                    _handlePlayButtonLongPressed();
+                                  },
+                                )
+                              : const SizedBox.shrink(),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          drawCommandButtons
+                              ? CommandButton(
+                                  icon: Icons.home,
+                                  onPressed: () {
+                                    _handleHomeButton();
+                                  },
+                                  onLongPressed: () {},
+                                )
+                              : const SizedBox.shrink(),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      NavButton(
+                        icon: Icons.menu,
+                        onPressed: () {
+                          Scaffold.of(context).openDrawer();
+                        },
+                      ),
+                      NavButton(
+                        icon: BootstrapIcons.joystick,
+                        onPressed: () {
+                          Scaffold.of(context).openEndDrawer();
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          }),
         );
         //+++++++++++++++++++++++++++++++++++++++++++++++tablet page++++++++++++++++++++++++++++++++++++++++++++++++++++
       } else if (constrains.maxWidth < largeWidth) {
@@ -221,13 +311,18 @@ class _HomePageState extends State<HomePage> {
           server: widget.server,
           onOpenTasksOverlay: openTasksOverlay,
           openMowParametersOverlay: openMowParametersOverlay,
-          statusWindow: StatusWindow(
-            backgroundColor: (widget.server.robot.status != 'error' &&
-                    widget.server.robot.status != 'offline')
-                ? Theme.of(context).colorScheme.surface
-                : Theme.of(context).colorScheme.errorContainer,
-            server: widget.server,
-            smallSize: false,
+          statusWindow: Container(
+            width: 360,
+            height: 160,
+            child: StatusWindow(
+              backgroundColor: (widget.server.robot.status != 'error' &&
+                      widget.server.robot.status != 'offline')
+                  ? Theme.of(context).colorScheme.surface
+                  : Theme.of(context).colorScheme.errorContainer,
+              server: widget.server,
+              smallSize: false,
+              onPressed: () {},
+            ),
           ),
           playButton: CommandButton(
             icon: mapUi.playButtonIcon,
@@ -252,13 +347,18 @@ class _HomePageState extends State<HomePage> {
           server: widget.server,
           onOpenTasksOverlay: openTasksOverlay,
           openMowParametersOverlay: openMowParametersOverlay,
-          statusWindow: StatusWindow(
-            backgroundColor: (widget.server.robot.status != 'error' &&
-                    widget.server.robot.status != 'offline')
-                ? Theme.of(context).colorScheme.surface
-                : Theme.of(context).colorScheme.errorContainer,
-            server: widget.server,
-            smallSize: false,
+          statusWindow: Container(
+            width: 360,
+            height: 160,
+            child: StatusWindow(
+              backgroundColor: (widget.server.robot.status != 'error' &&
+                      widget.server.robot.status != 'offline')
+                  ? Theme.of(context).colorScheme.surface
+                  : Theme.of(context).colorScheme.errorContainer,
+              server: widget.server,
+              smallSize: false,
+              onPressed: () {},
+            ),
           ),
           playButton: CommandButton(
             icon: mapUi.playButtonIcon,

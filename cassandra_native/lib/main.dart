@@ -15,13 +15,13 @@ import 'package:cassandra_native/pages/servers_page.dart';
 import 'package:cassandra_native/data/user_data.dart' as user;
 
 Future<void> _initPackageInfo() async {
-    packageInfo = await PackageInfo.fromPlatform();
-    appVersion = packageInfo.version;
-  }
+  packageInfo = await PackageInfo.fromPlatform();
+  appVersion = packageInfo.version;
+}
 
- Future<void> _loadStoredUiState() async {
-    user.storedUiState = await UiStateStorage.loadUiState();
- }
+Future<void> _loadStoredUiState() async {
+  user.storedUiState = await UiStateStorage.loadUiState();
+}
 
 Future setWindowSize() async {
   await DesktopWindow.setMinWindowSize(

@@ -85,7 +85,8 @@ class LassoLogic {
     selected = false;
   }
 
-  void _moveSelectedPoint(LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
+  void _moveSelectedPoint(
+      LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
     final Offset scaledAndMovedCoords =
         (details.localPosition - zoomPan.offset) / zoomPan.scale;
     selection[selectedPointIndex!] = scaledAndMovedCoords;
@@ -198,17 +199,40 @@ class StatusWindowLogic {
   String get uiEstimationTime => _calcEstimationTime();
   String get duration => _calcDurataion();
   String get totalSqm => _calcTotalSqm();
+  String get mapName => _getMapName();
+  String get distanceData => _getDistanceData();
+  String get idxData => _getIdxData();
+  String get speedData => _getSpeedData();
 
   String _calcEstimationTime() {
     Robot robot = currentServer.robot;
     Landscape currentMap = currentServer.currentMap;
+    // based on seconds per idx
+    // if (robot.status == 'mow' && robot.secondsPerIdx != null && currentMap.scaledMowPath.length > robot.mowPointIdx) {
+    //   final int nowMilliseconds = DateTime.now().millisecondsSinceEpoch;
+    //   final estimatedMilliseconds = nowMilliseconds +
+    //       (currentMap.scaledMowPath.sublist(robot.mowPointIdx).length *
+    //               (robot.secondsPerIdx! * 1000))
+    //           .toInt();
+    //   DateTime estimatedDateTime =
+    //       DateTime.fromMillisecondsSinceEpoch(estimatedMilliseconds);
 
-    if (robot.status == 'mow' && robot.secondsPerIdx != null && currentMap.scaledMowPath.length > robot.mowPointIdx) {
-      final int nowMilliseconds = DateTime.now().millisecondsSinceEpoch;
-      final estimatedMilliseconds = nowMilliseconds +
-          (currentMap.scaledMowPath.sublist(robot.mowPointIdx).length *
-                  (robot.secondsPerIdx! * 1000))
-              .toInt();
+    //   // round to the next 5min
+    //   final int minutesToAdd = 5 - (estimatedDateTime.minute % 5);
+    //   estimatedDateTime = estimatedDateTime.add(
+    //     Duration(minutes: minutesToAdd),
+    //   );
+    //   return '${estimatedDateTime.hour.toString().padLeft(2, '0')}:${estimatedDateTime.minute.toString().padLeft(2, '0')}';
+    // }
+    // return '--:--';
+
+    // based on average speed
+    if (robot.status == 'mow') {
+      final int leftDistance =
+          currentMap.totalDistance - currentMap.finishedDistance;
+      final double secondsLeft = leftDistance / robot.averageSpeed;
+      final int estimatedMilliseconds =
+          (DateTime.now().millisecondsSinceEpoch + secondsLeft * 1000).toInt();
       DateTime estimatedDateTime =
           DateTime.fromMillisecondsSinceEpoch(estimatedMilliseconds);
 
@@ -225,10 +249,19 @@ class StatusWindowLogic {
   String _calcDurataion() {
     final Robot robot = currentServer.robot;
     final Landscape currentMap = currentServer.currentMap;
-
-    if (robot.status == 'mow' && robot.secondsPerIdx != null && currentMap.scaledMowPath.length > robot.mowPointIdx) {
+    // based on seconds per idx
+    // if (robot.status == 'mow' &&
+    //     robot.secondsPerIdx != null &&
+    //     currentMap.scaledMowPath.length > robot.mowPointIdx) {
+    //   final double seconds =
+    //       currentMap.scaledMowPath.length * robot.secondsPerIdx!;
+    //   return (seconds / 3600).toStringAsFixed(1);
+    // }
+    // return '-.-';
+    if (robot.status == 'mow') {
       final double seconds =
-          currentMap.scaledMowPath.length * robot.secondsPerIdx!;
+          (currentMap.totalDistance - currentMap.finishedDistance) /
+              robot.averageSpeed;
       return (seconds / 3600).toStringAsFixed(1);
     }
     return '-.-';
@@ -242,5 +275,38 @@ class StatusWindowLogic {
     }
     return '--';
   }
-}
 
+  String _getMapName() {
+    if (currentServer.maps.loaded == null) {
+      return '---';
+    } else {
+      return currentServer.maps.loaded!;
+    }
+  }
+
+  String _getDistanceData() {
+    final Robot robot = currentServer.robot;
+    final Landscape currentMap = currentServer.currentMap;
+    if (robot.status == 'mow') {
+      return '${currentMap.finishedDistance}/${currentMap.totalDistance}m (${currentMap.distancePercent}%)';
+    }
+    return '--/--m (--%)';
+  }
+
+  String _getIdxData() {
+    final Robot robot = currentServer.robot;
+    final Landscape currentMap = currentServer.currentMap;
+    if (robot.status == 'mow') {
+      return '${robot.mowPointIdx}/${currentMap.mowPath.length} (${currentMap.idxPercent}%)';
+    }
+    return '--/-- (--%)';
+  }
+
+  String _getSpeedData() {
+    final Robot robot = currentServer.robot;
+    if (robot.status == 'mow' && robot.secondsPerIdx != null) {
+      return '${robot.speed.toStringAsFixed(2)}m/s ${robot.secondsPerIdx!.toStringAsFixed(2)}s/idx';
+    }
+    return '${robot.speed.toStringAsFixed(2)}m/s --s/idx';
+  }
+}

@@ -46,6 +46,8 @@ class Landscape {
   int distancePercent = 0;
 
   int areaTotal= 0;
+  int finishedDistance = 0;
+  int totalDistance = 0;
 
   // selection lasso etc.
   List<Offset> selectedArea = [];
@@ -103,6 +105,8 @@ class Landscape {
       idxPercent = decodedMessage['mowprogressIdxPercent'];
       distancePercent = decodedMessage['mowprogressDistancePercent'];
       areaTotal = decodedMessage['areaTotal'];
+      finishedDistance = decodedMessage['finishedDistance'];
+      totalDistance = decodedMessage['distanceTotal'];
     } catch (e) {
       if(kDebugMode) {
         debugPrint('Invalid map JSON: $e');

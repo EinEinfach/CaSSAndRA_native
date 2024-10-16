@@ -162,7 +162,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     } else {
       _resetLassoSelection();
       _resetGotoPoint();
-      _resetLassoSelection();
+      _resetTasksSelection();
       mapUi.focusOnMowerActive = false;
     }
   }

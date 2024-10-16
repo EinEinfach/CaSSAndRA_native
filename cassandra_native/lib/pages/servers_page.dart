@@ -1,11 +1,12 @@
-import 'package:cassandra_native/utils/mow_parameters_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import 'package:cassandra_native/cassandra_native.dart';
 import 'package:cassandra_native/utils/ui_state_storage.dart';
 import 'package:cassandra_native/utils/server_storage.dart';
+import 'package:cassandra_native/utils/mow_parameters_storage.dart';
 
 import 'package:cassandra_native/data/app_data.dart';
 
@@ -52,6 +53,28 @@ class _ServersPageState extends State<ServersPage> {
     super.initState();
     _loadStoredMowParameters();
     _loadServers();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _setOrientation();
+    });
+  }
+
+  void _setOrientation() {
+    final Size screenSize = MediaQuery.of(context).size;
+    if (screenSize.width < minHeight) {
+      // lock landscape mode for devices with small width
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+    } else {
+      // allow landscape mode
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+    }
   }
 
   void _handleAppLifecycleState(AppLifecycleState oldState, AppLifecycleState newState) {

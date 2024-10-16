@@ -91,16 +91,28 @@ class StatusBar extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(width: 20,),
+            const SizedBox(
+              width: 20,
+            ),
             Row(
               children: [
-                Transform.rotate(
-                  angle: math.pi / 2,
-                  child: Icon(
-                    _createBatteryIcon(),
-                    size: 30,
-                    color: _createBatteryColor(context),
-                  ),
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Transform.rotate(
+                      angle: math.pi / 2,
+                      child: 
+                      Icon(
+                        _createBatteryIcon(),
+                        size: 35,
+                        color: _createBatteryColor(context),
+                      ),
+                    ),
+                    Text(
+                      '${robot.soc}%',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
                 ),
                 Column(
                   children: [

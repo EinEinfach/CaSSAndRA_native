@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 
 import 'package:cassandra_native/models/robot.dart';
 import 'package:cassandra_native/models/landscape.dart';
+import 'package:cassandra_native/models/maps.dart';
 import 'package:cassandra_native/comm/server_interface.dart';
 
 const uuid = Uuid();
@@ -50,6 +51,7 @@ class Server {
 
   Robot robot = Robot();
   Landscape currentMap = Landscape();
+  Maps maps = Maps();
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -83,6 +85,12 @@ class Server {
       } 
     } else if (topic.contains('/robot')) {
       robot.jsonToClassData(message);
+    } else if (topic.contains('/coords')) {
+      currentMap.coordsJsonToClassData(message);
+    } else if (topic.contains('/tasks')) {
+      currentMap.tasks.jsonToClassData(message);
+    } else if (topic.contains('/maps')) {
+      maps.mapsJsonToClassData(message);
     } else if (topic.contains('/map')) {
       currentMap.mapJsonToClassData(message);
       if (currentMap.receivedMapId != currentMap.mapId) {
@@ -94,11 +102,7 @@ class Server {
       } else if (currentMap.receivedObstaclesId != currentMap.obstaclesId) {
         serverInterface.commandUpdateCoords('obstacles');
       }
-    } else if (topic.contains('/coords')) {
-      currentMap.coordsJsonToClassData(message);
-    } else if (topic.contains('/tasks')) {
-      currentMap.tasks.jsonToClassData(message);
-    }
+    } 
   }
 
   void storeStatus() {

@@ -14,28 +14,27 @@ class CommandButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor:
-              Theme.of(context).colorScheme.surface.withOpacity(0.90),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          minimumSize: const Size(80, 80),
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor:
+            Theme.of(context).colorScheme.surface.withOpacity(0.90),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
-        onPressed: () {
-          onPressed();
-          HapticFeedback.lightImpact();
-        },
-        onLongPress: () {
-          onLongPressed();
-          HapticFeedback.mediumImpact();
-        },
-        child: Icon(
-          icon,
-          color: Theme.of(context).colorScheme.primary,
-        ),
+        fixedSize: const Size(80, 80),
+        //minimumSize: const Size(80, 80),
+      ),
+      onPressed: () {
+        onPressed();
+        HapticFeedback.lightImpact();
+      },
+      onLongPress: () {
+        onLongPressed();
+        HapticFeedback.mediumImpact();
+      },
+      child: Icon(
+        icon,
+        color: Theme.of(context).colorScheme.primary,
       ),
     );
   }

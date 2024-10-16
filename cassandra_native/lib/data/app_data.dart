@@ -8,6 +8,7 @@ late String appVersion;
 const String requiredServerVersion = '0.132.0';
 
 // Temporarly data for UI
-int smallWidth = 500;
+int smallWidth = 550;
 int largeWidth = 1500;
+int minHeight = 500;
 
