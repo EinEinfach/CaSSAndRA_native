@@ -30,6 +30,14 @@
       ],
       "versions": [
         {
+          "version": "0.5.0",
+          "date": "2024-10-16T09:00:00-08:00",
+          "size": 19300000,
+          "downloadURL": "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/cassandra_native.ipa",
+          "localizedDescription": "- Interactive state window\n- Moveable go to point (by long press)\n- Cross mark on selected lasso point",
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "0.4.0",
           "date": "2024-10-13T09:00:00-08:00",
           "size": 19300000,
