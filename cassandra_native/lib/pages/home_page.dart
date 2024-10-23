@@ -33,12 +33,15 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
   //app lifecycle
   AppLifecycleState _appLifecycleState = AppLifecycleState.resumed;
 
   MapUiLogic mapUi = MapUiLogic();
   Offset? newRobotPosition;
   late Size screenSize;
+
+  // interactive state window
   bool statusWindwoSizeSmall = true;
   bool statusWindowReducedContent = true;
   bool drawCommandButtons = true;
@@ -115,7 +118,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _handleHomeButton() {
-    widget.server.serverInterface.commandStop();
+    // widget.server.serverInterface.commandStop();
     widget.server.serverInterface.commandDock();
   }
 
@@ -207,6 +210,7 @@ class _HomePageState extends State<HomePage> {
     _appLifecycleState =
         Provider.of<CassandraNative>(context).appLifecycleState;
     return LayoutBuilder(builder: (context, constrains) {
+      
       //+++++++++++++++++++++++++++++++++++++++++++++++mobile page++++++++++++++++++++++++++++++++++++++++++++++++++++
       if (constrains.maxWidth < smallWidth) {
         return Scaffold(
@@ -256,13 +260,11 @@ class _HomePageState extends State<HomePage> {
                           ),
                           drawCommandButtons
                               ? CommandButton(
-                                  icon: mapUi.playButtonIcon,
+                                  icon: Icons.home,
                                   onPressed: () {
-                                    _handlePlayButton(cmd: true);
+                                    _handleHomeButton();
                                   },
-                                  onLongPressed: () {
-                                    _handlePlayButtonLongPressed();
-                                  },
+                                  onLongPressed: () {},
                                 )
                               : const SizedBox.shrink(),
                           const SizedBox(
@@ -270,11 +272,13 @@ class _HomePageState extends State<HomePage> {
                           ),
                           drawCommandButtons
                               ? CommandButton(
-                                  icon: Icons.home,
+                                  icon: mapUi.playButtonIcon,
                                   onPressed: () {
-                                    _handleHomeButton();
+                                    _handlePlayButton(cmd: true);
                                   },
-                                  onLongPressed: () {},
+                                  onLongPressed: () {
+                                    _handlePlayButtonLongPressed();
+                                  },
                                 )
                               : const SizedBox.shrink(),
                         ],

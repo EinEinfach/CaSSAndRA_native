@@ -1,20 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
+import 'package:cassandra_native/comm/mqtt_manager.dart';
+import 'package:cassandra_native/comm/server_interface.dart';
 import 'package:cassandra_native/models/robot.dart';
 import 'package:cassandra_native/models/landscape.dart';
 import 'package:cassandra_native/models/maps.dart';
-import 'package:cassandra_native/comm/server_interface.dart';
+import 'package:cassandra_native/models/server_settings.dart';
 
 const uuid = Uuid();
 
 enum Category { ardumower, alfred, landrumower, other }
 
 final categoryImages = {
-  Category.ardumower: ['lib/images/ardumower.png', 'lib/images/ardumower/rover0grad.png'],
-  Category.alfred: ['lib/images/alfred.png', 'lib/images/alfred/rover0grad.png'],
-  Category.landrumower: ['lib/images/landrumower.png', 'lib/images/landrumower/rover0grad.png'],
-  Category.other: ['lib/images/in_app_icon.png', 'lib/images/other/rover0grad.png']
+  Category.ardumower: [
+    'lib/images/ardumower.png',
+    'lib/images/ardumower/rover0grad.png'
+  ],
+  Category.alfred: [
+    'lib/images/alfred.png',
+    'lib/images/alfred/rover0grad.png'
+  ],
+  Category.landrumower: [
+    'lib/images/landrumower.png',
+    'lib/images/landrumower/rover0grad.png'
+  ],
+  Category.other: [
+    'lib/images/in_app_icon.png',
+    'lib/images/other/rover0grad.png'
+  ]
 };
 
 class Server {
@@ -53,6 +67,8 @@ class Server {
   Landscape currentMap = Landscape();
   Maps maps = Maps();
 
+  ServerSettings settings = ServerSettings();
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'category': category.name,
@@ -77,12 +93,22 @@ class Server {
     );
   }
 
+  Future<void> connect() async {
+    if (MqttManager.instance.isNotConnected(id)) {
+      await MqttManager.instance.create(serverInterface, onMessageReceived);
+    }
+  }
+
+  void disconnect() {
+    MqttManager.instance.disconnect(id);
+  }
+
   void onMessageReceived(String clientId, String topic, String message) {
     if (topic.contains('/status')) {
       status = message;
       if (status == 'offline') {
         robot.status = 'offline';
-      } 
+      }
     } else if (topic.contains('/robot')) {
       robot.jsonToClassData(message);
     } else if (topic.contains('/coords')) {
@@ -102,7 +128,9 @@ class Server {
       } else if (currentMap.receivedObstaclesId != currentMap.obstaclesId) {
         serverInterface.commandUpdateCoords('obstacles');
       }
-    } 
+    } else if (topic.contains('/settings')) {
+      settings.settingsJsonToClassData(message);
+    }
   }
 
   void storeStatus() {
@@ -118,7 +146,7 @@ class Server {
   }
 
   Color setStateColor(BuildContext context) {
-    if (status != 'offline'){
+    if (status != 'offline') {
       return Theme.of(context).colorScheme.primary;
     } else {
       return Theme.of(context).colorScheme.errorContainer;

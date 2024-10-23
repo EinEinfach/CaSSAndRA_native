@@ -66,12 +66,12 @@ class HomePageDesktop extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               statusWindow,
-                              const SizedBox(
-                                width: 60,
+                              const Expanded(
+                                child: SizedBox(),
                               ),
                               homeButton,
                               const SizedBox(
-                                width: 40,
+                                width: 10,
                               ),
                               playButton,
                             ],

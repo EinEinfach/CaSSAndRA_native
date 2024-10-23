@@ -139,37 +139,49 @@ class StatusWindow extends StatelessWidget {
             SizedBox(
               width: 120,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Text(
-                    'Distance',
-                    style: Theme.of(context).textTheme.bodySmall,
+                  Column(
+                    children: [
+                      Text(
+                        'Distance',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      Text(
+                        statusWindowLogic.distanceData,
+                        style: Theme.of(context).textTheme.labelLarge,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
-                  Text(
-                    statusWindowLogic.distanceData,
-                    style: Theme.of(context).textTheme.labelLarge,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  Column(
+                    children: [
+                      Text(
+                        'Index',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      Text(
+                        statusWindowLogic.idxData,
+                        style: Theme.of(context).textTheme.labelLarge,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
-                  Text(
-                    'Index',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  Text(
-                    statusWindowLogic.idxData,
-                    style: Theme.of(context).textTheme.labelLarge,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    'Speed',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  Text(
-                    statusWindowLogic.speedData,
-                    style: Theme.of(context).textTheme.labelLarge,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  Column(
+                    children: [
+                      Text(
+                        'Speed',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      Text(
+                        statusWindowLogic.speedData,
+                        style: Theme.of(context).textTheme.labelLarge,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -180,31 +192,43 @@ class StatusWindow extends StatelessWidget {
             SizedBox(
               width: 80,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Text(
-                    'Total',
-                    style: Theme.of(context).textTheme.bodyMedium,
+                  Column(
+                    children: [
+                      Text(
+                        'Total',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      Text(
+                        statusWindowLogic.totalSqm,
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                    ],
                   ),
-                  Text(
-                    statusWindowLogic.totalSqm,
-                    style: Theme.of(context).textTheme.labelLarge,
+                  Column(
+                    children: [
+                      Text(
+                        'Estimated',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      Text(
+                        statusWindowLogic.uiEstimationTime,
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                    ],
                   ),
-                  Text(
-                    'Estimated',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  Text(
-                    statusWindowLogic.uiEstimationTime,
-                    style: Theme.of(context).textTheme.labelLarge,
-                  ),
-                  Text(
-                    'Duration',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  Text(
-                    '${statusWindowLogic.duration}h',
-                    style: Theme.of(context).textTheme.labelLarge,
+                  Column(
+                    children: [
+                      Text(
+                        'Duration',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      Text(
+                        '${statusWindowLogic.duration}h',
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                    ],
                   ),
                 ],
               ),

@@ -77,8 +77,10 @@ class _ServersPageState extends State<ServersPage> {
     }
   }
 
-  void _handleAppLifecycleState(AppLifecycleState oldState, AppLifecycleState newState) {
-    if (newState == AppLifecycleState.resumed && oldState != AppLifecycleState.resumed) {
+  void _handleAppLifecycleState(
+      AppLifecycleState oldState, AppLifecycleState newState) {
+    if (newState == AppLifecycleState.resumed &&
+        oldState != AppLifecycleState.resumed) {
       _connectToServers();
     }
   }
@@ -118,8 +120,7 @@ class _ServersPageState extends State<ServersPage> {
     var server =
         user.registredServers.servers.firstWhere((s) => s.id == clientId);
     server.onMessageReceived(clientId, topic, message);
-    setState(() {
-    });
+    setState(() {});
   }
 
   void removeServer(BuildContext context, Server server) {
@@ -130,7 +131,10 @@ class _ServersPageState extends State<ServersPage> {
           borderRadius: BorderRadius.circular(12),
         ),
         backgroundColor: Theme.of(context).colorScheme.secondary,
-        content: const Text('Remove this server?'),
+        title: Text(
+          'Remove this server?',
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
         actions: [
           CustomizedElevatedButton(
             text: 'cancel',
@@ -194,9 +198,9 @@ class _ServersPageState extends State<ServersPage> {
           borderRadius: BorderRadius.circular(12),
         ),
         backgroundColor: Theme.of(context).colorScheme.secondary,
-        title: const Text(
+        title: Text(
           'Add new server instance',
-          style: TextStyle(fontSize: 14),
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
         content: NewServer(onAddServer: addServer),
       ),
@@ -211,9 +215,9 @@ class _ServersPageState extends State<ServersPage> {
           borderRadius: BorderRadius.circular(12),
         ),
         backgroundColor: Theme.of(context).colorScheme.secondary,
-        title: const Text(
+        title: Text(
           'Edit server instance',
-          style: TextStyle(fontSize: 14),
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
         content: NewServer(onAddServer: editServer, server: server),
       ),
@@ -238,9 +242,9 @@ class _ServersPageState extends State<ServersPage> {
           borderRadius: BorderRadius.circular(12),
         ),
         backgroundColor: Theme.of(context).colorScheme.secondary,
-        title: const Text(
+        title: Text(
           'CaSSAndRA native',
-          style: TextStyle(fontSize: 14),
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
         actions: [
           CustomizedElevatedButton(
@@ -255,9 +259,10 @@ class _ServersPageState extends State<ServersPage> {
 
   @override
   Widget build(BuildContext context) {
-
-    _handleAppLifecycleState(_appLifecycleState, Provider.of<CassandraNative>(context).appLifecycleState);
-    _appLifecycleState = Provider.of<CassandraNative>(context).appLifecycleState;
+    _handleAppLifecycleState(_appLifecycleState,
+        Provider.of<CassandraNative>(context).appLifecycleState);
+    _appLifecycleState =
+        Provider.of<CassandraNative>(context).appLifecycleState;
 
     Widget mainContent = Center(
       child: const Text('No Server found. Start with add button')

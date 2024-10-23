@@ -55,6 +55,16 @@ class ServerInterface {
     _sendCommand(cmdMoveJson);
   }
 
+  void commandRestartServer() {
+    final Map<String, dynamic> cmdRestartServer =
+        _addTopicAndCommandToValue('server', 'restart', []);
+    final String cmdRestartServerJson = jsonEncode(cmdRestartServer);
+    if (kDebugMode) {
+      debugPrint(cmdRestartServerJson);
+    }
+    _sendCommand(cmdRestartServerJson);
+  }
+
   void commandUpdateCoords(String value) {
     final Map<String, dynamic> cmdUpdateCoords =
         _addTopicAndCommandToValue('coords', 'update', [value]);
@@ -63,6 +73,26 @@ class ServerInterface {
       debugPrint(cmdUpdateCoordsJson);
     }
     _sendCommand(cmdUpdateCoordsJson);
+  }
+
+  void commandUpdateSettings() {
+    final Map<String, dynamic> cmdUpdateSettings =
+        _addTopicAndCommandToValue('settings', 'update', []);
+    final String cmdUpdateSettingsJson = jsonEncode(cmdUpdateSettings);
+    if (kDebugMode) {
+      debugPrint(cmdUpdateSettingsJson);
+      _sendCommand(cmdUpdateSettingsJson);
+    }
+  }
+
+  void commandSetSettings(String command, Map<String, dynamic> settings) {
+    final Map<String, dynamic> cmdSetSettings =
+        _addTopicAndCommandToValue('settings', command, settings);
+    final String cmdSetSettingsJson = jsonEncode(cmdSetSettings);
+    if (kDebugMode) {
+      debugPrint(cmdSetSettingsJson);
+    }
+    _sendCommand(cmdSetSettingsJson);
   }
 
   void commandSetSelection(List<Offset> selection) {

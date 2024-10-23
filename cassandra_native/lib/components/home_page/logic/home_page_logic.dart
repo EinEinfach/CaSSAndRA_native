@@ -180,14 +180,6 @@ class MapPointLogic {
   }
 }
 
-class TasksSelectionLogic {
-  bool active = false;
-
-  void reset() {
-    active = false;
-  }
-}
-
 class MapUiLogic {
   List<String> statePlayPlayButton = [
     'idle',
@@ -270,14 +262,15 @@ class StatusWindowLogic {
     if (robot.status == 'mow') {
       final int leftDistance =
           currentMap.totalDistance - currentMap.finishedDistance;
-      final double secondsLeft = leftDistance / robot.averageSpeed;
+      final double secondsLeft = leftDistance /
+          (robot.averageSpeed != 0.0 ? robot.averageSpeed : 0.00001);
       final int estimatedMilliseconds =
           (DateTime.now().millisecondsSinceEpoch + secondsLeft * 1000).toInt();
       DateTime estimatedDateTime =
           DateTime.fromMillisecondsSinceEpoch(estimatedMilliseconds);
 
       // round to the next 5min
-      final int minutesToAdd = 5 - (estimatedDateTime.minute % 5);
+      final int minutesToAdd = 10 - (estimatedDateTime.minute % 10);
       estimatedDateTime = estimatedDateTime.add(
         Duration(minutes: minutesToAdd),
       );

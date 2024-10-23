@@ -37,9 +37,6 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   //go to
   MapPointLogic gotoPoint = MapPointLogic();
 
-  //tasks
-  TasksSelectionLogic tasksSelection = TasksSelectionLogic();
-
   //ui
   MapUiLogic mapUi = MapUiLogic();
   ui.Image? roverImage;
@@ -151,7 +148,6 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   }
 
   void _resetTasksSelection() {
-    tasksSelection.reset();
     widget.server.serverInterface.commandSelectTasks([]);
   }
 
@@ -391,12 +387,11 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                   ),
                   MapButton(
                     icon: Icons.list,
-                    isActive: tasksSelection.active,
+                    isActive: false,
                     onPressed: () {
                       mapUi.focusOnMowerActive = false;
                       _resetGotoPoint();
                       _resetLassoSelection();
-                      tasksSelection.active = !tasksSelection.active;
                       widget.onOpenTasksOverlay();
                       setState(() {});
                     },
@@ -416,6 +411,9 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          const SizedBox(
+                            width: 50,
+                          ),
                           MapButton(
                             icon: Icons.zoom_in_map,
                             isActive: false,
