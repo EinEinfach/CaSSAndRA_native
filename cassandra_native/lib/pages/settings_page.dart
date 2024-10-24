@@ -7,6 +7,7 @@ import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/components/settings_page/accordion_tile.dart';
 import 'package:cassandra_native/components/settings_page/content_server_tile.dart';
 import 'package:cassandra_native/components/settings_page/content_api_tile.dart';
+import 'package:cassandra_native/components/settings_page/content_message_service_tile.dart';
 
 class SettingsPage extends StatefulWidget {
   final Server server;
@@ -96,7 +97,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   AccordionTile(
                     title: 'Messsage service',
-                    content: [Text('Inhalt 3')],
+                    content: [
+                      ContentMessageServiceTile(currentServer: widget.server),
+                    ],
                   ),
                 ],
               ),

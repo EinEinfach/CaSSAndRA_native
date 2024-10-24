@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/models/server_settings.dart';
 import 'package:cassandra_native/components/customized_elevated_button.dart';
+import 'package:cassandra_native/components/customized_dialog_ok.dart';
+import 'package:cassandra_native/components/customized_dialog_ok_cancel.dart';
 
 class ContentServerTile extends StatefulWidget {
   final Server currentServer;
@@ -110,25 +112,13 @@ class _ContentServerTileState extends State<ContentServerTile> {
     if (inputInvalid) {
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.secondary,
-          title: Text(
-            'Invalid input',
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-          content: const Text(
-              'Please make sure valid values for robot communication was entered'),
-          actions: [
-            CustomizedElevatedButton(
-              text: 'ok',
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
+        builder: (context) => CustomizedDialogOk(
+          title: 'Invalid input',
+          content:
+              'Please make sure valid values for robot communication was entered',
+          onOkPressed: () {
+            Navigator.pop(context);
+          },
         ),
       );
       return;
@@ -137,24 +127,12 @@ class _ContentServerTileState extends State<ContentServerTile> {
     if (widget.currentServer.status == 'offline') {
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.secondary,
-          title: Text(
-            'Server offline',
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-          content: const Text('Server is offline. Data could not be set'),
-          actions: [
-            CustomizedElevatedButton(
-              text: 'ok',
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
+        builder: (context) => CustomizedDialogOk(
+          title: 'Server offline',
+          content: 'Server is offline. Data could not be set',
+          onOkPressed: () {
+            Navigator.pop(context);
+          },
         ),
       );
       return;
@@ -184,32 +162,17 @@ class _ContentServerTileState extends State<ContentServerTile> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        title: Text(
-          'Server restart is necessary',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        content: const Text(
-            'Press ok to restart the server now, or cancel to perform the restart later yourself'),
-        actions: [
-          CustomizedElevatedButton(
-            text: 'cancel',
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-          CustomizedElevatedButton(
-            text: 'ok',
-            onPressed: () {
-              widget.currentServer.serverInterface.commandRestartServer();
-              Navigator.pop(context);
-            },
-          ),
-        ],
+      builder: (context) => CustomizedDialogOkCancel(
+        title: 'Server restart is neccessary',
+        content:
+            'Press ok to restart the server now, or cancel to perform the restart later yourself',
+        onCancelPressed: () {
+          Navigator.pop(context);
+        },
+        onOkPressed: () {
+          widget.currentServer.serverInterface.commandRestartServer();
+          Navigator.pop(context);
+        },
       ),
     );
     return;

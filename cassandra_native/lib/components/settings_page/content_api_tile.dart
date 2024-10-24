@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/models/server_settings.dart';
 import 'package:cassandra_native/components/customized_elevated_button.dart';
+import 'package:cassandra_native/components/customized_dialog_ok.dart';
+import 'package:cassandra_native/components/customized_dialog_ok_cancel.dart';
 
 // globals
 import 'package:cassandra_native/data/user_data.dart' as user;
@@ -89,25 +91,13 @@ class _ContentApiTileState extends State<ContentApiTile> {
     if (inputInvalid) {
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.secondary,
-          title: Text(
-            'Invalid input',
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-          content: const Text(
-              'Please make sure valid values for api communication was entered'),
-          actions: [
-            CustomizedElevatedButton(
-              text: 'ok',
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
+        builder: (context) => CustomizedDialogOk(
+          title: 'Invalid input',
+          content:
+              'Please make sure valid values for api communication was entered',
+          onOkPressed: () {
+            Navigator.pop(context);
+          },
         ),
       );
       return;
@@ -116,24 +106,12 @@ class _ContentApiTileState extends State<ContentApiTile> {
     if (widget.currentServer.status == 'offline') {
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.secondary,
-          title: Text(
-            'Server offline',
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-          content: const Text('Server is offline. Data could not be set'),
-          actions: [
-            CustomizedElevatedButton(
-              text: 'ok',
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
+        builder: (context) => CustomizedDialogOk(
+          title: 'Server offline',
+          content: 'Server is offline. Data could not be set',
+          onOkPressed: () {
+            Navigator.pop(context);
+          },
         ),
       );
       return;
@@ -155,53 +133,37 @@ class _ContentApiTileState extends State<ContentApiTile> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        title: Text(
-          'Server restart is necessary',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        content: const Text(
-            'You have made changes to the API settings. Should these settings also be applied within the app, and should the server be restarted?'),
-        actions: [
-          CustomizedElevatedButton(
-            text: 'cancel',
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-          CustomizedElevatedButton(
-            text: 'ok',
-            onPressed: () {
-              widget.currentServer.serverInterface.commandRestartServer();
-              widget.currentServer.disconnect();
-              final Server editedServer = Server(
-                id: widget.currentServer.id,
-                category: widget.currentServer.category,
-                alias: widget.currentServer.alias,
-                mqttServer: widget.currentServer.settings.apiMqttServer ?? '',
-                serverNamePrefix:
-                    widget.currentServer.settings.apiMqttCassandraServerName ??
-                        '',
-                port: widget.currentServer.settings.apiMqttPort ?? 1883,
-                user: widget.currentServer.settings.apiMqttUser ?? '',
-                password: widget.currentServer.settings.apiMqttPassword ?? '',
-              );
-              user.registredServers.editServer(editedServer);
-              ServerStorage.saveServers(user.registredServers.servers);
-              Navigator.pop(context);
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ServersPage(),
-                ),
-              );
-            },
-          ),
-        ],
+      builder: (context) => CustomizedDialogOkCancel(
+        title: 'Server restart is necessary',
+        content:
+            'You have made changes to the API settings. Should these settings also be applied within the app, and the server to be restarted?\n\nPress ok to restart the server now, or cancel to perform the restart later yourself',
+        onCancelPressed: () {
+          Navigator.pop(context);
+        },
+        onOkPressed: () {
+          widget.currentServer.serverInterface.commandRestartServer();
+          widget.currentServer.disconnect();
+          final Server editedServer = Server(
+            id: widget.currentServer.id,
+            category: widget.currentServer.category,
+            alias: widget.currentServer.alias,
+            mqttServer: widget.currentServer.settings.apiMqttServer ?? '',
+            serverNamePrefix:
+                widget.currentServer.settings.apiMqttCassandraServerName ?? '',
+            port: widget.currentServer.settings.apiMqttPort ?? 1883,
+            user: widget.currentServer.settings.apiMqttUser ?? '',
+            password: widget.currentServer.settings.apiMqttPassword ?? '',
+          );
+          user.registredServers.editServer(editedServer);
+          ServerStorage.saveServers(user.registredServers.servers);
+          Navigator.pop(context);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const ServersPage(),
+            ),
+          );
+        },
       ),
     );
     return;

@@ -12,6 +12,8 @@ enum ApiType {
   mqtt,
 }
 
+enum MessageServiceType { deactivated, telegram, pushover }
+
 class ServerSettings {
   ConnectionType robotConnectionType = ConnectionType.http;
   // http
@@ -35,6 +37,12 @@ class ServerSettings {
   String? apiMqttServer;
   int? apiMqttPort;
   String? apiMqttCassandraServerName;
+  // message service type
+  MessageServiceType messageServiceType = MessageServiceType.deactivated;
+  String? telegramApiToken;
+  String? telegramChatId;
+  String? pushoverApiToken;
+  String? pushoverAppName;
 
   void settingsJsonToClassData(String message) {
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
@@ -53,35 +61,29 @@ class ServerSettings {
       mqttMowerNameWithPrefix = decodedMessage['mqttMowerNameWithPrefix'];
       uartPort = decodedMessage['uartPort'];
       uartBaudrate = decodedMessage['uartBaudrate'];
-      apiType = ApiType.values.byName(decodedMessage['apiType'].toLowerCase());
+      apiType = decodedMessage['apiType'] != null
+          ? ApiType.values.byName(decodedMessage['apiType'].toString().toLowerCase())
+          : ApiType.deactivated;
       apiMqttClientId = decodedMessage['apiMqttClientId'];
       apiMqttUser = decodedMessage['apiMqttUser'];
       apiMqttPassword = decodedMessage['apiMqttPassword'];
       apiMqttServer = decodedMessage['apiMqttServer'];
       apiMqttCassandraServerName = decodedMessage['apiMqttCassandraServerName'];
       apiMqttPort = decodedMessage['apiMqttPort'];
+      messageServiceType = decodedMessage['messageServiceType'] != null
+          ? MessageServiceType.values
+              .byName(decodedMessage['messageServiceType'].toString().toLowerCase())
+          : MessageServiceType.deactivated;
+      telegramApiToken = decodedMessage['telegramApiToken'].toString();
+      telegramChatId = decodedMessage['telegramChatId'].toString();
+      pushoverApiToken = decodedMessage['pushoverApiToken'].toString();
+      pushoverAppName = decodedMessage['pushoverAppName'].toString();
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Invalid settings JSON: $e');
       }
     }
   }
-
-  // ConnectionType? _getConnectionTypeFromString(String connectionTypeString) {
-  //   switch (connectionTypeString) {
-  //     case 'HTTP':
-  //       return ConnectionType.http;
-  //     case 'MQTT':
-  //       return ConnectionType.mqtt;
-  //     case 'UART':
-  //       return ConnectionType.uart;
-  //     default:
-  //       if (kDebugMode) {
-  //         debugPrint('Invalid value for robotConnectionType in settings JSON');
-  //       }
-  //       return null;
-  //   }
-  // }
 
   Map<String, dynamic> toJson() => {
         'robotConnectionType': robotConnectionType.name.toUpperCase(),
@@ -95,12 +97,20 @@ class ServerSettings {
         'mqttMowerNameWithPrefix': mqttMowerNameWithPrefix,
         'uartPort': uartPort,
         'uartBaudrate': uartBaudrate,
-        'apiType': apiType == ApiType.mqtt ? 'MQTT' : '',
+        'apiType': apiType == ApiType.mqtt ? 'MQTT' : null,
         'apiMqttClientId': apiMqttClientId,
         'apiMqttUser': apiMqttUser,
         'apiMqttPassword': apiMqttPassword,
         'apiMqttServer': apiMqttServer,
         'apiMqttCassandraServerName': apiMqttCassandraServerName,
         'apiMqttPort': apiMqttPort,
+        'messageServiceType':
+            messageServiceType == MessageServiceType.deactivated
+                ? null
+                : messageServiceType.name,
+        'telegramApiToken': telegramApiToken,
+        'telegramChatId': telegramChatId,
+        'pushoverApiToken': pushoverApiToken,
+        'pushoverAppName': pushoverAppName,
       };
 }
