@@ -32,12 +32,15 @@ class _ContentMessageServiceTileState extends State<ContentMessageServiceTile> {
   final TextEditingController _pushoverAppNameController =
       TextEditingController();
 
+  final TextEditingController _testMessageController = TextEditingController();
+
   @override
   void dispose() {
     _telegramApiTokenController.dispose();
     _telegramChatIdController.dispose();
     _pushoverApiTokenController.dispose();
     _pushoverAppNameController.dispose();
+    _testMessageController.dispose();
     super.dispose();
   }
 
@@ -53,7 +56,7 @@ class _ContentMessageServiceTileState extends State<ContentMessageServiceTile> {
         widget.currentServer.settings.pushoverApiToken ?? '';
     _pushoverAppNameController.text =
         widget.currentServer.settings.pushoverAppName ?? '';
-
+    _testMessageController.text = '';
     super.initState();
   }
 
@@ -107,7 +110,7 @@ class _ContentMessageServiceTileState extends State<ContentMessageServiceTile> {
     widget.currentServer.settings.pushoverAppName =
         _pushoverAppNameController.text;
     widget.currentServer.serverInterface
-        .commandSetSettings('setComm', widget.currentServer.settings.toJson());
+        .commandSetSettings('setComm', widget.currentServer.settings.commCfgToJson());
 
     showDialog(
       context: context,
@@ -140,6 +143,62 @@ class _ContentMessageServiceTileState extends State<ContentMessageServiceTile> {
         widget.currentServer.settings.pushoverAppName ?? '';
   }
 
+  void _onTestMessageSend() {
+    widget.currentServer.serverInterface
+        .commandSendMessage(_testMessageController.text);
+    _testMessageController.text = '';
+  }
+
+  Widget _getMessageBox() {
+    return Column(
+      children: [
+        const SizedBox(
+          height: 8,
+        ),
+        Container(
+          padding: const EdgeInsets.all(8),
+          child: const Align(
+            alignment: Alignment.centerLeft,
+            child: Text('test message'),
+          ),
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border:
+                      Border.all(color: Theme.of(context).colorScheme.primary),
+                ),
+                height: 80,
+                child: TextField(
+                  controller: _testMessageController,
+                  maxLines: null,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+            ),
+            IconButton(
+              color: Theme.of(context).colorScheme.primary,
+              onPressed: () {
+                _onTestMessageSend();
+              },
+              icon: Icon(
+                size: 35,
+                Icons.send_rounded,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   Widget _getMessageServiceContent() {
     if (selectedMessageServiceType == MessageServiceType.telegram) {
       return Column(
@@ -168,6 +227,7 @@ class _ContentMessageServiceTileState extends State<ContentMessageServiceTile> {
               ),
             ),
           ),
+          _getMessageBox(),
         ],
       );
     } else if (selectedMessageServiceType == MessageServiceType.pushover) {
@@ -197,6 +257,7 @@ class _ContentMessageServiceTileState extends State<ContentMessageServiceTile> {
               ),
             ),
           ),
+          _getMessageBox(),
         ],
       );
     } else {

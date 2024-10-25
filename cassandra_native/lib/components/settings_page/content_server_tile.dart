@@ -43,6 +43,10 @@ class _ContentServerTileState extends State<ContentServerTile> {
       TextEditingController();
   final TextEditingController _robotUartBaudrateController =
       TextEditingController();
+  // robot position mode
+  late PositionMode selectedRobotPositionMode;
+  final TextEditingController _robotLonController = TextEditingController();
+  final TextEditingController _robotLatController = TextEditingController();
 
   @override
   void dispose() {
@@ -56,6 +60,8 @@ class _ContentServerTileState extends State<ContentServerTile> {
     _robotMqttMowerNameWithPrefixController.dispose();
     _robotUartPortController.dispose();
     _robotUartBaudrateController.dispose();
+    _robotLonController.dispose();
+    _robotLatController.dispose();
     super.dispose();
   }
 
@@ -87,7 +93,13 @@ class _ContentServerTileState extends State<ContentServerTile> {
         widget.currentServer.settings.uartBaudrate != null
             ? widget.currentServer.settings.uartBaudrate.toString()
             : '';
-
+    selectedRobotPositionMode = widget.currentServer.settings.robotPositionMode;
+    _robotLonController.text = widget.currentServer.settings.longtitude == null
+        ? ''
+        : widget.currentServer.settings.longtitude.toString();
+    _robotLatController.text = widget.currentServer.settings.latitude == null
+        ? ''
+        : widget.currentServer.settings.latitude.toString();
     super.initState();
   }
 
@@ -138,43 +150,75 @@ class _ContentServerTileState extends State<ContentServerTile> {
       return;
     }
 
-    widget.currentServer.settings.robotConnectionType =
-        selectedRobotConnectionType;
-    widget.currentServer.settings.httpRobotIpAdress =
-        _robotIpAdressController.text;
-    widget.currentServer.settings.httpRobotPassword =
-        _robotPasswordController.text;
-    widget.currentServer.settings.mqttClientId =
-        _robotMqttClientIdController.text;
-    widget.currentServer.settings.mqttMowerNameWithPrefix =
-        _robotMqttMowerNameWithPrefixController.text;
-    widget.currentServer.settings.mqttServer = _robotMqttServerController.text;
-    widget.currentServer.settings.mqttUser = _robotMqttUserController.text;
-    widget.currentServer.settings.mqttPassword =
-        _robotMqttPasswordController.text;
-    widget.currentServer.settings.mqttPort =
-        int.tryParse(_robotMqttPortController.text);
-    widget.currentServer.settings.uartPort = _robotUartPortController.text;
-    widget.currentServer.settings.uartBaudrate =
-        int.tryParse(_robotUartBaudrateController.text);
-    widget.currentServer.serverInterface
-        .commandSetSettings('setComm', widget.currentServer.settings.toJson());
+    widget.currentServer.settings.robotPositionMode = selectedRobotPositionMode;
+    widget.currentServer.settings.longtitude = double.tryParse(_robotLonController.text);
+    widget.currentServer.settings.latitude = double.tryParse(_robotLatController.text);
+    widget.currentServer.serverInterface.commandSetSettings(
+          'setRover', widget.currentServer.settings.roverCfgToJson());
 
-    showDialog(
-      context: context,
-      builder: (context) => CustomizedDialogOkCancel(
-        title: 'Server restart is neccessary',
-        content:
-            'Press ok to restart the server now, or cancel to perform the restart later yourself',
-        onCancelPressed: () {
-          Navigator.pop(context);
-        },
-        onOkPressed: () {
-          widget.currentServer.serverInterface.commandRestartServer();
-          Navigator.pop(context);
-        },
-      ),
-    );
+    // check if restart neccasary
+    if (widget.currentServer.settings.robotConnectionType !=
+            selectedRobotConnectionType ||
+        widget.currentServer.settings.httpRobotIpAdress !=
+            _robotIpAdressController.text ||
+        widget.currentServer.settings.httpRobotPassword !=
+            _robotPasswordController.text ||
+        widget.currentServer.settings.mqttClientId !=
+            _robotMqttClientIdController.text ||
+        widget.currentServer.settings.mqttMowerNameWithPrefix !=
+            _robotMqttMowerNameWithPrefixController.text ||
+        widget.currentServer.settings.mqttServer !=
+            _robotMqttServerController.text ||
+        widget.currentServer.settings.mqttUser !=
+            _robotMqttUserController.text ||
+        widget.currentServer.settings.mqttPassword !=
+            _robotMqttPasswordController.text ||
+        widget.currentServer.settings.mqttPort !=
+            int.tryParse(_robotMqttPortController.text) ||
+        widget.currentServer.settings.uartPort !=
+            _robotUartPortController.text ||
+        widget.currentServer.settings.uartBaudrate !=
+            int.tryParse(_robotUartBaudrateController.text)) {
+
+      widget.currentServer.settings.robotConnectionType =
+          selectedRobotConnectionType;
+      widget.currentServer.settings.httpRobotIpAdress =
+          _robotIpAdressController.text;
+      widget.currentServer.settings.httpRobotPassword =
+          _robotPasswordController.text;
+      widget.currentServer.settings.mqttClientId =
+          _robotMqttClientIdController.text;
+      widget.currentServer.settings.mqttMowerNameWithPrefix =
+          _robotMqttMowerNameWithPrefixController.text;
+      widget.currentServer.settings.mqttServer =
+          _robotMqttServerController.text;
+      widget.currentServer.settings.mqttUser = _robotMqttUserController.text;
+      widget.currentServer.settings.mqttPassword =
+          _robotMqttPasswordController.text;
+      widget.currentServer.settings.mqttPort =
+          int.tryParse(_robotMqttPortController.text);
+      widget.currentServer.settings.uartPort = _robotUartPortController.text;
+      widget.currentServer.settings.uartBaudrate =
+          int.tryParse(_robotUartBaudrateController.text);
+      widget.currentServer.serverInterface.commandSetSettings(
+          'setComm', widget.currentServer.settings.commCfgToJson());
+
+      showDialog(
+        context: context,
+        builder: (context) => CustomizedDialogOkCancel(
+          title: 'Server restart is neccessary',
+          content:
+              'Press ok to restart the server now, or cancel to perform the restart later yourself',
+          onCancelPressed: () {
+            Navigator.pop(context);
+          },
+          onOkPressed: () {
+            widget.currentServer.serverInterface.commandRestartServer();
+            Navigator.pop(context);
+          },
+        ),
+      );
+    }
     return;
   }
 
@@ -385,6 +429,50 @@ class _ContentServerTileState extends State<ContentServerTile> {
     }
   }
 
+  Widget _getRobotSettingsContent() {
+    if (selectedRobotPositionMode == PositionMode.absolute) {
+      return Row(
+        children: [
+          Expanded(
+            flex: 1,
+            child: SizedBox(
+              height: 50,
+              child: TextField(
+                keyboardType: TextInputType.number,
+                controller: _robotLonController,
+                decoration: InputDecoration(
+                  label: Text(
+                    'lon',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: SizedBox(
+              width: 150,
+              height: 50,
+              child: TextField(
+                keyboardType: TextInputType.number,
+                controller: _robotLatController,
+                decoration: InputDecoration(
+                  label: Text(
+                    'lat',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -470,8 +558,61 @@ class _ContentServerTileState extends State<ContentServerTile> {
             ),
             _getRobotConnectionContent(),
             const SizedBox(
-              height: 8,
+              height: 25,
             ),
+            const Text('Position mode'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 120,
+                  height: 50,
+                  child: RadioListTile(
+                    contentPadding: const EdgeInsets.all(0),
+                    fillColor: WidgetStateProperty.resolveWith<Color>(
+                      (states) {
+                        return Theme.of(context).colorScheme.primary;
+                      },
+                    ),
+                    title: Text(
+                      'absolute',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    value: PositionMode.absolute,
+                    groupValue: selectedRobotPositionMode,
+                    onChanged: (PositionMode? value) {
+                      setState(() {
+                        selectedRobotPositionMode = value!;
+                      });
+                    },
+                  ),
+                ),
+                SizedBox(
+                  width: 120,
+                  height: 50,
+                  child: RadioListTile(
+                    contentPadding: const EdgeInsets.all(0),
+                    fillColor: WidgetStateProperty.resolveWith<Color>(
+                      (states) {
+                        return Theme.of(context).colorScheme.primary;
+                      },
+                    ),
+                    title: Text(
+                      'relative',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    value: PositionMode.relative,
+                    groupValue: selectedRobotPositionMode,
+                    onChanged: (PositionMode? value) {
+                      setState(() {
+                        selectedRobotPositionMode = value!;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+            _getRobotSettingsContent(),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [

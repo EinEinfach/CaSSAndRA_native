@@ -12,6 +12,11 @@ enum ApiType {
   mqtt,
 }
 
+enum PositionMode {
+  absolute,
+  relative,
+}
+
 enum MessageServiceType { deactivated, telegram, pushover }
 
 class ServerSettings {
@@ -43,6 +48,10 @@ class ServerSettings {
   String? telegramChatId;
   String? pushoverApiToken;
   String? pushoverAppName;
+  // robot position mode
+  PositionMode robotPositionMode = PositionMode.relative;
+  double? longtitude;
+  double? latitude;
 
   void settingsJsonToClassData(String message) {
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
@@ -62,7 +71,8 @@ class ServerSettings {
       uartPort = decodedMessage['uartPort'];
       uartBaudrate = decodedMessage['uartBaudrate'];
       apiType = decodedMessage['apiType'] != null
-          ? ApiType.values.byName(decodedMessage['apiType'].toString().toLowerCase())
+          ? ApiType.values
+              .byName(decodedMessage['apiType'].toString().toLowerCase())
           : ApiType.deactivated;
       apiMqttClientId = decodedMessage['apiMqttClientId'];
       apiMqttUser = decodedMessage['apiMqttUser'];
@@ -71,13 +81,24 @@ class ServerSettings {
       apiMqttCassandraServerName = decodedMessage['apiMqttCassandraServerName'];
       apiMqttPort = decodedMessage['apiMqttPort'];
       messageServiceType = decodedMessage['messageServiceType'] != null
-          ? MessageServiceType.values
-              .byName(decodedMessage['messageServiceType'].toString().toLowerCase())
+          ? MessageServiceType.values.byName(
+              decodedMessage['messageServiceType'].toString().toLowerCase())
           : MessageServiceType.deactivated;
-      telegramApiToken = decodedMessage['telegramApiToken'].toString();
-      telegramChatId = decodedMessage['telegramChatId'].toString();
-      pushoverApiToken = decodedMessage['pushoverApiToken'].toString();
-      pushoverAppName = decodedMessage['pushoverAppName'].toString();
+      telegramApiToken = decodedMessage['telegramApiToken'] == null
+          ? ''
+          : decodedMessage['telegramApiToken'].toString();
+      telegramChatId = decodedMessage['telegramChatId'] == null
+          ? ''
+          : decodedMessage['telegramChatId'].toString();
+      pushoverApiToken = decodedMessage['pushoverApiToken'] == null
+          ? ''
+          : decodedMessage['pushoverApiToken'].toString();
+      pushoverAppName = decodedMessage['pushoverAppName'] == null
+          ? ''
+          : decodedMessage['pushoverAppName'].toString();
+      robotPositionMode = PositionMode.values.byName(decodedMessage['robotPositionMode'],);
+      longtitude = decodedMessage['longtitude'];
+      latitude = decodedMessage['latitude'];
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Invalid settings JSON: $e');
@@ -85,7 +106,7 @@ class ServerSettings {
     }
   }
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> commCfgToJson() => {
         'robotConnectionType': robotConnectionType.name.toUpperCase(),
         'httpRobotIpAdress': httpRobotIpAdress,
         'httpRobotPassword': httpRobotPassword,
@@ -113,4 +134,10 @@ class ServerSettings {
         'pushoverApiToken': pushoverApiToken,
         'pushoverAppName': pushoverAppName,
       };
+  
+  Map<String, dynamic> roverCfgToJson() => {
+    'robotPositionMode': robotPositionMode.name,
+    'longtitude': longtitude ?? 0.0,
+    'latitude': latitude ?? 0.0,
+  };
 }

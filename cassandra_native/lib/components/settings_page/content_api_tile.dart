@@ -129,7 +129,7 @@ class _ContentApiTileState extends State<ContentApiTile> {
     widget.currentServer.settings.apiMqttPort =
         int.tryParse(_apiMqttPortController.text);
     widget.currentServer.serverInterface
-        .commandSetSettings('setComm', widget.currentServer.settings.toJson());
+        .commandSetSettings('setComm', widget.currentServer.settings.commCfgToJson());
 
     showDialog(
       context: context,

@@ -40,8 +40,14 @@ class ServerInterface {
   }
 
   void _sendCommand(String command) {
-    MqttManager.instance
-        .publish(id, '$serverNamePrefix/$serverInterface', command);
+    if (MqttManager.instance.isNotConnected(id)) {
+      if(kDebugMode) {
+        debugPrint('Disconnected. Message could not be sent');
+      }
+    } else {
+      MqttManager.instance
+          .publish(id, '$serverNamePrefix/$serverInterface', command);
+    }
   }
 
   void commandMove(double linearSpeed, double angularSpeed) {
@@ -53,6 +59,16 @@ class ServerInterface {
       debugPrint(cmdMoveJson);
     }
     _sendCommand(cmdMoveJson);
+  }
+
+  void commandSendMessage(String message) {
+    final Map<String, dynamic> cmdSendMessage =
+        _addTopicAndCommandToValue('server', 'sendMessage', [message]);
+    final String cmdSendMessageJson = jsonEncode(cmdSendMessage);
+    if (kDebugMode) {
+      debugPrint(cmdSendMessageJson);
+    }
+    _sendCommand(cmdSendMessageJson);
   }
 
   void commandRestartServer() {

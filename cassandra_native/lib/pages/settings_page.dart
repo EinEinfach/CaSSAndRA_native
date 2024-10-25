@@ -82,7 +82,7 @@ class _SettingsPageState extends State<SettingsPage> {
               child: ListView(
                 children: [
                   AccordionTile(
-                    title: 'Server',
+                    title: 'Robot',
                     content: [
                       ContentServerTile(
                         currentServer: widget.server,
