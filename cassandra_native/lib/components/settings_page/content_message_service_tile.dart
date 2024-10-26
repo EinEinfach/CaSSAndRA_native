@@ -166,7 +166,7 @@ class _ContentMessageServiceTileState extends State<ContentMessageServiceTile> {
           children: [
             Expanded(
               child: Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   border:
@@ -174,6 +174,7 @@ class _ContentMessageServiceTileState extends State<ContentMessageServiceTile> {
                 ),
                 height: 80,
                 child: TextField(
+                  style: Theme.of(context).textTheme.bodyMedium,
                   controller: _testMessageController,
                   maxLines: null,
                   decoration: const InputDecoration(

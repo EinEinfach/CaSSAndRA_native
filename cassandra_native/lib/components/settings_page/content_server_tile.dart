@@ -136,6 +136,35 @@ class _ContentServerTileState extends State<ContentServerTile> {
       return;
     }
 
+    inputInvalid = false;
+
+    widget.currentServer.settings.robotPositionMode = selectedRobotPositionMode;
+    widget.currentServer.settings.longtitude =
+        double.tryParse(_robotLonController.text);
+    widget.currentServer.settings.latitude =
+        double.tryParse(_robotLatController.text);
+
+    if (selectedRobotPositionMode == PositionMode.absolute &&
+        double.tryParse(_robotLonController.text) == null &&
+        double.tryParse(_robotLatController.text) == null) {
+      inputInvalid = true;
+    }
+
+    if (inputInvalid) {
+      showDialog(
+        context: context,
+        builder: (context) => CustomizedDialogOk(
+          title: 'Invalid input',
+          content:
+              'Please make sure valid values for position mode was entered',
+          onOkPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      );
+      return;
+    }
+
     if (widget.currentServer.status == 'offline') {
       showDialog(
         context: context,
@@ -150,11 +179,8 @@ class _ContentServerTileState extends State<ContentServerTile> {
       return;
     }
 
-    widget.currentServer.settings.robotPositionMode = selectedRobotPositionMode;
-    widget.currentServer.settings.longtitude = double.tryParse(_robotLonController.text);
-    widget.currentServer.settings.latitude = double.tryParse(_robotLatController.text);
     widget.currentServer.serverInterface.commandSetSettings(
-          'setRover', widget.currentServer.settings.roverCfgToJson());
+        'setRover', widget.currentServer.settings.roverCfgToJson());
 
     // check if restart neccasary
     if (widget.currentServer.settings.robotConnectionType !=
@@ -179,7 +205,6 @@ class _ContentServerTileState extends State<ContentServerTile> {
             _robotUartPortController.text ||
         widget.currentServer.settings.uartBaudrate !=
             int.tryParse(_robotUartBaudrateController.text)) {
-
       widget.currentServer.settings.robotConnectionType =
           selectedRobotConnectionType;
       widget.currentServer.settings.httpRobotIpAdress =
@@ -438,7 +463,6 @@ class _ContentServerTileState extends State<ContentServerTile> {
             child: SizedBox(
               height: 50,
               child: TextField(
-                keyboardType: TextInputType.number,
                 controller: _robotLonController,
                 decoration: InputDecoration(
                   label: Text(
@@ -455,7 +479,6 @@ class _ContentServerTileState extends State<ContentServerTile> {
               width: 150,
               height: 50,
               child: TextField(
-                keyboardType: TextInputType.number,
                 controller: _robotLatController,
                 decoration: InputDecoration(
                   label: Text(
