@@ -29,34 +29,32 @@ class StatusWindow extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          //fixedSize: const Size(190, 80),
-          //minimumSize: const Size(80, 80),
-          //padding: const EdgeInsets.fromLTRB(0, 8, 16, 8),
         ),
         onPressed: onPressed,
         onLongPress: () {},
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'State',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                Text(
-                  server.robot.status,
-                  style: Theme.of(context).textTheme.labelLarge,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+            SizedBox(
+              width: 80,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'State',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  Text(
+                    server.robot.status,
+                    style: Theme.of(context).textTheme.labelLarge,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(
-              width: 8,
-            ),
+            const SizedBox(),
             Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,

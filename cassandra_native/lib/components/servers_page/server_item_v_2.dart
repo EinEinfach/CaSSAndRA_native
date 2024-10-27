@@ -55,7 +55,7 @@ class ServerItemV2 extends StatelessWidget {
             GestureDetector(
               onTap: openEditServer,
               child: Container(
-                width: 100,
+                width: 70,
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.secondary,
                   borderRadius: BorderRadius.circular(5),
@@ -80,24 +80,39 @@ class ServerItemV2 extends StatelessWidget {
               width: 8,
             ),
             Container(
-              width: 100,
+              padding: const EdgeInsets.all(3),
+              width: 70,
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.secondary,
                 borderRadius: BorderRadius.circular(5),
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Stack(
                 children: [
-                  SizedBox(
-                    height: 40,
-                    child: Image.asset(
-                      'lib/images/mower_icon.png',
-                      color: Theme.of(context).colorScheme.inversePrimary,
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height: 40,
+                          child: Image.asset(
+                            'lib/images/mower_icon.png',
+                            color: Theme.of(context).colorScheme.inversePrimary,
+                          ),
+                        ),
+                        Text(
+                          server.robot.status,
+                          style: const TextStyle(fontSize: 10),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
                   ),
                   Text(
-                    server.robot.status,
-                    style: const TextStyle(fontSize: 10),
+                    '${server.robot.firmware}: ${server.robot.version}',
+                    style: const TextStyle(fontSize: 6),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                 ],
               ),

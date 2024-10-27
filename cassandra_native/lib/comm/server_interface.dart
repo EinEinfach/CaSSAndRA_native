@@ -97,8 +97,8 @@ class ServerInterface {
     final String cmdUpdateSettingsJson = jsonEncode(cmdUpdateSettings);
     if (kDebugMode) {
       debugPrint(cmdUpdateSettingsJson);
-      _sendCommand(cmdUpdateSettingsJson);
     }
+    _sendCommand(cmdUpdateSettingsJson);
   }
 
   void commandSetSettings(String command, Map<String, dynamic> settings) {

@@ -19,7 +19,7 @@ ThemeData lightMode = ThemeData(
       fontSize: 10,
     ),
     labelLarge: TextStyle(
-      fontSize: 13,
+      fontSize: 11,
       fontWeight: FontWeight.bold,
     ),
   ),
@@ -43,7 +43,7 @@ ThemeData darkMode = ThemeData(
       fontSize: 10,
     ),
     labelLarge: TextStyle(
-      fontSize: 13,
+      fontSize: 11,
       fontWeight: FontWeight.bold,
     ),
   ),

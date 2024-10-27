@@ -239,24 +239,6 @@ class StatusWindowLogic {
   String _calcEstimationTime() {
     Robot robot = currentServer.robot;
     Landscape currentMap = currentServer.currentMap;
-    // based on seconds per idx
-    // if (robot.status == 'mow' && robot.secondsPerIdx != null && currentMap.scaledMowPath.length > robot.mowPointIdx) {
-    //   final int nowMilliseconds = DateTime.now().millisecondsSinceEpoch;
-    //   final estimatedMilliseconds = nowMilliseconds +
-    //       (currentMap.scaledMowPath.sublist(robot.mowPointIdx).length *
-    //               (robot.secondsPerIdx! * 1000))
-    //           .toInt();
-    //   DateTime estimatedDateTime =
-    //       DateTime.fromMillisecondsSinceEpoch(estimatedMilliseconds);
-
-    //   // round to the next 5min
-    //   final int minutesToAdd = 5 - (estimatedDateTime.minute % 5);
-    //   estimatedDateTime = estimatedDateTime.add(
-    //     Duration(minutes: minutesToAdd),
-    //   );
-    //   return '${estimatedDateTime.hour.toString().padLeft(2, '0')}:${estimatedDateTime.minute.toString().padLeft(2, '0')}';
-    // }
-    // return '--:--';
 
     // based on average speed
     if (robot.status == 'mow') {

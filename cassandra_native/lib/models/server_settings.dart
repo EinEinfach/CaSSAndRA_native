@@ -57,7 +57,7 @@ class ServerSettings {
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
     try {
       robotConnectionType = ConnectionType.values
-          .byName(decodedMessage['robotConnectionType'].toLowerCase());
+          .byName(decodedMessage['robotConnectionType'].toString().toLowerCase());
       // _getConnectionTypeFromString(decodedMessage['robotConnectionType']) ??
       //     ConnectionType.http;
       httpRobotIpAdress = decodedMessage['httpRobotIpAdress'];

@@ -6,6 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:cassandra_native/models/landscape.dart';
 
 class Robot {
+  String firmware = '';
+  String version = '';
   String status = 'offline';
   String? lastStatus;
   Offset position = const Offset(0, 0);
@@ -28,6 +30,8 @@ class Robot {
   void jsonToClassData(String message) {
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
     try {
+      firmware = decodedMessage['firmware'];
+      version = decodedMessage['version'];
       position = Offset(
           decodedMessage['position']['x'], decodedMessage['position']['y']);
       target =

@@ -19,7 +19,6 @@ class ServerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     void _navigateToHomePage(Server server) {
       Navigator.pushReplacement(
         context,
@@ -53,8 +52,21 @@ class ServerItem extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     width: double.infinity,
-                    padding: const EdgeInsets.all(25),
-                    child: Image.asset(categoryImages[server.category]!.elementAt(0)),
+                    padding: const EdgeInsets.all(5),
+                    child: Stack(
+                      children: [
+                        Center(
+                          child: Image.asset(
+                              categoryImages[server.category]!.elementAt(0)),
+                        ),
+                        Text(
+                          '${server.robot.firmware}: ${server.robot.version}',
+                          style: Theme.of(context).textTheme.bodySmall,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
                   ),
                   onTap: () => _navigateToHomePage(server),
                 ),
