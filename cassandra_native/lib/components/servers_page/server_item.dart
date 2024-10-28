@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/pages/home_page.dart';
@@ -8,6 +9,7 @@ class ServerItem extends StatelessWidget {
   final Color serverItemColor;
   final void Function()? onRemoveServer;
   final void Function()? openEditServer;
+  final void Function(Server) selectServer;
 
   const ServerItem({
     super.key,
@@ -15,6 +17,7 @@ class ServerItem extends StatelessWidget {
     required this.serverItemColor,
     required this.onRemoveServer,
     required this.openEditServer,
+    required this.selectServer,
   });
 
   @override
@@ -59,11 +62,33 @@ class ServerItem extends StatelessWidget {
                           child: Image.asset(
                               categoryImages[server.category]!.elementAt(0)),
                         ),
-                        Text(
-                          '${server.robot.firmware}: ${server.robot.version}',
-                          style: Theme.of(context).textTheme.bodySmall,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '${server.robot.firmware}: ${server.robot.version}',
+                              style: Theme.of(context).textTheme.bodySmall,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              '${server.software}: ${server.version}',
+                              style: Theme.of(context).textTheme.bodySmall,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: IconButton(
+                            color: Theme.of(context).colorScheme.primary,
+                            onPressed: () {
+                              selectServer(server);
+                              Scaffold.of(context).openEndDrawer();
+                            },
+                            icon: const Icon(BootstrapIcons.joystick),
+                          ),
                         ),
                       ],
                     ),

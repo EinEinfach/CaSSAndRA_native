@@ -109,6 +109,7 @@ class MqttManager {
 
   void _subscribeTopics(ServerInterface server) {
     subscribe(server.id, '${server.serverNamePrefix}/status');
+    subscribe(server.id, '${server.serverNamePrefix}/server');
     subscribe(server.id, '${server.serverNamePrefix}/robot');
     subscribe(server.id, '${server.serverNamePrefix}/map');
     subscribe(server.id, '${server.serverNamePrefix}/coords');

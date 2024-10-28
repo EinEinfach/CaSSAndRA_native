@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 import 'package:cassandra_native/comm/mqtt_manager.dart';
 import 'package:cassandra_native/comm/server_interface.dart';
@@ -49,7 +51,8 @@ class Server {
           user: user,
           password: password,
         );
-
+  String software = '';
+  String version = '';
   final String id;
   final Category category;
   final String alias;
@@ -111,6 +114,8 @@ class Server {
       }
     } else if (topic.contains('/robot')) {
       robot.jsonToClassData(message);
+    } else if (topic.contains('/server')) {
+      _jsonToClassData(message);
     } else if (topic.contains('/coords')) {
       currentMap.coordsJsonToClassData(message);
     } else if (topic.contains('/tasks')) {
@@ -130,6 +135,18 @@ class Server {
       }
     } else if (topic.contains('/settings')) {
       settings.settingsJsonToClassData(message);
+    }
+  }
+
+  void _jsonToClassData(String message) {
+    final decodedMessage = jsonDecode(message) as Map<String, dynamic>;
+    try {
+      software = decodedMessage['software'];
+      version = decodedMessage['version'];
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Invalid server json data: $e');
+      }
     }
   }
 

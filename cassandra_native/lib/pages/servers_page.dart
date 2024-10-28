@@ -39,6 +39,7 @@ class ServersPage extends StatefulWidget {
 class _ServersPageState extends State<ServersPage> {
   late IconData listViewIcon;
   AppLifecycleState _appLifecycleState = AppLifecycleState.resumed;
+  Server? selectedServer;
 
   @override
   void dispose() {
@@ -257,6 +258,11 @@ class _ServersPageState extends State<ServersPage> {
     );
   }
 
+  void onSelectServer(Server activeServer) {
+    selectedServer = activeServer;
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     _handleAppLifecycleState(_appLifecycleState,
@@ -284,6 +290,7 @@ class _ServersPageState extends State<ServersPage> {
                 serverItemColor: server.setStateColor(context),
                 onRemoveServer: () => removeServer(context, server),
                 openEditServer: () => openEditServerOverlay(context, server),
+                selectServer: onSelectServer,
               ).animate().fadeIn().scale();
             },
           ),
@@ -307,6 +314,7 @@ class _ServersPageState extends State<ServersPage> {
                   server: server,
                   serverItemColor: server.setStateColor(context),
                   openEditServer: () => openEditServerOverlay(context, server),
+                  selectServer: onSelectServer,
                 ).animate().fadeIn().scale(),
               );
             },
@@ -356,6 +364,7 @@ class _ServersPageState extends State<ServersPage> {
         return ServersPageMobile(
           mainContent: mainContent,
           listViewIcon: listViewIcon,
+          selectedServer: selectedServer,
           onListViewChange: onListViewChange,
           onInfoButtonPressed: openInfoDialog,
         );
@@ -364,6 +373,7 @@ class _ServersPageState extends State<ServersPage> {
         return ServersPageTablet(
           mainContent: mainContent,
           listViewIcon: listViewIcon,
+          selectedServer: selectedServer,
           onListViewChange: onListViewChange,
           onInfoButtonPressed: openInfoDialog,
         );
@@ -372,6 +382,7 @@ class _ServersPageState extends State<ServersPage> {
         return ServersPageDesktop(
           mainContent: mainContent,
           listViewIcon: listViewIcon,
+          selectedServer: selectedServer,
           onListViewChange: onListViewChange,
           onInfoButtonPressed: openInfoDialog,
         );

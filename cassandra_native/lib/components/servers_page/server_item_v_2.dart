@@ -7,12 +7,14 @@ class ServerItemV2 extends StatelessWidget {
   final Server server;
   final Color serverItemColor;
   final void Function()? openEditServer;
+  final void Function(Server) selectServer;
 
   const ServerItemV2({
     super.key,
     required this.server,
     required this.serverItemColor,
     required this.openEditServer,
+    required this.selectServer,
   });
 
   @override
@@ -55,22 +57,35 @@ class ServerItemV2 extends StatelessWidget {
             GestureDetector(
               onTap: openEditServer,
               child: Container(
+                padding: const EdgeInsets.all(3),
                 width: 70,
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.secondary,
                   borderRadius: BorderRadius.circular(5),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Stack(
                   children: [
-                    Icon(
-                      Icons.computer,
-                      color: Theme.of(context).colorScheme.inversePrimary,
-                      size: 40,
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.computer,
+                            color: Theme.of(context).colorScheme.inversePrimary,
+                            size: 40,
+                          ),
+                          Text(
+                            server.status,
+                            style: const TextStyle(fontSize: 10),
+                          ),
+                        ],
+                      ),
                     ),
                     Text(
-                      server.status,
-                      style: const TextStyle(fontSize: 10),
+                      '${server.software}: ${server.version}',
+                      style: const TextStyle(fontSize: 6),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
                   ],
                 ),
@@ -79,42 +94,49 @@ class ServerItemV2 extends StatelessWidget {
             const SizedBox(
               width: 8,
             ),
-            Container(
-              padding: const EdgeInsets.all(3),
-              width: 70,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.secondary,
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: Stack(
-                children: [
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          height: 40,
-                          child: Image.asset(
-                            'lib/images/mower_icon.png',
-                            color: Theme.of(context).colorScheme.inversePrimary,
+            GestureDetector(
+              onTap: () {
+                selectServer(server);
+                Scaffold.of(context).openEndDrawer();
+              },
+              child: Container(
+                padding: const EdgeInsets.all(3),
+                width: 70,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondary,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Stack(
+                  children: [
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: 40,
+                            child: Image.asset(
+                              'lib/images/mower_icon.png',
+                              color:
+                                  Theme.of(context).colorScheme.inversePrimary,
+                            ),
                           ),
-                        ),
-                        Text(
-                          server.robot.status,
-                          style: const TextStyle(fontSize: 10),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                          Text(
+                            server.robot.status,
+                            style: const TextStyle(fontSize: 10),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Text(
-                    '${server.robot.firmware}: ${server.robot.version}',
-                    style: const TextStyle(fontSize: 6),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ],
+                    Text(
+                      '${server.robot.firmware}: ${server.robot.version}',
+                      style: const TextStyle(fontSize: 6),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
