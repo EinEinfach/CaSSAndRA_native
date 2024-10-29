@@ -24,6 +24,7 @@ class _NewServerState extends State<NewServer> {
   final _portController = TextEditingController();
   final _userController = TextEditingController();
   final _passwordController = TextEditingController();
+  //final _rtspUrlController = TextEditingController();
   Category _selectedCategory = Category.alfred;
 
   void _submitServerData() {
@@ -48,11 +49,11 @@ class _NewServerState extends State<NewServer> {
               'Please make sure a valid MQTT server adress, port and client ID was entered'),
           actions: [
             CustomizedElevatedButton(
-                    text: 'ok',
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
+              text: 'ok',
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
           ],
         ),
       );
@@ -68,6 +69,8 @@ class _NewServerState extends State<NewServer> {
         port: enteredPort,
         user: _userController.text,
         password: _passwordController.text,
+        // rtspUrl:
+        //     _rtspUrlController.text.isEmpty ? null : _rtspUrlController.text,
       ),
     );
     Navigator.pop(context);
@@ -81,6 +84,7 @@ class _NewServerState extends State<NewServer> {
     _portController.dispose();
     _userController.dispose();
     _passwordController.dispose();
+    // _rtspUrlController.dispose();
     super.dispose();
   }
 
@@ -96,6 +100,7 @@ class _NewServerState extends State<NewServer> {
       _userController.text = widget.server!.user;
       _passwordController.text = widget.server!.password;
       _selectedCategory = widget.server!.category;
+      // _rtspUrlController.text = widget.server!.rtspUrl ?? '';
     } else {
       id = uuid.v4();
     }
@@ -182,7 +187,7 @@ class _NewServerState extends State<NewServer> {
               ],
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(0, 10, 8, 5),
+              padding: const EdgeInsets.fromLTRB(0, 10, 8, 0),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton(
                   isExpanded: true,
@@ -213,8 +218,17 @@ class _NewServerState extends State<NewServer> {
                 ),
               ),
             ),
+            // TextField(
+            //   controller: _rtspUrlController,
+            //   decoration: InputDecoration(
+            //     label: Text(
+            //       'stream url',
+            //       style: Theme.of(context).textTheme.bodyMedium,
+            //     ),
+            //   ),
+            // ),
             Padding(
-              padding: const EdgeInsets.only(top: 5),
+              padding: const EdgeInsets.only(top: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

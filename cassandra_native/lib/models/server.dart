@@ -43,6 +43,7 @@ class Server {
     required this.port,
     required this.user,
     required this.password,
+    this.rtspUrl,
   }) : serverInterface = ServerInterface(
           id: id,
           mqttServer: mqttServer,
@@ -65,6 +66,7 @@ class Server {
   ServerInterface serverInterface;
   String status = "offline";
   String? _lastStatus;
+  String? rtspUrl;
 
   Robot robot = Robot();
   Landscape currentMap = Landscape();
@@ -81,6 +83,7 @@ class Server {
         'port': port,
         'user': user,
         'password': password,
+        'rtspUrl': rtspUrl,
       };
 
   factory Server.fromJson(Map<String, dynamic> json) {
@@ -93,6 +96,7 @@ class Server {
       port: json['port'],
       user: json['user'],
       password: json['password'],
+      rtspUrl: json['rtspUrl'],
     );
   }
 

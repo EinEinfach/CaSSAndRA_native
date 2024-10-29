@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/pages/home_page.dart';
+import 'package:cassandra_native/pages/stream_page.dart';
 
 class ServerItemV2 extends StatelessWidget {
   final Server server;
@@ -19,17 +20,19 @@ class ServerItemV2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    void _navigateToHomePage(Server server) {
+    void _navigateTo(Widget page) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => HomePage(server: server),
+          builder: (context) => page,
         ),
       );
     }
 
     return GestureDetector(
-      onTap: () => _navigateToHomePage(server),
+      onTap: () => _navigateTo(
+        HomePage(server: server),
+      ),
       child: Container(
         decoration: BoxDecoration(
           color: serverItemColor,
@@ -97,7 +100,13 @@ class ServerItemV2 extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 selectServer(server);
-                Scaffold.of(context).openEndDrawer();
+                //Scaffold.of(context).openEndDrawer();
+              },
+              onLongPress: () {
+                if (server.rtspUrl != null) {
+                  _navigateTo(
+                    StreamPage(server: server),); 
+                }
               },
               child: Container(
                 padding: const EdgeInsets.all(3),

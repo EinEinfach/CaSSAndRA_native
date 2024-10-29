@@ -259,8 +259,12 @@ class _ServersPageState extends State<ServersPage> {
   }
 
   void onSelectServer(Server activeServer) {
-    selectedServer = activeServer;
-    setState(() {});
+    setState(() {
+      selectedServer = activeServer;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scafoldKey.currentState?.openEndDrawer();
+    });
   }
 
   @override

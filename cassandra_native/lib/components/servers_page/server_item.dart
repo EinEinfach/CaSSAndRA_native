@@ -1,8 +1,10 @@
+import 'package:cassandra_native/pages/stream_page.dart';
 import 'package:flutter/material.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/pages/home_page.dart';
+import 'package:cassandra_native/components/servers_page/rtsp_stream.dart';
 
 class ServerItem extends StatelessWidget {
   final Server server;
@@ -22,11 +24,11 @@ class ServerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    void _navigateToHomePage(Server server) {
+    void _navigateTo(Widget page) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => HomePage(server: server),
+          builder: (context) => page,
         ),
       );
     }
@@ -55,27 +57,39 @@ class ServerItem extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     width: double.infinity,
-                    padding: const EdgeInsets.all(5),
+                    //padding: const EdgeInsets.all(5),
                     child: Stack(
                       children: [
                         Center(
-                          child: Image.asset(
-                              categoryImages[server.category]!.elementAt(0)),
+                          child: server.rtspUrl == null
+                              ? Image.asset(
+                                  categoryImages[server.category]!.elementAt(0))
+                              : RtspStream(
+                                  rtspUrl: server.rtspUrl!,
+                                ),
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            const SizedBox(
+                              width: 5,
+                            ),
                             Text(
                               '${server.robot.firmware}: ${server.robot.version}',
                               style: Theme.of(context).textTheme.bodySmall,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
+                            Expanded(
+                              child: SizedBox.shrink(),
+                            ),
                             Text(
                               '${server.software}: ${server.version}',
                               style: Theme.of(context).textTheme.bodySmall,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(
+                              width: 5,
                             ),
                           ],
                         ),
@@ -85,7 +99,7 @@ class ServerItem extends StatelessWidget {
                             color: Theme.of(context).colorScheme.primary,
                             onPressed: () {
                               selectServer(server);
-                              Scaffold.of(context).openEndDrawer();
+                              //Scaffold.of(context).openEndDrawer();
                             },
                             icon: const Icon(BootstrapIcons.joystick),
                           ),
@@ -93,7 +107,16 @@ class ServerItem extends StatelessWidget {
                       ],
                     ),
                   ),
-                  onTap: () => _navigateToHomePage(server),
+                  onLongPress: () {
+                    if (server.rtspUrl != null) {
+                      _navigateTo(
+                        StreamPage(server: server),
+                      );
+                    }
+                  },
+                  onTap: () => _navigateTo(
+                    HomePage(server: server),
+                  ),
                 ),
               ),
               const SizedBox(

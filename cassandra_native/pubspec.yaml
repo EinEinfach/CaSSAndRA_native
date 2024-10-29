@@ -34,22 +34,23 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
-  google_nav_bar: ^5.0.6
-  provider: ^6.1.2
-  google_fonts: ^6.2.1
-  bootstrap_icons: ^1.11.3
-  polygon: ^0.1.0
-  flutter_map: ^7.0.0
-  mqtt_client: ^10.2.1
-  uuid: ^4.4.0
-  flutter_animate: ^4.5.0
-  shared_preferences: ^2.2.3
-  flutter_launcher_icons: ^0.13.1
-  url_launcher: ^6.3.0
-  desktop_window: ^0.4.0
-  package_info_plus: ^8.0.2
-  multi_dropdown: ^3.0.1
+  cupertino_icons: 
+  google_nav_bar: 
+  provider: 
+  google_fonts: 
+  bootstrap_icons: 
+  polygon: 
+  flutter_map: 
+  mqtt_client: 
+  uuid: 
+  flutter_animate: 
+  shared_preferences: 
+  flutter_launcher_icons: 
+  url_launcher: 
+  desktop_window: 
+  package_info_plus: 
+  multi_dropdown: 
+  flutter_vlc_player: 
 
 dev_dependencies:
   flutter_test:
@@ -60,7 +61,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
