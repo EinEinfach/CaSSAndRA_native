@@ -33,7 +33,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   //app lifecycle
   AppLifecycleState _appLifecycleState = AppLifecycleState.resumed;
 
@@ -210,7 +209,6 @@ class _HomePageState extends State<HomePage> {
     _appLifecycleState =
         Provider.of<CassandraNative>(context).appLifecycleState;
     return LayoutBuilder(builder: (context, constrains) {
-      
       //+++++++++++++++++++++++++++++++++++++++++++++++mobile page++++++++++++++++++++++++++++++++++++++++++++++++++++
       if (constrains.maxWidth < smallWidth) {
         return Scaffold(
@@ -232,55 +230,66 @@ class _HomePageState extends State<HomePage> {
                     alignment: Alignment.bottomCenter,
                     child: Container(
                       padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 500),
-                            width: statusWindwoSizeSmall ? 190 : 360,
-                            height: statusWindwoSizeSmall ? 80 : 160,
-                            curve: Curves.easeInOut,
-                            onEnd: onContainerAnimationEnd,
-                            child: StatusWindow(
-                              backgroundColor: (widget.server.robot.status !=
-                                          'error' &&
-                                      widget.server.robot.status != 'offline')
-                                  ? Theme.of(context).colorScheme.surface
-                                  : Theme.of(context)
-                                      .colorScheme
-                                      .errorContainer,
-                              server: widget.server,
-                              smallSize: statusWindowReducedContent,
-                              onPressed: changeStatusWindowSize,
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 500),
+                                width: statusWindwoSizeSmall ? 190 : 360,
+                                height: statusWindwoSizeSmall ? 80 : 160,
+                                curve: Curves.easeInOut,
+                                onEnd: onContainerAnimationEnd,
+                                child: StatusWindow(
+                                  backgroundColor:
+                                      (widget.server.robot.status != 'error' &&
+                                              widget.server.robot.status !=
+                                                  'offline')
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .surface
+                                          : Theme.of(context)
+                                              .colorScheme
+                                              .errorContainer,
+                                  server: widget.server,
+                                  smallSize: statusWindowReducedContent,
+                                  onPressed: changeStatusWindowSize,
+                                ),
+                              ),
+                              const Expanded(
+                                child: SizedBox(),
+                              ),
+                              drawCommandButtons
+                                  ? CommandButton(
+                                      icon: Icons.home,
+                                      onPressed: () {
+                                        _handleHomeButton();
+                                      },
+                                      onLongPressed: () {},
+                                    )
+                                  : const SizedBox.shrink(),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              drawCommandButtons
+                                  ? CommandButton(
+                                      icon: mapUi.playButtonIcon,
+                                      onPressed: () {
+                                        _handlePlayButton(cmd: true);
+                                      },
+                                      onLongPressed: () {
+                                        _handlePlayButtonLongPressed();
+                                      },
+                                    )
+                                  : const SizedBox.shrink(),
+                            ],
                           ),
-                          const Expanded(
-                            child: SizedBox(),
-                          ),
-                          drawCommandButtons
-                              ? CommandButton(
-                                  icon: Icons.home,
-                                  onPressed: () {
-                                    _handleHomeButton();
-                                  },
-                                  onLongPressed: () {},
-                                )
-                              : const SizedBox.shrink(),
                           const SizedBox(
-                            width: 10,
+                            height: 4,
                           ),
-                          drawCommandButtons
-                              ? CommandButton(
-                                  icon: mapUi.playButtonIcon,
-                                  onPressed: () {
-                                    _handlePlayButton(cmd: true);
-                                  },
-                                  onLongPressed: () {
-                                    _handlePlayButtonLongPressed();
-                                  },
-                                )
-                              : const SizedBox.shrink(),
                         ],
                       ),
                     ),

@@ -274,9 +274,7 @@ class StatusWindowLogic {
     // }
     // return '-.-';
     if (robot.status == 'mow') {
-      final double seconds =
-          (currentMap.totalDistance - currentMap.finishedDistance) /
-              robot.averageSpeed;
+      final double seconds = currentMap.totalDistance / robot.averageSpeed;
       return (seconds / 3600).toStringAsFixed(1);
     }
     return '-.-';

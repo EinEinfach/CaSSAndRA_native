@@ -6,19 +6,19 @@ import 'package:cassandra_native/components/customized_elevated_button.dart';
 import 'package:cassandra_native/components/customized_dialog_ok.dart';
 import 'package:cassandra_native/components/customized_dialog_ok_cancel.dart';
 
-class ContentServerTile extends StatefulWidget {
+class ContentRobotTile extends StatefulWidget {
   final Server currentServer;
 
-  const ContentServerTile({
+  const ContentRobotTile({
     super.key,
     required this.currentServer,
   });
 
   @override
-  State<ContentServerTile> createState() => _ContentServerTileState();
+  State<ContentRobotTile> createState() => _ContentServerTileState();
 }
 
-class _ContentServerTileState extends State<ContentServerTile> {
+class _ContentServerTileState extends State<ContentRobotTile> {
   // robot connection type
   late ConnectionType selectedRobotConnectionType;
   // http
@@ -47,6 +47,15 @@ class _ContentServerTileState extends State<ContentServerTile> {
   late PositionMode selectedRobotPositionMode;
   final TextEditingController _robotLonController = TextEditingController();
   final TextEditingController _robotLatController = TextEditingController();
+  // robot default speed
+  final TextEditingController _robotMowSpeedSetpointController =
+      TextEditingController();
+  final TextEditingController _robotTransitSpeedSetpointController =
+      TextEditingController();
+  // robot timeout
+  final TextEditingController _robotFixTimeOutController =
+      TextEditingController();
+  // robot finish and restart
 
   @override
   void dispose() {
@@ -62,6 +71,9 @@ class _ContentServerTileState extends State<ContentServerTile> {
     _robotUartBaudrateController.dispose();
     _robotLonController.dispose();
     _robotLatController.dispose();
+    _robotTransitSpeedSetpointController.dispose();
+    _robotMowSpeedSetpointController.dispose();
+    _robotFixTimeOutController.dispose();
     super.dispose();
   }
 
@@ -101,6 +113,12 @@ class _ContentServerTileState extends State<ContentServerTile> {
         ? ''
         : widget.currentServer.settings.latitude.toString();
     super.initState();
+    _robotTransitSpeedSetpointController.text =
+        widget.currentServer.settings.transitSpeedSetPoint.toString();
+    _robotMowSpeedSetpointController.text =
+        widget.currentServer.settings.mowSpeedSetPoint.toString();
+    _robotFixTimeOutController.text =
+        widget.currentServer.settings.fixTimeout.toString();
   }
 
   void _submitCommCfgData() {
@@ -280,8 +298,9 @@ class _ContentServerTileState extends State<ContentServerTile> {
       return Row(
         children: [
           Expanded(
+            flex: 1,
             child: SizedBox(
-              width: 150,
+              width: 100,
               height: 50,
               child: TextField(
                 controller: _robotIpAdressController,
@@ -296,17 +315,20 @@ class _ContentServerTileState extends State<ContentServerTile> {
               ),
             ),
           ),
-          SizedBox(
-            width: 150,
-            height: 50,
-            child: TextField(
-              controller: _robotPasswordController,
-              decoration: InputDecoration(
-                // hintText: 'robot ip-adress in "http://xxxxxx" style',
-                // hintStyle: Theme.of(context).textTheme.bodyMedium,
-                label: Text(
-                  'password',
-                  style: Theme.of(context).textTheme.bodyMedium,
+          Expanded(
+            flex: 1,
+            child: SizedBox(
+              width: 100,
+              height: 50,
+              child: TextField(
+                controller: _robotPasswordController,
+                decoration: InputDecoration(
+                  // hintText: 'robot ip-adress in "http://xxxxxx" style',
+                  // hintStyle: Theme.of(context).textTheme.bodyMedium,
+                  label: Text(
+                    'password',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
                 ),
               ),
             ),
@@ -319,22 +341,26 @@ class _ContentServerTileState extends State<ContentServerTile> {
         children: [
           Row(
             children: [
-              SizedBox(
-                width: 150,
-                height: 50,
-                child: TextField(
-                  controller: _robotMqttClientIdController,
-                  decoration: InputDecoration(
-                    label: Text(
-                      'client id',
-                      style: Theme.of(context).textTheme.bodyMedium,
+              Expanded(
+                flex: 1,
+                child: SizedBox(
+                  width: 100,
+                  height: 50,
+                  child: TextField(
+                    controller: _robotMqttClientIdController,
+                    decoration: InputDecoration(
+                      label: Text(
+                        'client id',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     ),
                   ),
                 ),
               ),
               Expanded(
+                flex: 1,
                 child: SizedBox(
-                  width: 150,
+                  width: 100,
                   height: 50,
                   child: TextField(
                     controller: _robotMqttMowerNameWithPrefixController,
@@ -351,22 +377,26 @@ class _ContentServerTileState extends State<ContentServerTile> {
           ),
           Row(
             children: [
-              SizedBox(
-                width: 150,
-                height: 50,
-                child: TextField(
-                  controller: _robotMqttUserController,
-                  decoration: InputDecoration(
-                    label: Text(
-                      'user',
-                      style: Theme.of(context).textTheme.bodyMedium,
+              Expanded(
+                flex: 1,
+                child: SizedBox(
+                  width: 100,
+                  height: 50,
+                  child: TextField(
+                    controller: _robotMqttUserController,
+                    decoration: InputDecoration(
+                      label: Text(
+                        'user',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     ),
                   ),
                 ),
               ),
               Expanded(
+                flex: 1,
                 child: SizedBox(
-                  width: 150,
+                  width: 100,
                   height: 50,
                   child: TextField(
                     controller: _robotMqttPasswordController,
@@ -384,8 +414,9 @@ class _ContentServerTileState extends State<ContentServerTile> {
           Row(
             children: [
               Expanded(
+                flex: 1,
                 child: SizedBox(
-                  width: 150,
+                  width: 100,
                   height: 50,
                   child: TextField(
                     controller: _robotMqttServerController,
@@ -398,16 +429,19 @@ class _ContentServerTileState extends State<ContentServerTile> {
                   ),
                 ),
               ),
-              SizedBox(
-                width: 150,
-                height: 50,
-                child: TextField(
-                  controller: _robotMqttPortController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    label: Text(
-                      'port',
-                      style: Theme.of(context).textTheme.bodyMedium,
+              Expanded(
+                flex: 1,
+                child: SizedBox(
+                  width: 100,
+                  height: 50,
+                  child: TextField(
+                    controller: _robotMqttPortController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      label: Text(
+                        'port',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     ),
                   ),
                 ),
@@ -421,8 +455,9 @@ class _ContentServerTileState extends State<ContentServerTile> {
       return Row(
         children: [
           Expanded(
+            flex: 1,
             child: SizedBox(
-              width: 150,
+              width: 100,
               height: 50,
               child: TextField(
                 controller: _robotUartPortController,
@@ -435,16 +470,19 @@ class _ContentServerTileState extends State<ContentServerTile> {
               ),
             ),
           ),
-          SizedBox(
-            width: 150,
-            height: 50,
-            child: TextField(
-              controller: _robotUartBaudrateController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                label: Text(
-                  'baudrate',
-                  style: Theme.of(context).textTheme.bodyMedium,
+          Expanded(
+            flex: 1,
+            child: SizedBox(
+              width: 100,
+              height: 50,
+              child: TextField(
+                controller: _robotUartBaudrateController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  label: Text(
+                    'baudrate',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
                 ),
               ),
             ),
@@ -454,13 +492,14 @@ class _ContentServerTileState extends State<ContentServerTile> {
     }
   }
 
-  Widget _getRobotSettingsContent() {
+  Widget _getRobotPositionContent() {
     if (selectedRobotPositionMode == PositionMode.absolute) {
       return Row(
         children: [
           Expanded(
             flex: 1,
             child: SizedBox(
+              width: 100,
               height: 50,
               child: TextField(
                 controller: _robotLonController,
@@ -476,7 +515,7 @@ class _ContentServerTileState extends State<ContentServerTile> {
           Expanded(
             flex: 1,
             child: SizedBox(
-              width: 150,
+              width: 100,
               height: 50,
               child: TextField(
                 controller: _robotLatController,
@@ -494,6 +533,61 @@ class _ContentServerTileState extends State<ContentServerTile> {
     } else {
       return const SizedBox.shrink();
     }
+  }
+
+  Widget _getRobotSettingsContent() {
+    return Row(
+      children: [
+        Expanded(
+          flex: 1,
+          child: SizedBox(
+            width: 100,
+            height: 50,
+            child: TextField(
+              controller: _robotTransitSpeedSetpointController,
+              decoration: InputDecoration(
+                label: Text(
+                  'transit speed',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: SizedBox(
+            width: 100,
+            height: 50,
+            child: TextField(
+              controller: _robotMowSpeedSetpointController,
+              decoration: InputDecoration(
+                label: Text(
+                  'mow speed',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: SizedBox(
+            width: 100,
+            height: 50,
+            child: TextField(
+              controller: _robotFixTimeOutController,
+              decoration: InputDecoration(
+                label: Text(
+                  'fix timeout',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -635,7 +729,15 @@ class _ContentServerTileState extends State<ContentServerTile> {
                 ),
               ],
             ),
-            _getRobotSettingsContent(),
+            Column(
+              children: [
+                _getRobotPositionContent(),
+                _getRobotSettingsContent(),
+              ],
+            ),
+            const SizedBox(
+              height: 8,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [

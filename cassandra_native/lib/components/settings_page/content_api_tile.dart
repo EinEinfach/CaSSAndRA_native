@@ -193,22 +193,26 @@ class _ContentApiTileState extends State<ContentApiTile> {
         children: [
           Row(
             children: [
-              SizedBox(
-                width: 150,
-                height: 50,
-                child: TextField(
-                  controller: _apiMqttClientIdController,
-                  decoration: InputDecoration(
-                    label: Text(
-                      'client id',
-                      style: Theme.of(context).textTheme.bodyMedium,
+              Expanded(
+                flex: 1,
+                child: SizedBox(
+                  width: 100,
+                  height: 50,
+                  child: TextField(
+                    controller: _apiMqttClientIdController,
+                    decoration: InputDecoration(
+                      label: Text(
+                        'client id',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     ),
                   ),
                 ),
               ),
               Expanded(
+                flex: 1,
                 child: SizedBox(
-                  width: 150,
+                  width: 100,
                   height: 50,
                   child: TextField(
                     controller: _apiMqttCassandraServerNameController,
@@ -225,22 +229,26 @@ class _ContentApiTileState extends State<ContentApiTile> {
           ),
           Row(
             children: [
-              SizedBox(
-                width: 150,
-                height: 50,
-                child: TextField(
-                  controller: _apiMqttUserController,
-                  decoration: InputDecoration(
-                    label: Text(
-                      'user',
-                      style: Theme.of(context).textTheme.bodyMedium,
+              Expanded(
+                flex: 1,
+                child: SizedBox(
+                  width: 100,
+                  height: 50,
+                  child: TextField(
+                    controller: _apiMqttUserController,
+                    decoration: InputDecoration(
+                      label: Text(
+                        'user',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     ),
                   ),
                 ),
               ),
               Expanded(
+                flex: 1,
                 child: SizedBox(
-                  width: 150,
+                  width: 100,
                   height: 50,
                   child: TextField(
                     controller: _apiMqttPasswordController,
@@ -258,8 +266,9 @@ class _ContentApiTileState extends State<ContentApiTile> {
           Row(
             children: [
               Expanded(
+                flex: 1,
                 child: SizedBox(
-                  width: 150,
+                  width: 100,
                   height: 50,
                   child: TextField(
                     controller: _apiMqttServerController,
@@ -272,16 +281,19 @@ class _ContentApiTileState extends State<ContentApiTile> {
                   ),
                 ),
               ),
-              SizedBox(
-                width: 150,
-                height: 50,
-                child: TextField(
-                  controller: _apiMqttPortController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    label: Text(
-                      'port',
-                      style: Theme.of(context).textTheme.bodyMedium,
+              Expanded(
+                flex: 1,
+                child: SizedBox(
+                  width: 100,
+                  height: 50,
+                  child: TextField(
+                    controller: _apiMqttPortController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      label: Text(
+                        'port',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     ),
                   ),
                 ),

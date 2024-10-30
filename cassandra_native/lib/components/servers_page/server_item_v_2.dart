@@ -44,6 +44,9 @@ class ServerItemV2 extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
+            Expanded(
+              child: SizedBox.shrink(),
+            ),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -54,8 +57,8 @@ class ServerItemV2 extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(
-              width: 8,
+            Expanded(
+              child: SizedBox.shrink(),
             ),
             GestureDetector(
               onTap: openEditServer,
@@ -105,7 +108,8 @@ class ServerItemV2 extends StatelessWidget {
               onLongPress: () {
                 if (server.rtspUrl != null) {
                   _navigateTo(
-                    StreamPage(server: server),); 
+                    StreamPage(server: server),
+                  );
                 }
               },
               child: Container(

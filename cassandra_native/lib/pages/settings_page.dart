@@ -6,7 +6,7 @@ import 'package:cassandra_native/components/nav_drawer.dart';
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/components/settings_page/accordion_tile.dart';
 import 'package:cassandra_native/components/settings_page/content_app_tile.dart';
-import 'package:cassandra_native/components/settings_page/content_server_tile.dart';
+import 'package:cassandra_native/components/settings_page/content_robot_tile.dart';
 import 'package:cassandra_native/components/settings_page/content_api_tile.dart';
 import 'package:cassandra_native/components/settings_page/content_message_service_tile.dart';
 
@@ -93,7 +93,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   AccordionTile(
                     title: 'Robot',
                     content: [
-                      ContentServerTile(
+                      ContentRobotTile(
                         currentServer: widget.server,
                       ),
                     ],
@@ -132,6 +132,40 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             drawer: NavDrawer(
               server: widget.server,
+            ),
+            body: SafeArea(
+              child: ListView(
+                children: [
+                  AccordionTile(
+                    title: 'App',
+                    content: [
+                      ContentAppTile(
+                        currentServer: widget.server,
+                      ),
+                    ],
+                  ),
+                  AccordionTile(
+                    title: 'Robot',
+                    content: [
+                      ContentRobotTile(
+                        currentServer: widget.server,
+                      ),
+                    ],
+                  ),
+                  AccordionTile(
+                    title: 'API',
+                    content: [
+                      ContentApiTile(currentServer: widget.server),
+                    ],
+                  ),
+                  AccordionTile(
+                    title: 'Messsage service',
+                    content: [
+                      ContentMessageServiceTile(currentServer: widget.server),
+                    ],
+                  ),
+                ],
+              ),
             ),
           );
           //+++++++++++++++++++++++++++++++++++++++++++++++desktop page++++++++++++++++++++++++++++++++++++++++++++++++++++

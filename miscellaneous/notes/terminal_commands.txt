@@ -8,3 +8,6 @@ Generate App in release state:
 
 Generate iOS ipa
 1. Run this command in terminal: flutter build ipa --export-method development 
+
+Generate Android apk
+1. Run this command in terminal: flutter build apk --split-per-abi 

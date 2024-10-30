@@ -52,6 +52,11 @@ class ServerSettings {
   PositionMode robotPositionMode = PositionMode.relative;
   double? longtitude;
   double? latitude;
+  // robot speed set points
+  double transitSpeedSetPoint = 0.3;
+  double mowSpeedSetPoint = 0.3;
+  // robot fix timeout
+  int fixTimeout = 60;
 
   void settingsJsonToClassData(String message) {
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
@@ -97,8 +102,11 @@ class ServerSettings {
           ? ''
           : decodedMessage['pushoverAppName'].toString();
       robotPositionMode = PositionMode.values.byName(decodedMessage['robotPositionMode'],);
-      longtitude = decodedMessage['longtitude'];
-      latitude = decodedMessage['latitude'];
+      longtitude = double.tryParse(decodedMessage['longtitude'].toString());
+      latitude = double.tryParse(decodedMessage['latitude'].toString());
+      transitSpeedSetPoint = double.tryParse(decodedMessage['transitSpeedSetPoint'].toString())!;
+      mowSpeedSetPoint = double.tryParse(decodedMessage['mowSpeedSetPoint'].toString())!;
+      fixTimeout = decodedMessage['fixTimeout'];
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Invalid settings JSON: $e');

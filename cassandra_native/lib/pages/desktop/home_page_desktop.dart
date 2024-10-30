@@ -61,19 +61,28 @@ class HomePageDesktop extends StatelessWidget {
                         alignment: Alignment.bottomCenter,
                         child: Container(
                           padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              statusWindow,
-                              const Expanded(
-                                child: SizedBox(),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  statusWindow,
+                                  const Expanded(
+                                    child: SizedBox(),
+                                  ),
+                                  homeButton,
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  playButton,
+                                ],
                               ),
-                              homeButton,
                               const SizedBox(
-                                width: 10,
+                                height: 4,
                               ),
-                              playButton,
                             ],
                           ),
                         ),

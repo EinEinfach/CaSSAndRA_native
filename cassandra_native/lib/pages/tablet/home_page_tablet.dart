@@ -43,27 +43,34 @@ class HomePageTablet extends StatelessWidget {
                 onOpenTasksOverlay: onOpenTasksOverlay,
               ),
               Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    statusWindow,
-                    const Expanded(
-                      child: SizedBox(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          statusWindow,
+                          const Expanded(
+                            child: SizedBox(),
+                          ),
+                          homeButton,
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          playButton,
+                        ],
                       ),
-                    ),
-                    homeButton,
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    playButton,
-                  ],
+                      const SizedBox(
+                        height: 4,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
