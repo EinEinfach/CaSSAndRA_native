@@ -74,7 +74,9 @@ class ServerItem extends StatelessWidget {
                               width: 5,
                             ),
                             Text(
-                              '${server.robot.firmware}: ${server.robot.version}',
+                              server.robot.firmware != ''
+                                  ? '${server.robot.firmware}: ${server.robot.version}'
+                                  : server.robot.firmware,
                               style: Theme.of(context).textTheme.bodySmall,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -83,7 +85,9 @@ class ServerItem extends StatelessWidget {
                               child: SizedBox.shrink(),
                             ),
                             Text(
-                              '${server.software}: ${server.version}',
+                              server.software != ''
+                                  ? '${server.software}: ${server.version}'
+                                  : server.software,
                               style: Theme.of(context).textTheme.bodySmall,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,

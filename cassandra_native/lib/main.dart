@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-// import 'package:media_kit/media_kit.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:provider/provider.dart';
 import 'package:desktop_window/desktop_window.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -32,7 +32,7 @@ Future setWindowSize() async {
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  // MediaKit.ensureInitialized();
+  MediaKit.ensureInitialized();
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     setWindowSize();
   }
