@@ -259,8 +259,8 @@ class _NewMowParametersState extends State<NewMowParameters> {
                 enabled: true,
                 searchEnabled: false,
                 fieldDecoration: FieldDecoration(
-                  // hintText: mowPattern.name,
-                  // hintStyle: Theme.of(context).textTheme.bodyMedium,
+                  hintText: mowPattern.name,
+                  hintStyle: Theme.of(context).textTheme.bodyMedium,
                   showClearIcon: false,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -274,12 +274,13 @@ class _NewMowParametersState extends State<NewMowParameters> {
                   maxHeight: 300,
                 ),
                 dropdownItemDecoration: DropdownItemDecoration(
-                  //selectedIcon: null,
+                  // selectedIcon: null,
                   selectedBackgroundColor:
                       Theme.of(context).colorScheme.secondary,
                 ),
                 onSelectionChange: (selectedItems) {
-                  mowPattern = selectedItems[0];
+                  mowPattern =
+                      selectedItems.isNotEmpty ? selectedItems[0] : mowPattern;
                 },
               ),
             ),

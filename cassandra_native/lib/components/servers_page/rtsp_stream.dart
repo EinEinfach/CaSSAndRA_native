@@ -61,8 +61,12 @@ class _RtspStreamState extends State<RtspStream> {
       );
     } else {
       return AspectRatio(
-        aspectRatio: (16 / 9),
-        child: Video(controller: controller),
+        aspectRatio: 16/9,
+        child: Video(
+          fill: Theme.of(context).colorScheme.secondary,
+          controller: controller,
+          controls: null,
+        ),
       );
     }
   }
