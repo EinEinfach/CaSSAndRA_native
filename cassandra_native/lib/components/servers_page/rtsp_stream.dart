@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_vlc_player/flutter_vlc_player.dart';
+import 'package:provider/provider.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+
+import 'package:cassandra_native/cassandra_native.dart';
 
 class RtspStream extends StatefulWidget {
   final String rtspUrl;
@@ -15,37 +17,28 @@ class RtspStream extends StatefulWidget {
 }
 
 class _RtspStreamState extends State<RtspStream> {
-  String selectedPlayer = 'media kit';
-  late VlcPlayerController _vlcPlayerController;
+  AppLifecycleState _appLifecycleState = AppLifecycleState.resumed;
   late final player = Player();
   late final controller = VideoController(player);
 
   @override
   void initState() {
     super.initState();
-    if (selectedPlayer == 'vlc') {
-      _initializeVlcController(widget.rtspUrl);
-    } else if (selectedPlayer == 'media kit') {
-      _initializeMediaKitController(widget.rtspUrl);
-    }
+    _initializeMediaKitController(widget.rtspUrl);
   }
 
   @override
   void dispose() {
-    if (selectedPlayer == 'vlc') {
-      _vlcPlayerController.dispose();
-    } else if (selectedPlayer == 'media kit') {
-      player.dispose();
-    }
+    player.dispose();
     super.dispose();
   }
 
-  void _initializeVlcController(String url) {
-    _vlcPlayerController = VlcPlayerController.network(
-      url,
-      hwAcc: HwAcc.full,
-      autoPlay: true,
-    );
+  void _handleAppLifecycleState(
+      AppLifecycleState oldState, AppLifecycleState newState) {
+    if (newState == AppLifecycleState.resumed &&
+        oldState != AppLifecycleState.resumed) {
+      _initializeMediaKitController(widget.rtspUrl);
+    }
   }
 
   void _initializeMediaKitController(String url) {
@@ -54,20 +47,19 @@ class _RtspStreamState extends State<RtspStream> {
 
   @override
   Widget build(BuildContext context) {
-    if (selectedPlayer == 'vlc') {
-      return VlcPlayer(
-        controller: _vlcPlayerController,
-        aspectRatio: 16 / 9,
-      );
-    } else {
-      return AspectRatio(
-        aspectRatio: 16/9,
-        child: Video(
-          fill: Theme.of(context).colorScheme.secondary,
-          controller: controller,
-          controls: null,
-        ),
-      );
-    }
+    
+    _handleAppLifecycleState(_appLifecycleState,
+        Provider.of<CassandraNative>(context).appLifecycleState);
+    _appLifecycleState =
+        Provider.of<CassandraNative>(context).appLifecycleState;
+
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: Video(
+        fill: Theme.of(context).colorScheme.secondary,
+        controller: controller,
+        controls: null,
+      ),
+    );
   }
 }

@@ -24,6 +24,7 @@ class _NewServerState extends State<NewServer> {
   final _portController = TextEditingController();
   final _userController = TextEditingController();
   final _passwordController = TextEditingController();
+  String? _rtspUrl;
   //final _rtspUrlController = TextEditingController();
   Category _selectedCategory = Category.alfred;
 
@@ -69,6 +70,7 @@ class _NewServerState extends State<NewServer> {
         port: enteredPort,
         user: _userController.text,
         password: _passwordController.text,
+        rtspUrl: _rtspUrl,
         // rtspUrl:
         //     _rtspUrlController.text.isEmpty ? null : _rtspUrlController.text,
       ),
@@ -100,6 +102,7 @@ class _NewServerState extends State<NewServer> {
       _userController.text = widget.server!.user;
       _passwordController.text = widget.server!.password;
       _selectedCategory = widget.server!.category;
+      _rtspUrl = widget.server!.rtspUrl;
       // _rtspUrlController.text = widget.server!.rtspUrl ?? '';
     } else {
       id = uuid.v4();

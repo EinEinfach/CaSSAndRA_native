@@ -40,12 +40,12 @@ class _ContentAppTileState extends State<ContentAppTile> {
       id: widget.currentServer.id,
       category: widget.currentServer.category,
       alias: widget.currentServer.alias,
-      mqttServer: widget.currentServer.settings.apiMqttServer ?? '',
+      mqttServer: widget.currentServer.mqttServer,
       serverNamePrefix:
-          widget.currentServer.settings.apiMqttCassandraServerName ?? '',
-      port: widget.currentServer.settings.apiMqttPort ?? 1883,
-      user: widget.currentServer.settings.apiMqttUser ?? '',
-      password: widget.currentServer.settings.apiMqttPassword ?? '',
+          widget.currentServer.serverNamePrefix,
+      port: widget.currentServer.port,
+      user: widget.currentServer.user,
+      password: widget.currentServer.password,
       rtspUrl: widget.currentServer.rtspUrl,
     );
     user.registredServers.editServer(editedServer);

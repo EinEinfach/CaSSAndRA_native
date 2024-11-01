@@ -60,6 +60,7 @@ class _ServersPageState extends State<ServersPage> {
   }
 
   void _setOrientation() {
+    // final orientation = MediaQuery.of(context).orientation;
     final Size screenSize = MediaQuery.of(context).size;
     if (screenSize.width < minHeight) {
       // lock landscape mode for devices with small width
