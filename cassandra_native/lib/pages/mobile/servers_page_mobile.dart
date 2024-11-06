@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/components/servers_page/info_button.dart';
 import 'package:cassandra_native/components/servers_page/list_button.dart';
-import 'package:cassandra_native/components/joystick_drawer.dart';
+import 'package:cassandra_native/components/common/joystick_drawer.dart';
 import 'package:cassandra_native/data/app_data.dart';
 
 class ServersPageMobile extends StatelessWidget {

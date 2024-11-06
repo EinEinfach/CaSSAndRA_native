@@ -4,7 +4,7 @@ import 'package:uuid/uuid.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:cassandra_native/models/mow_parameters.dart';
-import 'package:cassandra_native/components/customized_elevated_button.dart';
+import 'package:cassandra_native/components/common/customized_elevated_button.dart';
 
 const uuid = Uuid();
 

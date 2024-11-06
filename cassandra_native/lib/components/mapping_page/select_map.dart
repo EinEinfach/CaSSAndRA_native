@@ -4,26 +4,25 @@ import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:cassandra_native/components/common/customized_elevated_button.dart';
 import 'package:cassandra_native/models/server.dart';
 
-class SelectTasks extends StatefulWidget {
+class SelectMap extends StatefulWidget {
   final Server server;
-  const SelectTasks({super.key, required this.server});
+  const SelectMap({super.key, required this.server});
 
   @override
-  State<SelectTasks> createState() => _SelectTasksState();
+  State<SelectMap> createState() => _SelectMapState();
 }
 
-class _SelectTasksState extends State<SelectTasks> {
+class _SelectMapState extends State<SelectMap> {
   final _formKey = GlobalKey<FormState>();
   final controller = MultiSelectController<String>();
 
   @override
   Widget build(BuildContext context) {
     List<DropdownItem<String>> items = [];
-    for (var item in widget.server.currentMap.tasks.available) {
-      if (widget.server.currentMap.tasks.selected.contains(item)) {
+    for (var item in widget.server.maps.available) {
+      if (item == widget.server.maps.selected) {
         items.add(DropdownItem(label: item, value: item, selected: true));
-      }
-      else {
+      } else {
         items.add(DropdownItem(label: item, value: item));
       }
     }
@@ -41,21 +40,10 @@ class _SelectTasksState extends State<SelectTasks> {
               ),
               MultiDropdown<String>(
                 items: items,
+                singleSelect: true,
                 controller: controller,
                 enabled: true,
-                searchEnabled: false, 
-                // searchDecoration: SearchFieldDecoration(
-                //   border: OutlineInputBorder(
-                //     borderRadius: BorderRadius.circular(8),
-                //     borderSide: BorderSide(
-                //         color: Theme.of(context).colorScheme.primary),
-                //   ),
-                //   focusedBorder: OutlineInputBorder(
-                //     borderRadius: BorderRadius.circular(8),
-                //     borderSide: BorderSide(
-                //         color: Theme.of(context).colorScheme.primary),
-                //   ),
-                // ),
+                searchEnabled: false,
                 chipDecoration: ChipDecoration(
                   borderRadius: BorderRadius.circular(6),
                   backgroundColor: Theme.of(context).colorScheme.primary,
@@ -84,8 +72,8 @@ class _SelectTasksState extends State<SelectTasks> {
                   //selectedIcon: null,
                 ),
                 onSelectionChange: (selectedItems) {
-                  widget.server.serverInterface
-                      .commandSelectTasks(selectedItems);
+                  widget.server.maps.selected = selectedItems.isEmpty ? '' : selectedItems[0];
+                  widget.server.serverInterface.commandSelectMap(selectedItems);
                 },
               ),
               const SizedBox(height: 5),
@@ -97,8 +85,8 @@ class _SelectTasksState extends State<SelectTasks> {
                     CustomizedElevatedButton(
                       text: 'cancel',
                       onPressed: () {
+                        widget.server.serverInterface.commandSelectMap([]);
                         Navigator.pop(context);
-                        widget.server.serverInterface.commandSelectTasks([]);
                       },
                     ),
                     const SizedBox(

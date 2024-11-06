@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:cassandra_native/models/landscape.dart';
+import 'package:cassandra_native/models/maps.dart';
 
 class Robot {
   String firmware = '';
@@ -13,6 +14,7 @@ class Robot {
   Offset position = const Offset(0, 0);
   Offset target = const Offset(0, 0);
   Offset scaledPosition = const Offset(0, 0);
+  Offset mapsScaledPosition = const Offset(0, 0);
   Offset scaledTarget = const Offset(0, 0);
   double angle = 0;
   int mowPointIdx = 0;
@@ -23,13 +25,17 @@ class Robot {
   int visibleSatellites = 0;
   int dgpsSatellites = 0;
   String rtkAge = '99+d';
-  double? secondsPerIdx; 
+  double? secondsPerIdx;
   double speed = 0;
   double averageSpeed = 0;
 
   void jsonToClassData(String message) {
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
     try {
+      if (decodedMessage['status'] == 'offline') {
+        status = decodedMessage['status'];
+        return;
+      }
       firmware = decodedMessage['firmware'];
       version = decodedMessage['version'];
       position = Offset(
@@ -69,6 +75,23 @@ class Robot {
               currentMap.offsetX,
           -(target.dy - currentMap.minY) * currentMap.mapScale +
               currentMap.offsetY);
+    } else {
+      scaledPosition = Offset(screenSize.width / 2, screenSize.height / 2);
+    }
+  }
+
+  void mapsScalePosition(Size screenSize, Maps maps) {
+    if (maps.perimeter.isNotEmpty) {
+      mapsScaledPosition = Offset(
+          (position.dx - maps.minX) * maps.mapScale +
+              maps.offsetX,
+          -(position.dy - maps.minY) * maps.mapScale +
+              maps.offsetY);
+      scaledTarget = Offset(
+          (target.dx - maps.minX) * maps.mapScale +
+              maps.offsetX,
+          -(target.dy - maps.minY) * maps.mapScale +
+              maps.offsetY);
     } else {
       scaledPosition = Offset(screenSize.width / 2, screenSize.height / 2);
     }

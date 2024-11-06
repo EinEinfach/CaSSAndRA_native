@@ -10,15 +10,15 @@ import 'package:cassandra_native/pages/desktop/home_page_desktop.dart';
 import 'package:cassandra_native/data/app_data.dart';
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/models/mow_parameters.dart';
-import 'package:cassandra_native/components/nav_drawer.dart';
-import 'package:cassandra_native/components/nav_button.dart';
-import 'package:cassandra_native/components/joystick_drawer.dart';
+import 'package:cassandra_native/components/common/nav_drawer.dart';
+import 'package:cassandra_native/components/common/nav_button.dart';
+import 'package:cassandra_native/components/common/joystick_drawer.dart';
 import 'package:cassandra_native/components/home_page/map_view.dart';
 import 'package:cassandra_native/components/home_page/select_tasks.dart';
 import 'package:cassandra_native/components/home_page/status_window.dart';
 import 'package:cassandra_native/components/home_page/command_button.dart';
 import 'package:cassandra_native/components/home_page/logic/home_page_logic.dart';
-import 'package:cassandra_native/components/new_mow_parameters.dart';
+import 'package:cassandra_native/components/common/new_mow_parameters.dart';
 import 'package:cassandra_native/utils/mow_parameters_storage.dart';
 
 // globals

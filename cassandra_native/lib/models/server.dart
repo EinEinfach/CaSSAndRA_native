@@ -124,6 +124,8 @@ class Server {
       currentMap.coordsJsonToClassData(message);
     } else if (topic.contains('/tasks')) {
       currentMap.tasks.jsonToClassData(message);
+    } else if (topic.contains('/mapsCoords')) {
+      maps.mapsCoordsJsonToClassData(message);
     } else if (topic.contains('/maps')) {
       maps.mapsJsonToClassData(message);
     } else if (topic.contains('/map')) {

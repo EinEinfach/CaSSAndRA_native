@@ -147,7 +147,9 @@ class Landscape {
       _findMinAndMax();
       _shiftShapes();
     } catch (e) {
-      print('Invalid map json data: $e');
+      if (kDebugMode) {
+        debugPrint('Invalid map json data: $e');
+      }
     }
   }
 

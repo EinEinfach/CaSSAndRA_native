@@ -192,4 +192,13 @@ class ServerInterface {
     }
     _sendCommand(cmdSelectTasksJson);
   }
+
+  void commandSelectMap(List<String> map) {
+    final Map<String, dynamic> cmdSelectMap = _addTopicAndCommandToValue('maps', 'select', map);
+    final String cmdSelectMapJson = jsonEncode(cmdSelectMap);
+    if (kDebugMode) {
+      debugPrint(cmdSelectMapJson);
+    }
+    _sendCommand(cmdSelectMapJson);
+  }
 }

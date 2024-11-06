@@ -1,8 +1,9 @@
+import 'package:cassandra_native/components/common/nav_button.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cassandra_native/comm/mqtt_manager.dart';
 import 'package:cassandra_native/data/app_data.dart';
-import 'package:cassandra_native/components/nav_drawer.dart';
+import 'package:cassandra_native/components/common/nav_drawer.dart';
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/components/settings_page/accordion_tile.dart';
 import 'package:cassandra_native/components/settings_page/content_app_tile.dart';
@@ -64,108 +65,124 @@ class _SettingsPageState extends State<SettingsPage> {
         if (constrains.maxWidth < smallWidth) {
           return Scaffold(
             backgroundColor: Theme.of(context).colorScheme.surface,
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              leading: Builder(builder: (context) {
-                return IconButton(
-                  icon: const Icon(Icons.menu),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                  },
-                );
-              }),
-            ),
             drawer: NavDrawer(
               server: widget.server,
             ),
-            body: SafeArea(
-              child: ListView(
-                children: [
-                  AccordionTile(
-                    title: 'App',
-                    content: [
-                      ContentAppTile(
-                        currentServer: widget.server,
+            body: Builder(
+              builder: (context) {
+                return SafeArea(
+                  child: Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: NavButton(
+                          icon: Icons.menu,
+                          onPressed: () {
+                            Scaffold.of(context).openDrawer();
+                          },
+                        ),
+                      ),
+                      Expanded(
+                        child: ListView(
+                          children: [
+                            AccordionTile(
+                              title: 'App',
+                              content: [
+                                ContentAppTile(
+                                  currentServer: widget.server,
+                                ),
+                              ],
+                            ),
+                            AccordionTile(
+                              title: 'Robot',
+                              content: [
+                                ContentRobotTile(
+                                  currentServer: widget.server,
+                                ),
+                              ],
+                            ),
+                            AccordionTile(
+                              title: 'API',
+                              content: [
+                                ContentApiTile(currentServer: widget.server),
+                              ],
+                            ),
+                            AccordionTile(
+                              title: 'Messsage service',
+                              content: [
+                                ContentMessageServiceTile(
+                                    currentServer: widget.server),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                  AccordionTile(
-                    title: 'Robot',
-                    content: [
-                      ContentRobotTile(
-                        currentServer: widget.server,
-                      ),
-                    ],
-                  ),
-                  AccordionTile(
-                    title: 'API',
-                    content: [
-                      ContentApiTile(currentServer: widget.server),
-                    ],
-                  ),
-                  AccordionTile(
-                    title: 'Messsage service',
-                    content: [
-                      ContentMessageServiceTile(currentServer: widget.server),
-                    ],
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           );
           //+++++++++++++++++++++++++++++++++++++++++++++++tablet page++++++++++++++++++++++++++++++++++++++++++++++++++++
         } else if (constrains.maxWidth < largeWidth) {
           return Scaffold(
             backgroundColor: Theme.of(context).colorScheme.surface,
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              leading: Builder(builder: (context) {
-                return IconButton(
-                  icon: const Icon(Icons.menu),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                  },
-                );
-              }),
-            ),
             drawer: NavDrawer(
               server: widget.server,
             ),
-            body: SafeArea(
-              child: ListView(
-                children: [
-                  AccordionTile(
-                    title: 'App',
-                    content: [
-                      ContentAppTile(
-                        currentServer: widget.server,
+            body: Builder(
+              builder: (context) {
+                return SafeArea(
+                  child: Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: NavButton(
+                          icon: Icons.menu,
+                          onPressed: () {
+                            Scaffold.of(context).openDrawer();
+                          },
+                        ),
+                      ),
+                      Expanded(
+                        child: ListView(
+                          children: [
+                            AccordionTile(
+                              title: 'App',
+                              content: [
+                                ContentAppTile(
+                                  currentServer: widget.server,
+                                ),
+                              ],
+                            ),
+                            AccordionTile(
+                              title: 'Robot',
+                              content: [
+                                ContentRobotTile(
+                                  currentServer: widget.server,
+                                ),
+                              ],
+                            ),
+                            AccordionTile(
+                              title: 'API',
+                              content: [
+                                ContentApiTile(currentServer: widget.server),
+                              ],
+                            ),
+                            AccordionTile(
+                              title: 'Messsage service',
+                              content: [
+                                ContentMessageServiceTile(
+                                    currentServer: widget.server),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                  AccordionTile(
-                    title: 'Robot',
-                    content: [
-                      ContentRobotTile(
-                        currentServer: widget.server,
-                      ),
-                    ],
-                  ),
-                  AccordionTile(
-                    title: 'API',
-                    content: [
-                      ContentApiTile(currentServer: widget.server),
-                    ],
-                  ),
-                  AccordionTile(
-                    title: 'Messsage service',
-                    content: [
-                      ContentMessageServiceTile(currentServer: widget.server),
-                    ],
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           );
           //+++++++++++++++++++++++++++++++++++++++++++++++desktop page++++++++++++++++++++++++++++++++++++++++++++++++++++

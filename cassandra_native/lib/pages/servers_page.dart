@@ -16,7 +16,7 @@ import 'package:cassandra_native/pages/mobile/servers_page_mobile.dart';
 import 'package:cassandra_native/pages/tablet/servers_page_tablet.dart';
 import 'package:cassandra_native/pages/desktop/servers_page_desktop.dart';
 
-import 'package:cassandra_native/components/customized_elevated_button.dart';
+import 'package:cassandra_native/components/common/customized_elevated_button.dart';
 
 import 'package:cassandra_native/components/servers_page/new_server.dart';
 import 'package:cassandra_native/components/servers_page/server_item.dart';
@@ -62,7 +62,11 @@ class _ServersPageState extends State<ServersPage> {
   void _setOrientation() {
     // final orientation = MediaQuery.of(context).orientation;
     final Size screenSize = MediaQuery.of(context).size;
-    if (screenSize.width < minHeight) {
+    final screenOrientation = MediaQuery.of(context).orientation;
+    if ((screenOrientation == Orientation.portrait &&
+            screenSize.width < minHeight) ||
+        (screenOrientation == Orientation.landscape &&
+            screenSize.height < minHeight)) {
       // lock landscape mode for devices with small width
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,

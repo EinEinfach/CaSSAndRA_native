@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/models/server_settings.dart';
-import 'package:cassandra_native/components/customized_elevated_button.dart';
-import 'package:cassandra_native/components/customized_dialog_ok.dart';
-import 'package:cassandra_native/components/customized_dialog_ok_cancel.dart';
+import 'package:cassandra_native/components/common/customized_elevated_button.dart';
+import 'package:cassandra_native/components/common/customized_dialog_ok.dart';
+import 'package:cassandra_native/components/common/customized_dialog_ok_cancel.dart';
 
 // globals
 import 'package:cassandra_native/data/user_data.dart' as user;

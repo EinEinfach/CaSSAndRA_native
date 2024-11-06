@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:cassandra_native/components/customized_elevated_button.dart';
+import 'package:cassandra_native/components/common/customized_elevated_button.dart';
 
 class CustomizedDialogOkCancel extends StatelessWidget {
   final String title;

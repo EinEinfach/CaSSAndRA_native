@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 
-import 'package:cassandra_native/components/joystick_drawer.dart';
-import 'package:cassandra_native/components/nav_drawer.dart';
+import 'package:cassandra_native/components/common/joystick_drawer.dart';
+import 'package:cassandra_native/components/common/nav_drawer.dart';
 import 'package:cassandra_native/components/home_page/map_view.dart';
-import 'package:cassandra_native/components/nav_button.dart';
+import 'package:cassandra_native/components/common/nav_button.dart';
 import 'package:cassandra_native/models/server.dart';
 
 class HomePageTablet extends StatelessWidget {

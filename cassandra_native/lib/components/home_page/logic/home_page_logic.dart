@@ -217,6 +217,7 @@ class MapAnimationLogic {
   Offset oldPosition = Offset.zero;
   double oldAngle = 0;
   Offset get newPosition => robot.scaledPosition;
+  Offset get newMapsPosition => robot.mapsScaledPosition;
   double get newAngle => robot.angle;
   bool _checkAnimationState() {
     return statesForAnimation.contains(robot.status);

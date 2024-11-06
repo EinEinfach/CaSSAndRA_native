@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:cassandra_native/models/server.dart';
-import 'package:cassandra_native/components/customized_elevated_button.dart';
+import 'package:cassandra_native/components/common/customized_elevated_button.dart';
 
 const uuid = Uuid();
 

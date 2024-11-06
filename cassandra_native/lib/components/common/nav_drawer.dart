@@ -4,7 +4,8 @@ import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/pages/home_page.dart';
 import 'package:cassandra_native/pages/servers_page.dart';
 import 'package:cassandra_native/pages/settings_page.dart';
-import 'package:cassandra_native/components/drawer_tile.dart';
+import 'package:cassandra_native/pages/mapping_page.dart';
+import 'package:cassandra_native/components/common/drawer_tile.dart';
 import 'package:cassandra_native/data/app_data.dart';
 
 class NavDrawer extends StatelessWidget {
@@ -13,7 +14,6 @@ class NavDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     void navigateTo(Widget page) {
       Navigator.pushReplacement(
         context,
@@ -64,7 +64,14 @@ class NavDrawer extends StatelessWidget {
                       DrawerTile(
                         title: "Mapping",
                         leading: const Icon(Icons.map_outlined),
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.pop(context);
+                          navigateTo(
+                            MappingPage(
+                              server: server,
+                            ),
+                          );
+                        },
                       ),
                       DrawerTile(
                         title: "Settings",
@@ -99,7 +106,8 @@ class NavDrawer extends StatelessWidget {
         // drawer without close button
         return SafeArea(
           child: Drawer(
-            backgroundColor: Theme.of(context).colorScheme.surface.withOpacity(0),
+            backgroundColor:
+                Theme.of(context).colorScheme.surface.withOpacity(0),
             child: Column(
               children: [
                 Expanded(
@@ -125,7 +133,13 @@ class NavDrawer extends StatelessWidget {
                       DrawerTile(
                         title: "Mapping",
                         leading: const Icon(Icons.map_outlined),
-                        onTap: () {},
+                        onTap: () {
+                          navigateTo(
+                            MappingPage(
+                              server: server,
+                            ),
+                          );
+                        },
                       ),
                       DrawerTile(
                         title: "Settings",
