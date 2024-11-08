@@ -5,7 +5,9 @@ import 'dart:ui' as ui;
 import 'dart:async';
 
 import 'package:cassandra_native/models/server.dart';
-import 'package:cassandra_native/components/home_page/logic/home_page_logic.dart';
+import 'package:cassandra_native/components/logic/map_logic.dart';
+import 'package:cassandra_native/components/logic/animation_logic.dart';
+import 'package:cassandra_native/components/logic/ui_logic.dart';
 import 'package:cassandra_native/components/mapping_page/map_painter.dart';
 import 'package:cassandra_native/components/home_page/map_button.dart';
 import 'package:cassandra_native/components/home_page/status_bar.dart';
@@ -38,7 +40,8 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   MapPointLogic gotoPoint = MapPointLogic();
 
   //ui
-  MapUiLogic mapUi = MapUiLogic();
+  PlayButtonLogic playButtonLogic = PlayButtonLogic();
+  MapRobotLogic mapRobotLogic = MapRobotLogic();
   ui.Image? roverImage;
   Offset screenSizeDelta = Offset.zero;
   late Size screenSize;
@@ -145,7 +148,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     } else {
       _resetLassoSelection();
       _resetGotoPoint();
-      mapUi.focusOnMowerActive = false;
+      mapRobotLogic.focusOnMowerActive = false;
     }
   }
 
@@ -204,7 +207,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
       },
       child: LayoutBuilder(builder: (context, constraints) {
         // zoom focus on mower
-        if (mapUi.focusOnMowerActive) {
+        if (mapRobotLogic.focusOnMowerActive) {
           zoomPan.focusOnPoint(_currentPosition, screenSize);
         }
 
@@ -344,7 +347,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                     icon: Icons.gesture_outlined,
                     isActive: lasso.active,
                     onPressed: () {
-                      mapUi.focusOnMowerActive = false;
+                      mapRobotLogic.focusOnMowerActive = false;
                       _resetGotoPoint();
                       _resetLassoSelection();
                       lasso.active = !lasso.active;
@@ -357,7 +360,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                     icon: Icons.add_location,
                     isActive: gotoPoint.active,
                     onPressed: () {
-                      mapUi.focusOnMowerActive = false;
+                      mapRobotLogic.focusOnMowerActive = false;
                       _resetGotoPoint();
                       _resetLassoSelection();
                       gotoPoint.active = !gotoPoint.active;
@@ -369,7 +372,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                     icon: Icons.list,
                     isActive: false,
                     onPressed: () {
-                      mapUi.focusOnMowerActive = false;
+                      mapRobotLogic.focusOnMowerActive = false;
                       _resetGotoPoint();
                       _resetLassoSelection();
                       widget.onOpenMapsOverlay();
@@ -398,7 +401,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                             icon: Icons.zoom_in_map,
                             isActive: false,
                             onPressed: () {
-                              mapUi.focusOnMowerActive = false;
+                              mapRobotLogic.focusOnMowerActive = false;
                               lasso.active = false;
                               zoomPan.offset = Offset.zero;
                               zoomPan.scale = 1.0;
@@ -407,10 +410,10 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                           ),
                           MapButton(
                             icon: Icons.center_focus_weak_outlined,
-                            isActive: mapUi.focusOnMowerActive,
+                            isActive: mapRobotLogic.focusOnMowerActive,
                             onPressed: () {
-                              mapUi.focusOnMowerActive =
-                                  !mapUi.focusOnMowerActive;
+                              mapRobotLogic.focusOnMowerActive =
+                                  !mapRobotLogic.focusOnMowerActive;
                               lasso.active = false;
                               gotoPoint.active = false;
                               zoomPan.focusOnPoint(

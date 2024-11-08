@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:cassandra_native/models/server.dart';
-import 'package:cassandra_native/components/home_page/logic/home_page_logic.dart';
+import 'package:cassandra_native/components/logic/ui_logic.dart';
 
 class StatusWindow extends StatelessWidget {
   final Color backgroundColor;

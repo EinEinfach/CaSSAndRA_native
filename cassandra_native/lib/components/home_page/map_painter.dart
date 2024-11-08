@@ -6,7 +6,7 @@ import 'package:cassandra_native/theme/theme.dart';
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/models/landscape.dart';
 import 'package:cassandra_native/models/robot.dart';
-import 'package:cassandra_native/components/home_page/logic/home_page_logic.dart';
+import 'package:cassandra_native/components/logic/map_logic.dart';
 
 // should be refactored to make rover size selectable
 const double minRoverImageSize = 20;
