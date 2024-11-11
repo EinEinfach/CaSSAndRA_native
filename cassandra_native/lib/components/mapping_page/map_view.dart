@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui' as ui;
 import 'dart:async';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/components/logic/map_logic.dart';
@@ -12,6 +13,7 @@ import 'package:cassandra_native/components/mapping_page/map_painter.dart';
 import 'package:cassandra_native/components/home_page/map_button.dart';
 import 'package:cassandra_native/components/home_page/status_bar.dart';
 import 'package:cassandra_native/utils/custom_shape_calcs.dart';
+import 'package:cassandra_native/components/common/customized_dialog_ok_cancel.dart';
 
 class MapView extends StatefulWidget {
   final Server server;
@@ -35,9 +37,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
 
   //selcection
   LassoLogic lasso = LassoLogic();
-
-  //go to
-  MapPointLogic gotoPoint = MapPointLogic();
+  ShapeLogic shapeLogic = ShapeLogic();
 
   //ui
   PlayButtonLogic playButtonLogic = PlayButtonLogic();
@@ -69,7 +69,6 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     super.initState();
     mapAnimation = MapAnimationLogic(robot: widget.server.robot);
     _loadImage(categoryImages[widget.server.category]!.elementAt(1));
-    _resetGotoPoint();
     _resetLassoSelection();
     _currentPosition = widget.server.robot.mapsScaledPosition;
     mapAnimation.oldPosition = widget.server.robot.mapsScaledPosition;
@@ -100,18 +99,17 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     if (mapAnimation.active) {
       _controller.stop();
 
-      _controller.duration =
-          animationDuration;
+      _controller.duration = animationDuration;
 
       _animatedPosition = Tween<Offset>(
-        begin: _currentPosition, 
+        begin: _currentPosition,
         end: newPosition,
       ).animate(_controller);
 
       _animatedAngle = Tween<double>(
         begin: _currentAngle,
-        end: newAngle, 
-      ).animate(_controller); 
+        end: newAngle,
+      ).animate(_controller);
 
       _controller.forward(from: 0.0);
     } else {
@@ -136,19 +134,35 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     widget.server.currentMap.selectedArea = [];
   }
 
-  void _resetGotoPoint() {
-    gotoPoint.reset();
-    widget.server.currentMap.gotoPoint = null;
-  }
-
   void _handleCancelButton() {
     if (widget.server.currentMap.scaledObstacles.isNotEmpty) {
       widget.server.serverInterface.commandResetObstacles();
       widget.server.currentMap.resetObstaclesCoords();
     } else {
       _resetLassoSelection();
-      _resetGotoPoint();
       mapRobotLogic.focusOnMowerActive = false;
+    }
+  }
+
+  void _onSelectMapPressed() {
+    if (shapeLogic.active) {
+      showDialog(
+        context: context,
+        builder: (context) => CustomizedDialogOkCancel(
+            title: 'Warning',
+            content:
+                'You are still in edit mode. All changes will be lost. Press ok to proceed or cancel to return to edit mode.',
+            onCancelPressed: () {
+              Navigator.pop(context);
+            },
+            onOkPressed: () {
+              shapeLogic.reset();
+              Navigator.pop(context);
+              widget.onOpenMapsOverlay();
+            }),
+      );
+    } else {
+      widget.onOpenMapsOverlay();
     }
   }
 
@@ -179,18 +193,18 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
       oldScreenSize = screenSize;
       if (screenSizeDelta != Offset.zero) {
         widget.server.maps.scaleShapes(screenSize);
+        shapeLogic.scaleShapes(screenSize, widget.server.maps);
         widget.server.robot.mapsScalePosition(screenSize, widget.server.maps);
         _onNewCoordinatesReceived(widget.server.robot.mapsScaledPosition,
             widget.server.robot.angle, false);
-        gotoPoint.onScreenSizeChanged(widget.server.currentMap);
         lasso.onScreenSizeChanged(widget.server.currentMap);
       }
     }
 
     if (mapAnimation.oldAngle != mapAnimation.newAngle ||
         mapAnimation.oldPosition != mapAnimation.newMapsPosition) {
-      _onNewCoordinatesReceived(
-          mapAnimation.newMapsPosition, mapAnimation.newAngle, mapAnimation.active);
+      _onNewCoordinatesReceived(mapAnimation.newMapsPosition,
+          mapAnimation.newAngle, mapAnimation.active);
       mapAnimation.oldAngle = mapAnimation.newAngle;
       mapAnimation.oldPosition = mapAnimation.newMapsPosition;
     }
@@ -279,8 +293,8 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
               onLongPressStart: (details) {
                 if (lasso.selection.isNotEmpty) {
                   lasso.onLongPressedStart(details, zoomPan);
-                } else if (gotoPoint.coords != null) {
-                  gotoPoint.onLongPressedStart(details, zoomPan);
+                } else if (shapeLogic.active) {
+                  shapeLogic.onLongPressedStart(details, zoomPan);
                 }
                 setState(() {});
               },
@@ -289,30 +303,19 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                   lasso.onLongPressedMoveUpdate(details, zoomPan);
                   widget.server.currentMap
                       .lassoSelectionToJsonData(lasso.selection);
-                } else if (gotoPoint.coords != null) {
-                  gotoPoint.onLongPressedMoveUpdate(details, zoomPan);
-                  widget.server.currentMap
-                      .gotoPointToJsonData(gotoPoint.coords!);
+                } else if (shapeLogic.active) {
+                  shapeLogic.onLongPressedMoveUpdate(details, zoomPan);
                 }
                 setState(() {});
               },
               onLongPressEnd: (_) {
+                shapeLogic.onLongPressedEnd(widget.server.maps);
                 if (lasso.selection.isNotEmpty) {
                   lasso.onLongPressedEnd();
-                } else if (gotoPoint.coords != null) {
-                  gotoPoint.onLongPressedEnd(widget.server.currentMap);
                 }
                 setState(() {});
               },
-              onTapDown: (details) {
-                if (gotoPoint.active) {
-                  gotoPoint.setCoords(
-                      details, zoomPan, widget.server.currentMap);
-                  widget.server.currentMap
-                      .gotoPointToJsonData(gotoPoint.coords!);
-                  setState(() {});
-                }
-              },
+              onTapDown: (details) {},
               child: SizedBox(
                 width: constraints.maxWidth,
                 height: constraints.maxHeight,
@@ -324,8 +327,8 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                         scale: zoomPan.scale,
                         roverImage: roverImage,
                         currentServer: widget.server,
+                        shapes: shapeLogic,
                         lasso: lasso,
-                        gotoPoint: gotoPoint,
                         currentPostion: _currentPosition,
                         currentAngle: _currentAngle,
                         colors: Theme.of(context).colorScheme),
@@ -333,49 +336,65 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                 ),
               ),
             ),
+            widget.server.maps.selected == '' && !shapeLogic.active
+                ? Align(
+                    alignment: Alignment(0, -0.1),
+                    child: Container(
+                        padding: EdgeInsets.all(20),
+                        child: Text(
+                                textAlign: TextAlign.center,
+                                'No coordinates loaded. Add individual points to the new map or start recording using the record button. You can also load an existing map to edit it.')
+                            .animate()
+                            .shake()),
+                  )
+                : SizedBox.shrink(),
             Align(
               alignment: Alignment.centerRight,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   MapButton(
-                    icon: Icons.settings,
-                    isActive: false,
-                    onPressed: () {},
+                    icon: Icons.edit,
+                    isActive: shapeLogic.active,
+                    onPressed: () {
+                      if (!shapeLogic.active) {
+                        shapeLogic.setMap(widget.server.maps);
+                        shapeLogic.active = !shapeLogic.active;
+                      } else {
+                        shapeLogic.reset();
+                      }
+                      setState(() {});
+                    },
                   ),
                   MapButton(
                     icon: Icons.gesture_outlined,
                     isActive: lasso.active,
                     onPressed: () {
-                      mapRobotLogic.focusOnMowerActive = false;
-                      _resetGotoPoint();
-                      _resetLassoSelection();
                       lasso.active = !lasso.active;
-                      lasso.selection = [];
-                      lasso.selectionPoints = [];
+                      if (lasso.active) {
+                        mapRobotLogic.focusOnMowerActive = false;
+                        _resetLassoSelection();
+                        lasso.active = true;
+                        shapeLogic.active = true;
+                        lasso.selection = [];
+                        lasso.selectionPoints = [];
+                      }
                       setState(() {});
                     },
                   ),
                   MapButton(
-                    icon: Icons.add_location,
-                    isActive: gotoPoint.active,
-                    onPressed: () {
-                      mapRobotLogic.focusOnMowerActive = false;
-                      _resetGotoPoint();
-                      _resetLassoSelection();
-                      gotoPoint.active = !gotoPoint.active;
-                      gotoPoint.coords = null;
-                      setState(() {});
-                    },
+                    icon: Icons.device_unknown,
+                    isActive: false,
+                    onPressed: () {},
                   ),
                   MapButton(
                     icon: Icons.list,
                     isActive: false,
                     onPressed: () {
-                      mapRobotLogic.focusOnMowerActive = false;
-                      _resetGotoPoint();
+                      // mapRobotLogic.focusOnMowerActive = false;
+                      _onSelectMapPressed();
                       _resetLassoSelection();
-                      widget.onOpenMapsOverlay();
+                      // widget.onOpenMapsOverlay();
                       setState(() {});
                     },
                   ),
@@ -415,7 +434,6 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                               mapRobotLogic.focusOnMowerActive =
                                   !mapRobotLogic.focusOnMowerActive;
                               lasso.active = false;
-                              gotoPoint.active = false;
                               zoomPan.focusOnPoint(
                                   _currentPosition, screenSize);
                               setState(() {});

@@ -93,7 +93,7 @@ class Robot {
           -(target.dy - maps.minY) * maps.mapScale +
               maps.offsetY);
     } else {
-      scaledPosition = Offset(screenSize.width / 2, screenSize.height / 2);
+      mapsScaledPosition = Offset(screenSize.width / 2, screenSize.height / 2);
     }
   }
 }

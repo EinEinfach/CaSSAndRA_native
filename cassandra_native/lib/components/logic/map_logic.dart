@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:cassandra_native/models/landscape.dart';
+import 'package:cassandra_native/models/maps.dart';
 import 'package:cassandra_native/utils/custom_shape_calcs.dart';
 
 class ZoomPanLogic {
@@ -13,6 +14,220 @@ class ZoomPanLogic {
   void focusOnPoint(Offset point, Size screenSize) {
     offset = Offset(screenSize.width / 2 - point.dx * scale,
         screenSize.height / 2 - point.dy * scale);
+  }
+}
+
+class ShapeLogic {
+  bool active = false;
+  List<Offset> selectionPoints = [];
+  int? selectedPointIndex;
+  int? selectedExclusionIndex;
+  List<Offset> perimeter = [];
+  List<Offset> perimeterCartesian = [];
+  List<List<Offset>> exclusions = [];
+  List<List<Offset>> exclusionsCartesian = [];
+  List<Offset> dockPath = [];
+  List<Offset> dockPathCartesian = [];
+  List<Offset> searchWire = [];
+  List<Offset> searchWireCartesian = [];
+  bool selected = false;
+  String? selectedShape;
+  Offset? lastPosition;
+
+  void reset() {
+    active = false;
+    perimeter = [];
+    perimeterCartesian = [];
+    exclusions = [];
+    exclusionsCartesian = [];
+    dockPath = [];
+    dockPathCartesian = [];
+    searchWire = [];
+    searchWireCartesian = [];
+    selectionPoints = [];
+    selectedPointIndex = null;
+    selectedExclusionIndex = null;
+    selected = false;
+    selectedShape = null;
+    lastPosition = null;
+  }
+
+  void setMap(Maps selectedMap) {
+    if (selectedMap.selected != '') {
+      perimeter = List.of(selectedMap.scaledPerimeter);
+      perimeterCartesian = List.of(selectedMap.perimeter);
+      for (var exclusion in selectedMap.scaledExclusions) {
+        exclusions.add(List.of(exclusion));
+      }
+      for (var exclusion in selectedMap.exclusions) {
+        exclusionsCartesian.add(List.of(exclusion));
+      }
+      dockPath = List.of(selectedMap.scaledDockPath);
+      dockPathCartesian = List.of(selectedMap.dockPath);
+      searchWire = List.of(selectedMap.scaledSearchWire);
+      searchWireCartesian = List.of(selectedMap.searchWire);
+    }
+  }
+
+  void onLongPressedStart(LongPressStartDetails details, ZoomPanLogic zoomPan) {
+    double minDistance = 20 / zoomPan.scale;
+    double currentDistance = double.infinity;
+    final Offset scaledAndMovedCoords =
+        (details.localPosition - zoomPan.offset) / zoomPan.scale;
+    for (int i = 0; i < perimeter.length; i++) {
+      if ((perimeter[i] - scaledAndMovedCoords).distance < minDistance &&
+          (perimeter[i] - scaledAndMovedCoords).distance < currentDistance) {
+        currentDistance = (perimeter[i] - scaledAndMovedCoords).distance;
+        selectedShape = 'perimeter';
+        selectedPointIndex = i;
+      }
+    }
+    for (int k = 0; k < exclusions.length; k++) {
+      for (int i = 0; i < exclusions[k].length; i++) {
+        if ((exclusions[k][i] - scaledAndMovedCoords).distance < minDistance &&
+            (exclusions[k][i] - scaledAndMovedCoords).distance <
+                currentDistance) {
+          currentDistance = (exclusions[k][i] - scaledAndMovedCoords).distance;
+          selectedShape = 'exclusion';
+          selectedExclusionIndex = k;
+          selectedPointIndex = i;
+        }
+      }
+    }
+    for (int i = 0; i < dockPath.length; i++) {
+      if ((dockPath[i] - scaledAndMovedCoords).distance < minDistance &&
+          (dockPath[i] - scaledAndMovedCoords).distance < currentDistance) {
+        currentDistance = (dockPath[i] - scaledAndMovedCoords).distance;
+        selectedShape = 'dockPath';
+        selectedPointIndex = i;
+      }
+    }
+    for (int i = 0; i < searchWire.length; i++) {
+      if ((searchWire[i] - scaledAndMovedCoords).distance < minDistance &&
+          (searchWire[i] - scaledAndMovedCoords).distance < currentDistance) {
+        currentDistance = (searchWire[i] - scaledAndMovedCoords).distance;
+        selectedShape = 'searchWire';
+        selectedPointIndex = i;
+      }
+    }
+    if (isPointInsidePolygon(scaledAndMovedCoords, perimeter) &&
+        selectedPointIndex == null) {
+      selected = true;
+      selectedShape = 'perimeter';
+      lastPosition = scaledAndMovedCoords;
+    }
+  }
+
+  void onLongPressedMoveUpdate(
+      LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
+    if (selectedPointIndex != null) {
+      _moveSelectedPoint(details, zoomPan);
+    } else if (selected) {
+      _moveShape(details, zoomPan);
+    }
+  }
+
+  void onLongPressedEnd(Maps maps) {
+    if (perimeter.isNotEmpty) {
+      perimeterCartesian = _canvasCoordsToCartesian(perimeter, maps);
+    }
+    if (exclusions.isNotEmpty) {
+      exclusionsCartesian = [];
+      for (var exclusion in exclusions) {
+        exclusionsCartesian.add(_canvasCoordsToCartesian(exclusion, maps));
+      }
+    }
+    if (dockPath.isNotEmpty) {
+      dockPathCartesian = _canvasCoordsToCartesian(dockPath, maps);
+    }
+    if (searchWire.isNotEmpty) {
+      searchWireCartesian = _canvasCoordsToCartesian(searchWire, maps);
+    }
+  }
+
+  void scaleShapes(Size screenSize, Maps maps) {
+    perimeter = perimeterCartesian
+        .map((p) => Offset(p.dx - maps.minX, -(p.dy - maps.minY)))
+        .toList();
+    perimeter = perimeter
+        .map((p) => Offset(p.dx * maps.mapScale, p.dy * maps.mapScale))
+        .toList();
+    perimeter = perimeter
+        .map((p) => Offset(p.dx + maps.offsetX, p.dy + maps.offsetY))
+        .toList();
+
+    exclusions = exclusionsCartesian
+        .map((shape) => shape
+            .map((p) => Offset(p.dx - maps.minX, -(p.dy - maps.minY)))
+            .toList())
+        .toList();
+    exclusions = exclusions
+        .map((shape) => shape
+            .map((p) => Offset(p.dx * maps.mapScale, p.dy * maps.mapScale))
+            .toList())
+        .toList();
+    exclusions = exclusions
+        .map((shape) => shape
+            .map((p) => Offset(p.dx + maps.offsetX, p.dy + maps.offsetY))
+            .toList())
+        .toList();
+
+    dockPath = dockPathCartesian
+        .map((p) => Offset(p.dx - maps.minX, -(p.dy - maps.minY)))
+        .toList();
+    dockPath = dockPath
+        .map((p) => Offset(p.dx * maps.mapScale, p.dy * maps.mapScale))
+        .toList();
+    dockPath = dockPath
+        .map((p) => Offset(p.dx + maps.offsetX, p.dy + maps.offsetY))
+        .toList();
+
+    searchWire = searchWireCartesian
+        .map((p) => Offset(p.dx - maps.minX, -(p.dy - maps.minY)))
+        .toList();
+    searchWire = searchWire
+        .map((p) => Offset(p.dx * maps.mapScale, p.dy * maps.mapScale))
+        .toList();
+    searchWire = searchWire
+        .map((p) => Offset(p.dx + maps.offsetX, p.dy + maps.offsetY))
+        .toList();
+  }
+
+  void _moveSelectedPoint(
+      LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
+    final Offset scaledAndMovedCoords =
+        (details.localPosition - zoomPan.offset) / zoomPan.scale;
+    if (selectedShape == 'perimeter') {
+      perimeter[selectedPointIndex!] = scaledAndMovedCoords;
+    } else if (selectedShape == 'exclusion') {
+      exclusions[selectedExclusionIndex!][selectedPointIndex!] =
+          scaledAndMovedCoords;
+    } else if (selectedShape == 'dockPath') {
+      dockPath[selectedPointIndex!] = scaledAndMovedCoords;
+    } else if (selectedShape == 'searchWire') {
+      searchWire[selectedPointIndex!] = scaledAndMovedCoords;
+    }
+  }
+
+  void _moveShape(LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
+    final Offset scaledAndMovedCoords =
+        (details.localPosition - zoomPan.offset) / zoomPan.scale;
+    final Offset delta = scaledAndMovedCoords - lastPosition!;
+    perimeter = perimeter.map((point) => point + delta).toList();
+    selectionPoints = selectionPoints.map((point) => point + delta).toList();
+    lastPosition = scaledAndMovedCoords;
+  }
+
+  List<Offset> _canvasCoordsToCartesian(List<Offset> shape, Maps maps) {
+    shape = shape
+        .map((p) => Offset(p.dx - maps.offsetX, p.dy - maps.offsetY))
+        .toList();
+    shape = shape
+        .map((p) => Offset(p.dx / maps.mapScale, p.dy / maps.mapScale))
+        .toList();
+    shape =
+        shape.map((p) => Offset(p.dx + maps.minX, -p.dy + maps.minY)).toList();
+    return shape;
   }
 }
 

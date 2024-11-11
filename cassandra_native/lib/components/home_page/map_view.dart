@@ -365,13 +365,16 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                     icon: Icons.gesture_outlined,
                     isActive: lasso.active,
                     onPressed: () {
-                      mapRobotLogic.focusOnMowerActive = false;
-                      _resetGotoPoint();
-                      _resetLassoSelection();
-                      _resetTasksSelection();
                       lasso.active = !lasso.active;
-                      lasso.selection = [];
-                      lasso.selectionPoints = [];
+                      if (lasso.active) {
+                        mapRobotLogic.focusOnMowerActive = false;
+                        _resetGotoPoint();
+                        _resetLassoSelection();
+                        lasso.active = true;
+                        _resetTasksSelection();
+                        lasso.selection = [];
+                        lasso.selectionPoints = [];
+                      }
                       setState(() {});
                     },
                   ),

@@ -35,20 +35,22 @@ class MapPainter extends CustomPainter {
     required this.colors,
   });
 
-  Color _getRandomColor(int min, int max) {
-    final random = Random();
-    int r = min + random.nextInt(max - min);
-    int g = min + random.nextInt(max - min);
-    int b = min + random.nextInt(max - min);
-
-    return Color.fromARGB(255, r, g, b);
+  Path drawPolygon(Path path, List<Offset> points) {
+    if(points.isNotEmpty) {
+      path.moveTo(points[0].dx, points[0].dy);
+      for (var point in points.skip(0)) {
+        path.lineTo(point.dx, point.dy);
+      }
+      path.close();
+    }
+    return path;
   }
 
-  Path drawPolygon(Path path, List<Offset> points) {
+  Path drawPolygonFromGeoJson(Path path, List<Offset> points) {
     if (points.isNotEmpty) {
       path.moveTo(points[0].dx, points[0].dy);
-      for (var point in points.skip(1)) {
-        path.lineTo(point.dx, point.dy);
+      for (int i = 1; i < points.length - 1; i++) {
+        path.lineTo(points[i].dx, points[i].dy);
       }
       path.close();
     }
@@ -101,7 +103,7 @@ class MapPainter extends CustomPainter {
       ..strokeWidth = adjustedLineWidth;
 
     Path pathPerimeter = Path();
-    pathPerimeter = drawPolygon(pathPerimeter, currentMap.scaledPerimeter);
+    pathPerimeter = drawPolygonFromGeoJson(pathPerimeter, currentMap.scaledPerimeter);
     canvas.drawPath(pathPerimeter, polygonBrush);
 
     // draw exclusions
@@ -116,7 +118,7 @@ class MapPainter extends CustomPainter {
 
     Path pathExclusions = Path();
     for (var exclusion in currentMap.scaledExclusions) {
-      pathExclusions = drawPolygon(pathExclusions, exclusion);
+      pathExclusions = drawPolygonFromGeoJson(pathExclusions, exclusion);
     }
     canvas.drawPath(pathExclusions, exclusionsFillColor);
     canvas.drawPath(pathExclusions, exclusionsStrokeBrusch);
