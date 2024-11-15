@@ -21,6 +21,16 @@ class Maps {
 
   List<List<Offset>> _shapesBouquet = [[]];
 
+  // if no map loaded need a ghost perimeter
+  List<Offset> ghostPerimeter = [
+    Offset(-3, -3),
+    Offset(-3, 3),
+    Offset(3, 3),
+    Offset(3, -3),
+    Offset(-3, -3)
+  ];
+  List<Offset> scaledGhostPerimeter = [];
+
   double minX = double.infinity;
   double minY = double.infinity;
   double maxX = double.negativeInfinity;
@@ -161,6 +171,30 @@ class Maps {
         .toList();
   }
 
+  void scaleGhostPerimeter(Size screenSize, Offset robotPosition) {
+    scaledGhostPerimeter =
+        ghostPerimeter.map((p) => robotPosition + p).toList();
+    minX = scaledGhostPerimeter[0].dx;
+    maxX = scaledGhostPerimeter[2].dx;
+    minY = scaledGhostPerimeter[0].dy;
+    maxY = scaledGhostPerimeter[2].dy;
+    shiftedMaxX = 6;
+    shiftedMaxY = 6;
+    mapScale = screenSize.width > screenSize.height
+        ? screenSize.width / shiftedMaxX
+        : screenSize.height / shiftedMaxY;
+    offsetX = (screenSize.width - shiftedMaxX * mapScale) / 2;
+    offsetY = (screenSize.height + shiftedMaxY * mapScale) / 2;
+    scaledGhostPerimeter =
+        scaledGhostPerimeter.map((p) => Offset(p.dx - minX, -(p.dy - minY))).toList();
+    scaledGhostPerimeter = scaledGhostPerimeter
+        .map((p) => Offset(p.dx * mapScale, p.dy * mapScale))
+        .toList();
+    scaledGhostPerimeter = scaledGhostPerimeter
+        .map((p) => Offset(p.dx + offsetX, p.dy + offsetY))
+        .toList();
+  }
+
   void _resetCoords() {
     perimeter = [];
     exclusions = [];
@@ -173,5 +207,6 @@ class Maps {
     maxY = double.negativeInfinity;
     shiftedMaxX = double.negativeInfinity;
     shiftedMaxY = double.negativeInfinity;
+    scaledGhostPerimeter = [];
   }
 }

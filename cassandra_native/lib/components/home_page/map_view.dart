@@ -262,7 +262,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                   } else {
                     //limit sensivity of zoom
                     double newScale = (zoomPan.previousScale * details.scale)
-                        .clamp(0.5, double.infinity);
+                        .clamp(0.0001, double.infinity);
 
                     //calc new offset to center zoom between focal point
                     Offset focalPointDelta =
@@ -320,6 +320,15 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                 } else if (gotoPoint.coords != null) {
                   gotoPoint.onLongPressedEnd(widget.server.currentMap);
                 }
+                setState(() {});
+              },
+              onTap: () {
+                lasso.onTap();
+                setState(() {});
+              },
+              onDoubleTap: () {
+                lasso.onDoubleTap();
+                gotoPoint.onDoubleTap();
                 setState(() {});
               },
               onTapDown: (details) {

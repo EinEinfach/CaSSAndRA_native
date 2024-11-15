@@ -85,7 +85,7 @@ class _SelectMapState extends State<SelectMap> {
                     CustomizedElevatedButton(
                       text: 'cancel',
                       onPressed: () {
-                        widget.server.serverInterface.commandSelectMap([]);
+                        // widget.server.serverInterface.commandSelectMap([]);
                         Navigator.pop(context);
                       },
                     ),

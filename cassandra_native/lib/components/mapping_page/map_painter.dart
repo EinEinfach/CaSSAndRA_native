@@ -17,6 +17,7 @@ class MapPainter extends CustomPainter {
   final Server currentServer;
   final ShapeLogic shapes;
   final LassoLogic lasso;
+  final RecorderLogic recoderLogic;
   final ColorScheme colors;
   final Offset currentPostion;
   final double currentAngle;
@@ -28,13 +29,14 @@ class MapPainter extends CustomPainter {
     required this.currentServer,
     required this.shapes,
     required this.lasso,
+    required this.recoderLogic,
     required this.currentPostion,
     required this.currentAngle,
     required this.colors,
   });
 
   Path drawPolygon(Path path, List<Offset> points) {
-    if(points.isNotEmpty) {
+    if (points.isNotEmpty) {
       path.moveTo(points[0].dx, points[0].dy);
       for (var point in points.skip(0)) {
         path.lineTo(point.dx, point.dy);
@@ -212,9 +214,10 @@ class MapPainter extends CustomPainter {
           shapes.active ? colors.onSurface.withOpacity(0.15) : colors.onSurface
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8 * adjustedLineWidth;
-    
+
     var searchWireBrush = Paint()
-      ..color = shapes.active ? colors.onSurface.withOpacity(0.15) : colors.onSurface
+      ..color =
+          shapes.active ? colors.onSurface.withOpacity(0.15) : colors.onSurface
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8 * adjustedLineWidth;
 
@@ -228,7 +231,9 @@ class MapPainter extends CustomPainter {
 
     if (shapes.active) {
       dockPathBrush = Paint()
-        ..color = shapes.selectedShape == 'dockPath' ? colors.error : colors.inversePrimary
+        ..color = shapes.selectedShape == 'dockPath'
+            ? colors.error
+            : colors.inversePrimary
         ..style = PaintingStyle.stroke
         ..strokeWidth = 0.8 * adjustedLineWidth;
 
@@ -237,7 +242,9 @@ class MapPainter extends CustomPainter {
       canvas.drawPath(pathDock, dockPathBrush);
 
       searchWireBrush = Paint()
-        ..color = shapes.selectedShape == 'searchWire' ? colors.error : colors.inversePrimary
+        ..color = shapes.selectedShape == 'searchWire'
+            ? colors.error
+            : colors.inversePrimary
         ..style = PaintingStyle.stroke
         ..strokeWidth = 0.8 * adjustedLineWidth;
 
@@ -301,7 +308,11 @@ class MapPainter extends CustomPainter {
         ..style = lasso.selected ? PaintingStyle.fill : PaintingStyle.stroke
         ..strokeWidth = 0.5 * adjustedLineWidth;
       Path pathLassoSelection = Path();
-      pathLassoSelection = drawPolygon(pathLassoSelection, lasso.selection);
+      if (lasso.selectedShape == 'polygon') {
+        pathLassoSelection = drawPolygon(pathLassoSelection, lasso.selection);
+      } else {
+        pathLassoSelection = drawLine(pathLassoSelection, lasso.selection);
+      }
       canvas.drawPath(pathLassoSelection, lassoSelectionBrush);
     }
 
@@ -335,6 +346,38 @@ class MapPainter extends CustomPainter {
           lassoSelectedPointBrush);
     }
 
+    // draw new shape
+    if (recoderLogic.coordinates.isNotEmpty) {
+      var recorderBrush = Paint()
+        ..color = colors.onSurface.withOpacity(0.4)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.5 * adjustedLineWidth;
+      Path pathRecordedShape = Path();
+      if (recoderLogic.selectedShape == 'polygon') {
+        pathRecordedShape =
+            drawPolygon(pathRecordedShape, recoderLogic.coordinates);
+      } else {
+        pathRecordedShape =
+            drawLine(pathRecordedShape, recoderLogic.coordinates);
+      }
+      canvas.drawPath(pathRecordedShape, recorderBrush);
+    }
+
+    // draw position point
+    var positionPointBrush = Paint()
+      ..color = colors.error
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = adjustedLineWidth
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(
+        Offset(currentPostion.dx - 6 / scale, currentPostion.dy),
+        Offset(currentPostion.dx + 6 / scale, currentPostion.dy),
+        positionPointBrush);
+    canvas.drawLine(
+        Offset(currentPostion.dx, currentPostion.dy - 6 / scale),
+        Offset(currentPostion.dx, currentPostion.dy + 6 / scale),
+        positionPointBrush);
+
     // draw rover image
     if (roverImage != null) {
       double imageSize = 1 * maps.mapScale;
@@ -348,7 +391,13 @@ class MapPainter extends CustomPainter {
       final rect = Rect.fromCenter(
           center: currentPostion, width: imageSize, height: imageSize);
       paintImage(
-          canvas: canvas, rect: rect, image: roverImage!, fit: BoxFit.cover);
+        canvas: canvas,
+        rect: rect,
+        image: roverImage!,
+        fit: BoxFit.cover,
+        colorFilter:
+            ColorFilter.mode(Colors.white.withOpacity(0.5), BlendMode.modulate),
+      );
 
       // restore saved canvas
       canvas.restore();

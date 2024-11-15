@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/models/landscape.dart';
 import 'package:cassandra_native/models/maps.dart';
@@ -145,6 +146,32 @@ class ShapeLogic {
     }
   }
 
+  void onTap() {
+    selectedPointIndex = null;
+    selectedExclusionIndex = null;
+    selected = false;
+    selectedShape = null;
+  }
+
+  void onDoubleTap() {
+    if (selectedPointIndex != null) {
+      if (selectedShape == 'perimeter' && perimeter.length > 4) {
+        _removePerimeterPoint();
+      }
+      if (selectedShape == 'exclusion' &&
+          exclusions[selectedExclusionIndex!].length > 4) {
+        _removeExclusionPoint();
+      }
+      if (selectedShape == 'dockPath' && dockPath.length > 2) {
+        dockPath.removeAt(selectedPointIndex!);
+      }
+      if (selectedShape == 'searchWire' && searchWire.length > 2) {
+        searchWire.removeAt(selectedPointIndex!);
+      }
+      onTap();
+    }
+  }
+
   void scaleShapes(Size screenSize, Maps maps) {
     perimeter = perimeterCartesian
         .map((p) => Offset(p.dx - maps.minX, -(p.dy - maps.minY)))
@@ -229,10 +256,69 @@ class ShapeLogic {
         shape.map((p) => Offset(p.dx + maps.minX, -p.dy + maps.minY)).toList();
     return shape;
   }
+
+  void _removePerimeterPoint() {
+    if (selectedPointIndex == 0) {
+      perimeter.removeAt(selectedPointIndex!);
+      perimeter.removeAt(perimeter.length - 1);
+      perimeter.add(perimeter[0]);
+    } else {
+      perimeter.removeAt(selectedPointIndex!);
+    }
+  }
+
+  void _removeExclusionPoint() {
+    if (selectedPointIndex == 0) {
+      exclusions[selectedExclusionIndex!].removeAt(selectedPointIndex!);
+      exclusions[selectedExclusionIndex!]
+          .removeAt(exclusions[selectedExclusionIndex!].length - 1);
+      exclusions[selectedExclusionIndex!]
+          .add(exclusions[selectedExclusionIndex!][0]);
+    } else {
+      exclusions[selectedExclusionIndex!].removeAt(selectedPointIndex!);
+    }
+  }
+}
+
+class RecorderLogic {
+  bool recording = false;
+  String selectedShape = 'polygon';
+  List<Offset> coordinates = [];
+  IconData recordButtonIcon = BootstrapIcons.record_fill;
+
+  void onLongPress() {
+    recording = true;
+    recordButtonIcon = Icons.pause;
+  }
+
+  void onPress() {
+    if (recording) {
+      recording = false;
+      recordButtonIcon = BootstrapIcons.record_fill;
+    } else {}
+  }
+
+  void onRecordingNewCoordianates(Offset newCoord) {
+    if (!recording) {
+      return;
+    }
+    if (coordinates.isEmpty ||
+        newCoord != coordinates[coordinates.length - 1]) {
+      coordinates.add(newCoord);
+    }
+    // if (coordinates.isEmpty || newCoord != coordinates[coordinates.length -1] && selectedShape != 'polygon') {
+    //   coordinates.add(newCoord);
+    // } else if (newCoord != coordinates[coordinates.length - 1]) {
+    //   coordinates.removeAt(coordinates.length - 1);
+    //   coordinates.add(newCoord);
+    //   coordinates.add(coordinates[0]);
+    // }
+  }
 }
 
 class LassoLogic {
   bool active = false;
+  String selectedShape = 'polygon';
   List<Offset> selection = [];
   List<Offset> selectionPoints = [];
   int? selectedPointIndex;
@@ -293,8 +379,26 @@ class LassoLogic {
     }
   }
 
-  void onLongPressedEnd() {
+  void onTap() {
     selectedPointIndex = null;
+    selected = false;
+  }
+
+  void onDoubleTap() {
+    if (selectedPointIndex != null && selection.length > 3) {
+      selection.removeAt(selectedPointIndex!);
+      onTap();
+    }
+  }
+
+  void onScaleEnd(ZoomPanLogic zoomPan) {
+    active = false;
+    selection = simplifyPath(selection, 2.0 / zoomPan.scale);
+    selectionPoints = selection;
+  }
+
+  void onLongPressedEnd() {
+    // selectedPointIndex = null;
     selected = false;
   }
 
@@ -369,6 +473,10 @@ class MapPointLogic {
     if (selected) {
       _moveSelectedPoint(details, zoomPan);
     }
+  }
+
+  void onDoubleTap() {
+    coords = null;
   }
 
   void _moveSelectedPoint(

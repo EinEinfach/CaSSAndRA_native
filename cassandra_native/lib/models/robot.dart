@@ -81,19 +81,15 @@ class Robot {
   }
 
   void mapsScalePosition(Size screenSize, Maps maps) {
-    if (maps.perimeter.isNotEmpty) {
-      mapsScaledPosition = Offset(
-          (position.dx - maps.minX) * maps.mapScale +
-              maps.offsetX,
-          -(position.dy - maps.minY) * maps.mapScale +
-              maps.offsetY);
-      scaledTarget = Offset(
-          (target.dx - maps.minX) * maps.mapScale +
-              maps.offsetX,
-          -(target.dy - maps.minY) * maps.mapScale +
-              maps.offsetY);
-    } else {
-      mapsScaledPosition = Offset(screenSize.width / 2, screenSize.height / 2);
+    if (maps.perimeter.isEmpty && maps.scaledGhostPerimeter.isEmpty) {
+      maps.scaleGhostPerimeter(screenSize, position);
     }
+    mapsScaledPosition = Offset(
+        (position.dx - maps.minX) * maps.mapScale + maps.offsetX,
+        -(position.dy - maps.minY) * maps.mapScale + maps.offsetY);
+    scaledTarget = Offset(
+        (target.dx - maps.minX) * maps.mapScale + maps.offsetX,
+        -(target.dy - maps.minY) * maps.mapScale + maps.offsetY);
   }
+  
 }

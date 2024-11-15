@@ -26,7 +26,6 @@ class PlayButtonLogic {
     }
   }
 }
-
 class StatusWindowLogic {
   StatusWindowLogic({required this.currentServer});
 

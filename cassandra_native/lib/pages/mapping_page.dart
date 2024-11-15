@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 
@@ -6,7 +7,8 @@ import 'package:cassandra_native/cassandra_native.dart';
 import 'package:cassandra_native/comm/mqtt_manager.dart';
 
 import 'package:cassandra_native/models/server.dart';
-import 'package:cassandra_native/components/common/joystick_drawer.dart';
+// import 'package:cassandra_native/components/common/joystick_drawer.dart';
+import 'package:cassandra_native/components/joystick/joystick_v_2.dart';
 import 'package:cassandra_native/components/common/nav_button.dart';
 import 'package:cassandra_native/components/common/nav_drawer.dart';
 import 'package:cassandra_native/components/mapping_page/map_view.dart';
@@ -26,6 +28,9 @@ class MappingPage extends StatefulWidget {
 class _MappingPageState extends State<MappingPage> {
   //app lifecycle
   AppLifecycleState _appLifecycleState = AppLifecycleState.resumed;
+
+  bool recording = false;
+  bool _showJoystick = false;
 
   late Size screenSize;
 
@@ -63,6 +68,15 @@ class _MappingPageState extends State<MappingPage> {
       MqttManager.instance
           .registerCallback(widget.server.id, onMessageReceived);
     }
+  }
+
+  void _onJoystickMove(Offset position, double maxSpeed, double radius) {
+    String linearSpeed =
+        (-1 * maxSpeed * position.dy / radius).toStringAsFixed(2);
+    String angularSpeed =
+        (-1 * maxSpeed * position.dx / radius).toStringAsFixed(2);
+    widget.server.serverInterface
+        .commandMove(double.parse(linearSpeed), double.parse(angularSpeed));
   }
 
   void onMessageReceived(String clientId, String topic, String message) {
@@ -104,12 +118,13 @@ class _MappingPageState extends State<MappingPage> {
     _appLifecycleState =
         Provider.of<CassandraNative>(context).appLifecycleState;
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       drawer: NavDrawer(
         server: widget.server,
       ),
-      endDrawer: JoystickDrawer(
-        server: widget.server,
-      ),
+      // endDrawer: JoystickDrawer(
+      //   server: widget.server,
+      // ),
       body: Builder(builder: (context) {
         return SafeArea(
           child: Stack(
@@ -118,6 +133,18 @@ class _MappingPageState extends State<MappingPage> {
                 server: widget.server,
                 onOpenMapsOverlay: openMapsOverlay,
               ),
+              _showJoystick
+                  ? Align(
+                      alignment: Alignment.bottomRight,
+                      child: Container(
+                        padding: EdgeInsets.fromLTRB(0, 0, 10, 80),
+                        child: JoystickV2(
+                          server: widget.server,
+                          onJoystickMoved: _onJoystickMove,
+                        ).animate().fadeIn().scale(),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -130,7 +157,9 @@ class _MappingPageState extends State<MappingPage> {
                   NavButton(
                     icon: BootstrapIcons.joystick,
                     onPressed: () {
-                      Scaffold.of(context).openEndDrawer();
+                      _showJoystick = !_showJoystick;
+                      setState(() {});
+                      //Scaffold.of(context).openEndDrawer();
                     },
                   ),
                 ],

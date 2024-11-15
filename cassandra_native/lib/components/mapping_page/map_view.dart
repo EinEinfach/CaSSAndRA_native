@@ -1,9 +1,11 @@
+import 'package:cassandra_native/components/home_page/command_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui' as ui;
 import 'dart:async';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/components/logic/map_logic.dart';
@@ -38,6 +40,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   //selcection
   LassoLogic lasso = LassoLogic();
   ShapeLogic shapeLogic = ShapeLogic();
+  RecorderLogic recorderLogic = RecorderLogic();
 
   //ui
   PlayButtonLogic playButtonLogic = PlayButtonLogic();
@@ -61,6 +64,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   @override
   void dispose() {
     _controller.dispose();
+    widget.server.maps.scaledGhostPerimeter = [];
     super.dispose();
   }
 
@@ -166,6 +170,25 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     }
   }
 
+  void _onActivateEditMode() {
+    shapeLogic.onTap();
+    if (!shapeLogic.active) {
+      shapeLogic.setMap(widget.server.maps);
+      shapeLogic.active = true;
+    }
+  }
+
+  void _onActivateLasso() {
+    if (!lasso.active) {
+      mapRobotLogic.focusOnMowerActive = false;
+      _resetLassoSelection();
+      lasso.selection = [];
+      lasso.selectionPoints = [];
+      lasso.active = true;
+      _onActivateEditMode();
+    }
+  }
+
   void _startBusyTimer() {
     if (!_isBusy) {
       _isBusyTimer = Timer(const Duration(seconds: 4), () {
@@ -201,12 +224,26 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
       }
     }
 
+    // Robot position for animation
     if (mapAnimation.oldAngle != mapAnimation.newAngle ||
         mapAnimation.oldPosition != mapAnimation.newMapsPosition) {
       _onNewCoordinatesReceived(mapAnimation.newMapsPosition,
           mapAnimation.newAngle, mapAnimation.active);
       mapAnimation.oldAngle = mapAnimation.newAngle;
       mapAnimation.oldPosition = mapAnimation.newMapsPosition;
+    }
+
+    // Robot position for recording
+    if (recorderLogic.recording) {
+      recorderLogic.onRecordingNewCoordianates(_currentPosition);
+    }
+
+    // Recording finished but data in buffer
+    if (!recorderLogic.recording && recorderLogic.coordinates.isNotEmpty) {
+      lasso.selection = List.of(recorderLogic.coordinates);
+      recorderLogic.coordinates = [];
+      lasso.onScaleEnd(zoomPan);
+      setState(() {});
     }
 
     // Listener is needed for zooming with mouse wheel on desktop apps
@@ -258,7 +295,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                   } else {
                     //limit sensivity of zoom
                     double newScale = (zoomPan.previousScale * details.scale)
-                        .clamp(0.5, double.infinity);
+                        .clamp(0.0001, double.infinity);
 
                     //calc new offset to center zoom between focal point
                     Offset focalPointDelta =
@@ -278,13 +315,21 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                   }
                 });
               },
+              onTap: () {
+                shapeLogic.onTap();
+                lasso.onTap();
+                setState(() {});
+              },
+              onDoubleTap: () {
+                lasso.onDoubleTap();
+                shapeLogic.onDoubleTap();
+                shapeLogic.onLongPressedEnd(widget.server.maps);
+                setState(() {});
+              },
               onScaleEnd: (_) {
                 if (lasso.active) {
                   setState(() {
-                    lasso.active = false;
-                    lasso.selection =
-                        simplifyPath(lasso.selection, 2.0 / zoomPan.scale);
-                    lasso.selectionPoints = lasso.selection;
+                    lasso.onScaleEnd(zoomPan);
                     widget.server.currentMap
                         .lassoSelectionToJsonData(lasso.selection);
                   });
@@ -310,9 +355,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
               },
               onLongPressEnd: (_) {
                 shapeLogic.onLongPressedEnd(widget.server.maps);
-                if (lasso.selection.isNotEmpty) {
-                  lasso.onLongPressedEnd();
-                }
+                lasso.onLongPressedEnd();
                 setState(() {});
               },
               onTapDown: (details) {},
@@ -329,6 +372,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                         currentServer: widget.server,
                         shapes: shapeLogic,
                         lasso: lasso,
+                        recoderLogic: recorderLogic,
                         currentPostion: _currentPosition,
                         currentAngle: _currentAngle,
                         colors: Theme.of(context).colorScheme),
@@ -336,7 +380,9 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                 ),
               ),
             ),
-            widget.server.maps.selected == '' && !shapeLogic.active
+            widget.server.maps.selected == '' &&
+                    !shapeLogic.active &&
+                    !recorderLogic.recording
                 ? Align(
                     alignment: Alignment(0, -0.1),
                     child: Container(
@@ -349,6 +395,60 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                   )
                 : SizedBox.shrink(),
             Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        CommandButton(
+                          icon: BootstrapIcons.plus,
+                          onPressed: () {},
+                          onLongPressed: () {},
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        CommandButton(
+                          icon: BootstrapIcons.dash,
+                          onPressed: () {},
+                          onLongPressed: () {},
+                        ),
+                        const Expanded(
+                          child: SizedBox(),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        CommandButton(
+                          icon: recorderLogic.recordButtonIcon,
+                          onPressed: () {
+                            recorderLogic.onPress();
+                            recorderLogic.recording = false;
+                            setState(() {});
+                          },
+                          onLongPressed: () {
+                            recorderLogic.onLongPress();
+                            recorderLogic.recording = true;
+                            _resetLassoSelection();
+                            _onActivateEditMode();
+                            setState(() {});
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 4,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Align(
               alignment: Alignment.centerRight,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -358,9 +458,9 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                     isActive: shapeLogic.active,
                     onPressed: () {
                       if (!shapeLogic.active) {
-                        shapeLogic.setMap(widget.server.maps);
-                        shapeLogic.active = !shapeLogic.active;
+                        _onActivateEditMode();
                       } else {
+                        _resetLassoSelection();
                         shapeLogic.reset();
                       }
                       setState(() {});
@@ -370,22 +470,45 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                     icon: Icons.gesture_outlined,
                     isActive: lasso.active,
                     onPressed: () {
-                      lasso.active = !lasso.active;
-                      if (lasso.active) {
-                        mapRobotLogic.focusOnMowerActive = false;
+                      if (!lasso.active) {
+                        _onActivateLasso();
+                      } else {
                         _resetLassoSelection();
-                        lasso.active = true;
-                        shapeLogic.active = true;
-                        lasso.selection = [];
-                        lasso.selectionPoints = [];
                       }
                       setState(() {});
                     },
                   ),
                   MapButton(
-                    icon: Icons.device_unknown,
-                    isActive: false,
-                    onPressed: () {},
+                    icon: BootstrapIcons.house_add,
+                    isActive: lasso.selectedShape == 'dockPath',
+                    onPressed: () {
+                      lasso.selectedShape = lasso.selectedShape != 'dockPath'
+                          ? 'dockPath'
+                          : 'polygon';
+                      recorderLogic.selectedShape =
+                          recorderLogic.selectedShape != 'dockPath'
+                              ? 'dockPath'
+                              : 'polygon';
+                      _resetLassoSelection();
+                      _onActivateEditMode();
+                      setState(() {});
+                    },
+                  ),
+                  MapButton(
+                    icon: BootstrapIcons.compass,
+                    isActive: lasso.selectedShape == 'searchWire',
+                    onPressed: () {
+                      lasso.selectedShape = lasso.selectedShape != 'searchWire'
+                          ? 'searchWire'
+                          : 'polygon';
+                      recorderLogic.selectedShape =
+                          recorderLogic.selectedShape != 'searchWire'
+                              ? 'searchWire'
+                              : 'polygon';
+                      _resetLassoSelection();
+                      _onActivateEditMode();
+                      setState(() {});
+                    },
                   ),
                   MapButton(
                     icon: Icons.list,
@@ -394,6 +517,9 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                       // mapRobotLogic.focusOnMowerActive = false;
                       _onSelectMapPressed();
                       _resetLassoSelection();
+                      recorderLogic.recording = false;
+                      recorderLogic.onPress();
+                      recorderLogic.coordinates = [];
                       // widget.onOpenMapsOverlay();
                       setState(() {});
                     },
