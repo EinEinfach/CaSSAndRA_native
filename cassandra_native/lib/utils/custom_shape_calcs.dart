@@ -71,3 +71,59 @@ double normalizeAngle(double startAngle, double endAngle) {
   }
   return startAngle + delta;
 }
+
+// Prüfe ob ein Polygon Selbstüberschneidungen hat
+bool hasSelfIntersections(List<Offset> polygon) {
+  bool onSegment(Offset p, Offset q, Offset r) {
+    return q.dx <= max(p.dx, r.dx) &&
+        q.dx >= min(p.dx, r.dx) &&
+        q.dy <= max(p.dy, r.dy) &&
+        q.dy >= min(p.dy, r.dy);
+  }
+
+  int orientation(Offset p, Offset q, Offset r) {
+    double val = (q.dy - p.dy) * (r.dx - q.dx) - (q.dx - p.dx) * (r.dy - q.dy);
+    if (val == 0) return 0; // collinear
+    return (val > 0) ? 1 : 2; // clockwise or counterclockwise
+  }
+
+  bool doLinesIntersect(Offset p1, Offset q1, Offset p2, Offset q2) {
+    int o1 = orientation(p1, q1, p2);
+    int o2 = orientation(p1, q1, q2);
+    int o3 = orientation(p2, q2, p1);
+    int o4 = orientation(p2, q2, q1);
+
+    // Allgemeiner Fall
+    if (o1 != o2 && o3 != o4) return true;
+
+    // Spezielle Fälle (wenn die Punkte kollinear sind)
+    if (o1 == 0 && onSegment(p1, p2, q1)) return true;
+    if (o2 == 0 && onSegment(p1, q2, q1)) return true;
+    if (o3 == 0 && onSegment(p2, p1, q2)) return true;
+    if (o4 == 0 && onSegment(p2, q1, q2)) return true;
+
+    return false;
+  }
+
+  // Hauptfunktion zur Überprüfung der Selbstüberschneidungen
+  for (int i = 0; i < polygon.length; i++) {
+    Offset p1 = polygon[i];
+    Offset q1 = polygon[(i + 1) % polygon.length];
+
+    // Überprüfe nur Kanten, die mindestens zwei Indizes weiter entfernt sind,
+    // um benachbarte Kanten auszuschließen
+    for (int j = i + 2; j < polygon.length; j++) {
+      // Überspringe die letzte Kante, wenn sie sich mit der ersten Kante überschneidet
+      if (i == 0 && j == polygon.length - 1) continue;
+
+      Offset p2 = polygon[j];
+      Offset q2 = polygon[(j + 1) % polygon.length];
+
+      if (doLinesIntersect(p1, q1, p2, q2)) {
+        return true; // Selbstüberschneidung gefunden
+      }
+    }
+  }
+
+  return false; // Keine Selbstüberschneidung gefunden
+}

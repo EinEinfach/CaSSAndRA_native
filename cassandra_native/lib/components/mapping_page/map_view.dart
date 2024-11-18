@@ -40,6 +40,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   //selcection
   LassoLogic lasso = LassoLogic();
   ShapeLogic shapeLogic = ShapeLogic();
+  ShapesHistory shapesHistory = ShapesHistory();
   RecorderLogic recorderLogic = RecorderLogic();
 
   //ui
@@ -49,8 +50,6 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   Offset screenSizeDelta = Offset.zero;
   late Size screenSize;
   Size? oldScreenSize;
-  bool _isBusy = false;
-  Timer? _isBusyTimer;
 
   //animation
   late MapAnimationLogic mapAnimation;
@@ -71,9 +70,10 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    shapesHistory.progress.add(shapeLogic);
     mapAnimation = MapAnimationLogic(robot: widget.server.robot);
     _loadImage(categoryImages[widget.server.category]!.elementAt(1));
-    _resetLassoSelection();
+    lasso.reset();
     _currentPosition = widget.server.robot.mapsScaledPosition;
     mapAnimation.oldPosition = widget.server.robot.mapsScaledPosition;
     _currentAngle = widget.server.robot.angle;
@@ -133,18 +133,25 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     });
   }
 
-  void _resetLassoSelection() {
-    lasso.reset();
-    widget.server.currentMap.selectedArea = [];
-  }
-
   void _handleCancelButton() {
-    if (widget.server.currentMap.scaledObstacles.isNotEmpty) {
-      widget.server.serverInterface.commandResetObstacles();
-      widget.server.currentMap.resetObstaclesCoords();
-    } else {
-      _resetLassoSelection();
-      mapRobotLogic.focusOnMowerActive = false;
+    lasso.reset();
+    mapRobotLogic.focusOnMowerActive = false;
+    if (shapeLogic.selectedShape != null) {
+      if (shapeLogic.selectedShape == 'dockPath') {
+        shapeLogic.selectedShape = null;
+        shapeLogic.dockPath = [];
+        shapeLogic.selectedPointIndex = null;
+      } else if (shapeLogic.selectedShape == 'searchWire') {
+        shapeLogic.selectedShape = null;
+        shapeLogic.searchWire = [];
+        shapeLogic.selectedPointIndex = null;
+      } else if (shapeLogic.selectedShape == 'exclusion' &&
+          shapeLogic.selectedExclusionIndex != null) {
+        shapeLogic.selectedShape = null;
+        shapeLogic.exclusions.removeAt(shapeLogic.selectedExclusionIndex!);
+        shapeLogic.selectedExclusionIndex = null;
+        shapeLogic.selectedPointIndex = null;
+      }
     }
   }
 
@@ -160,6 +167,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
               Navigator.pop(context);
             },
             onOkPressed: () {
+              lasso.reset();
               shapeLogic.reset();
               Navigator.pop(context);
               widget.onOpenMapsOverlay();
@@ -181,25 +189,9 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   void _onActivateLasso() {
     if (!lasso.active) {
       mapRobotLogic.focusOnMowerActive = false;
-      _resetLassoSelection();
-      lasso.selection = [];
-      lasso.selectionPoints = [];
+      lasso.reset();
       lasso.active = true;
       _onActivateEditMode();
-    }
-  }
-
-  void _startBusyTimer() {
-    if (!_isBusy) {
-      _isBusyTimer = Timer(const Duration(seconds: 4), () {
-        _isBusy = true;
-      });
-    }
-  }
-
-  void _cancelBusyTimer() {
-    if (_isBusyTimer != null) {
-      _isBusyTimer!.cancel();
     }
   }
 
@@ -236,14 +228,6 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     // Robot position for recording
     if (recorderLogic.recording) {
       recorderLogic.onRecordingNewCoordianates(_currentPosition);
-    }
-
-    // Recording finished but data in buffer
-    if (!recorderLogic.recording && recorderLogic.coordinates.isNotEmpty) {
-      lasso.selection = List.of(recorderLogic.coordinates);
-      recorderLogic.coordinates = [];
-      lasso.onScaleEnd(zoomPan);
-      setState(() {});
     }
 
     // Listener is needed for zooming with mouse wheel on desktop apps
@@ -407,7 +391,11 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                       children: [
                         CommandButton(
                           icon: BootstrapIcons.plus,
-                          onPressed: () {},
+                          onPressed: () {
+                            shapeLogic.addShape(
+                                lasso.selection, lasso.selectedShape);
+                            lasso.reset();
+                          },
                           onLongPressed: () {},
                         ),
                         const SizedBox(
@@ -415,7 +403,11 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                         ),
                         CommandButton(
                           icon: BootstrapIcons.dash,
-                          onPressed: () {},
+                          onPressed: () {
+                            shapeLogic.removeShape(
+                                lasso.selection, lasso.selectedShape);
+                            lasso.reset();
+                          },
                           onLongPressed: () {},
                         ),
                         const Expanded(
@@ -427,14 +419,21 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                         CommandButton(
                           icon: recorderLogic.recordButtonIcon,
                           onPressed: () {
+                            if (recorderLogic.recording) {
+                              lasso.selection = List.of(recorderLogic.coordinates);
+                              recorderLogic.coordinates = [];
+                              lasso.onScaleEnd(zoomPan);
+                            } else {
+                              lasso.selection.add(_currentPosition);
+                              lasso.onScaleEnd(zoomPan);
+                            }
                             recorderLogic.onPress();
-                            recorderLogic.recording = false;
                             setState(() {});
                           },
                           onLongPressed: () {
                             recorderLogic.onLongPress();
                             recorderLogic.recording = true;
-                            _resetLassoSelection();
+                            lasso.reset();
                             _onActivateEditMode();
                             setState(() {});
                           },
@@ -460,7 +459,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                       if (!shapeLogic.active) {
                         _onActivateEditMode();
                       } else {
-                        _resetLassoSelection();
+                        lasso.reset();
                         shapeLogic.reset();
                       }
                       setState(() {});
@@ -473,7 +472,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                       if (!lasso.active) {
                         _onActivateLasso();
                       } else {
-                        _resetLassoSelection();
+                        lasso.reset();
                       }
                       setState(() {});
                     },
@@ -489,7 +488,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                           recorderLogic.selectedShape != 'dockPath'
                               ? 'dockPath'
                               : 'polygon';
-                      _resetLassoSelection();
+                      lasso.reset();
                       _onActivateEditMode();
                       setState(() {});
                     },
@@ -505,7 +504,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                           recorderLogic.selectedShape != 'searchWire'
                               ? 'searchWire'
                               : 'polygon';
-                      _resetLassoSelection();
+                      lasso.reset();
                       _onActivateEditMode();
                       setState(() {});
                     },
@@ -515,11 +514,10 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                     isActive: false,
                     onPressed: () {
                       // mapRobotLogic.focusOnMowerActive = false;
-                      _onSelectMapPressed();
-                      _resetLassoSelection();
                       recorderLogic.recording = false;
                       recorderLogic.onPress();
                       recorderLogic.coordinates = [];
+                      _onSelectMapPressed();
                       // widget.onOpenMapsOverlay();
                       setState(() {});
                     },
@@ -569,7 +567,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                       ),
                     ),
                     MapButton(
-                      icon: Icons.cancel,
+                      icon: BootstrapIcons.trash,
                       isActive: false,
                       onPressed: () {
                         _handleCancelButton();
@@ -580,15 +578,6 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                 ),
               ],
             ),
-            if (_isBusy)
-              Positioned.fill(
-                child: BackdropFilter(
-                  filter: ui.ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                  child: const Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                ),
-              ),
           ],
         );
       }),

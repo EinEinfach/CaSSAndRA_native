@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui' as ui;
 import 'dart:async';
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/components/logic/map_logic.dart';
@@ -457,7 +458,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                       ),
                     ),
                     MapButton(
-                      icon: Icons.cancel,
+                      icon: BootstrapIcons.trash,
                       isActive: false,
                       onPressed: () {
                         _handleCancelButton();

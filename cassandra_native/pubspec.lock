@@ -600,6 +600,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
+  polybool:
+    dependency: "direct main"
+    description:
+      name: polybool
+      sha256: c3b15d92252e80e2727504fb14810328247fa11f45538147426d04346a2cd81c
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
   polygon:
     dependency: "direct main"
     description:
@@ -632,6 +640,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.2"
+  quiver:
+    dependency: transitive
+    description:
+      name: quiver
+      sha256: ea0b925899e64ecdfbf9c7becb60d5b50e706ade44a85b2363be2a22d88117d2
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.2"
   safe_local_storage:
     dependency: transitive
     description:

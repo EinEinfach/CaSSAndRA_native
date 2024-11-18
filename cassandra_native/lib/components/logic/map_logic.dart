@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
+import 'package:polybool/polybool.dart';
 
 import 'package:cassandra_native/models/landscape.dart';
 import 'package:cassandra_native/models/maps.dart';
@@ -16,6 +17,10 @@ class ZoomPanLogic {
     offset = Offset(screenSize.width / 2 - point.dx * scale,
         screenSize.height / 2 - point.dy * scale);
   }
+}
+
+class ShapesHistory {
+  List<ShapeLogic> progress = [];
 }
 
 class ShapeLogic {
@@ -278,6 +283,103 @@ class ShapeLogic {
       exclusions[selectedExclusionIndex!].removeAt(selectedPointIndex!);
     }
   }
+
+  void addShape(List<Offset> shape, String shapeType) {
+    if (shapeType == 'polygon' && shape.length > 2 && !hasSelfIntersections(shape)) {
+      if (perimeter.isEmpty) {
+        shape.add(shape.first);
+        perimeter = List.of(shape);
+      } else if (_intersectShapes([perimeter], [shape]).isNotEmpty){
+        exclusions = _differenceShapes([shape], exclusions);
+        perimeter = _unionShapes([shape], [perimeter])[0];
+      }
+    } else if (shapeType == 'dockPath') {
+      if (perimeter.isNotEmpty) dockPath.addAll(shape);
+    } else if (shapeType == 'searchWire') {
+      if (perimeter.isNotEmpty) searchWire.addAll(shape);
+    }
+  }
+
+  void removeShape(List<Offset> shape, String shapeType) {
+    if (shapeType == 'polygon' && shape.length > 2 && !hasSelfIntersections(shape)) {
+      if (perimeter.isEmpty) {
+        return;
+      } else if (exclusions.isEmpty) {
+        shape.add(shape.first);
+        exclusions.add(shape);
+      } else {
+        exclusions = _unionShapes([shape], exclusions);
+        final newShapes = _differenceShapes(exclusions, [perimeter]);
+        perimeter = newShapes.last;
+        exclusions = newShapes.sublist(0, newShapes.length - 1);
+      }
+    }
+  }
+
+  List<List<Offset>> _unionShapes(
+      List<List<Offset>> shapesToAdd, List<List<Offset>> shapes) {
+    List<List<Offset>> newShapes = [];
+    Polygon uniedPolygons = Polygon(
+            regions: shapes
+                .map((shape) => _listOffsetToListCoordinate(shape))
+                .toList())
+        .union(Polygon(
+            regions: shapesToAdd
+                .map((shape) => _listOffsetToListCoordinate(shape))
+                .toList()));
+    newShapes = uniedPolygons.regions.map((shape) {
+      final closedPolygon = _listCoordinateToListOffset(shape);
+      closedPolygon.add(closedPolygon.first);
+      return closedPolygon;
+    }).toList();
+    return newShapes;
+  }
+
+  List<List<Offset>> _differenceShapes(
+      List<List<Offset>> shapesToSub, List<List<Offset>> shapes) {
+    List<List<Offset>> newShapes = [];
+    Polygon differencedPolygon = Polygon(
+            regions: shapes
+                .map((shape) => _listOffsetToListCoordinate(shape))
+                .toList())
+        .difference(Polygon(
+            regions: shapesToSub
+                .map((shape) => _listOffsetToListCoordinate(shape))
+                .toList()));
+    newShapes = differencedPolygon.regions.map((shape) {
+      final closedPolygon = _listCoordinateToListOffset(shape);
+      closedPolygon.add(closedPolygon.first);
+      return closedPolygon;
+    }).toList();
+    return newShapes;
+  }
+
+  List<List<Offset>> _intersectShapes(
+      List<List<Offset>> shapesToIntersect, List<List<Offset>> shapes) {
+    List<List<Offset>> newShapes = [];
+    Polygon intersectedPolygon = Polygon(
+            regions: shapesToIntersect
+                .map((shape) => _listOffsetToListCoordinate(shape))
+                .toList())
+        .intersect(Polygon(
+            regions: shapes
+                .map((shape) => _listOffsetToListCoordinate(shape))
+                .toList()));
+    newShapes = intersectedPolygon.regions.map((shape) {
+      final closedPolygon = _listCoordinateToListOffset(shape);
+      closedPolygon.add(closedPolygon.first);
+      return closedPolygon;
+    }).toList();
+    return newShapes;
+  }
+
+  List<Coordinate> _listOffsetToListCoordinate(List<Offset> coords) {
+    return coords.map((p) => Coordinate(p.dx, p.dy)).toList();
+  }
+
+  List<Offset> _listCoordinateToListOffset(List<Coordinate> coords) {
+    return coords.map((p) => Offset(p.x, p.y)).toList();
+  }
 }
 
 class RecorderLogic {
@@ -299,20 +401,10 @@ class RecorderLogic {
   }
 
   void onRecordingNewCoordianates(Offset newCoord) {
-    if (!recording) {
-      return;
-    }
     if (coordinates.isEmpty ||
         newCoord != coordinates[coordinates.length - 1]) {
       coordinates.add(newCoord);
     }
-    // if (coordinates.isEmpty || newCoord != coordinates[coordinates.length -1] && selectedShape != 'polygon') {
-    //   coordinates.add(newCoord);
-    // } else if (newCoord != coordinates[coordinates.length - 1]) {
-    //   coordinates.removeAt(coordinates.length - 1);
-    //   coordinates.add(newCoord);
-    //   coordinates.add(coordinates[0]);
-    // }
   }
 }
 
@@ -407,7 +499,7 @@ class LassoLogic {
     final Offset scaledAndMovedCoords =
         (details.localPosition - zoomPan.offset) / zoomPan.scale;
     selection[selectedPointIndex!] = scaledAndMovedCoords;
-    selectionPoints[selectedPointIndex!] = scaledAndMovedCoords;
+    //selectionPoints[selectedPointIndex!] = scaledAndMovedCoords;
   }
 
   void _moveLasso(LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
@@ -415,7 +507,7 @@ class LassoLogic {
         (details.localPosition - zoomPan.offset) / zoomPan.scale;
     final Offset delta = scaledAndMovedCoords - lastPosition!;
     selection = selection.map((point) => point + delta).toList();
-    selectionPoints = selectionPoints.map((point) => point + delta).toList();
+    selectionPoints = selection;
     lastPosition = scaledAndMovedCoords;
   }
 }
