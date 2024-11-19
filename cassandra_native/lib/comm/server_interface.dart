@@ -201,4 +201,13 @@ class ServerInterface {
     }
     _sendCommand(cmdSelectMapJson);
   }
+
+  void commandLoadMap(List<String> map) {
+    final Map<String, dynamic> cmdLoadMap = _addTopicAndCommandToValue('maps', 'load', map);
+    final String cmdLoadMapJson = jsonEncode(cmdLoadMap);
+    if (kDebugMode) {
+      debugPrint(cmdLoadMapJson);
+    }
+    _sendCommand(cmdLoadMapJson);  
+  }
 }

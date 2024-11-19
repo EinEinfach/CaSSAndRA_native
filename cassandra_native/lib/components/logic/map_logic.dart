@@ -21,24 +21,105 @@ class ZoomPanLogic {
 
 class ShapesHistory {
   List<ShapeLogic> progress = [];
+  int? currentIdx;
+
+  void onNewProgress(ShapeLogic shapeLogic) {
+    if (progress.isNotEmpty) {
+      currentIdx = currentIdx! + 1;
+      progress = progress.sublist(0, currentIdx!);
+      progress.add(shapeLogic.copy());
+    } else {
+      progress.add(shapeLogic.copy());
+      currentIdx = 0;
+    }
+  }
+
+  ShapeLogic onUndoPressed() {
+    if (currentIdx! > 0) {
+      currentIdx = currentIdx! - 1;
+    }
+    return progress[currentIdx!];
+  }
+
+  ShapeLogic onRedoPressed() {
+    if (currentIdx! < progress.length - 1) {
+      currentIdx = currentIdx! + 1;
+    }
+    return progress[currentIdx!];
+  }
 }
 
 class ShapeLogic {
-  bool active = false;
-  List<Offset> selectionPoints = [];
+  ShapeLogic({
+    this.active = false,
+    List<Offset>? selectionPoints,
+    this.selectedPointIndex,
+    this.selectedExclusionIndex,
+    List<Offset>? perimeter,
+    List<Offset>? perimeterCartesian,
+    List<List<Offset>>? exclusions,
+    List<List<Offset>>? exclusionsCartesian,
+    List<Offset>? dockPath,
+    List<Offset>? dockPathCartesian,
+    List<Offset>? searchWire,
+    List<Offset>? searchWireCartesian,
+    this.selected = false,
+    this.selectedShape,
+    this.lastPosition,
+  })  : selectionPoints = selectionPoints ?? [],
+        perimeter = perimeter ?? [],
+        perimeterCartesian = perimeterCartesian ?? [],
+        exclusions = exclusions ?? [],
+        exclusionsCartesian = exclusionsCartesian ?? [],
+        dockPath = dockPath ?? [],
+        dockPathCartesian = dockPathCartesian ?? [],
+        searchWire = searchWire ?? [],
+        searchWireCartesian = searchWireCartesian ?? [];
+
+  bool active;
+  List<Offset> selectionPoints;
   int? selectedPointIndex;
   int? selectedExclusionIndex;
-  List<Offset> perimeter = [];
-  List<Offset> perimeterCartesian = [];
-  List<List<Offset>> exclusions = [];
-  List<List<Offset>> exclusionsCartesian = [];
-  List<Offset> dockPath = [];
-  List<Offset> dockPathCartesian = [];
-  List<Offset> searchWire = [];
-  List<Offset> searchWireCartesian = [];
-  bool selected = false;
+  List<Offset> perimeter;
+  List<Offset> perimeterCartesian;
+  List<List<Offset>> exclusions;
+  List<List<Offset>> exclusionsCartesian;
+  List<Offset> dockPath;
+  List<Offset> dockPathCartesian;
+  List<Offset> searchWire;
+  List<Offset> searchWireCartesian;
+  bool selected;
   String? selectedShape;
   Offset? lastPosition;
+
+  ShapeLogic copy() {
+    List<List<Offset>> tmpExclusions = [];
+    List<List<Offset>> tmpExclusionsCartesian = [];
+    for (var exclusion in exclusions) {
+      tmpExclusions.add(List.of(exclusion));
+    }
+    for (var exclusion in exclusionsCartesian) {
+      tmpExclusionsCartesian.add(List.of(exclusion));
+    }
+    ShapeLogic shapeLogicCopy = ShapeLogic(
+      active: active,
+      selectionPoints: selectionPoints,
+      selectedPointIndex: selectedPointIndex,
+      selectedExclusionIndex: selectedExclusionIndex,
+      perimeter: List.of(perimeter),
+      perimeterCartesian: List.of(perimeterCartesian),
+      exclusions: tmpExclusions,
+      exclusionsCartesian: tmpExclusionsCartesian,
+      dockPath: List.of(dockPath),
+      dockPathCartesian: List.of(dockPathCartesian),
+      searchWire: List.of(searchWire),
+      searchWireCartesian: List.of(searchWireCartesian),
+      selected: selected,
+      selectedShape: selectedShape,
+      lastPosition: lastPosition,
+    );
+    return shapeLogicCopy;
+  }
 
   void reset() {
     active = false;
@@ -114,6 +195,16 @@ class ShapeLogic {
         currentDistance = (searchWire[i] - scaledAndMovedCoords).distance;
         selectedShape = 'searchWire';
         selectedPointIndex = i;
+      }
+    }
+    for (int i = 0; i < exclusions.length; i++) {
+      if (isPointInsidePolygon(scaledAndMovedCoords, exclusions[i]) &&
+          selectedPointIndex == null) {
+        selected = true;
+        selectedShape = 'exclusion';
+        selectedExclusionIndex = i;
+        lastPosition = scaledAndMovedCoords;
+        return;
       }
     }
     if (isPointInsidePolygon(scaledAndMovedCoords, perimeter) &&
@@ -245,9 +336,16 @@ class ShapeLogic {
     final Offset scaledAndMovedCoords =
         (details.localPosition - zoomPan.offset) / zoomPan.scale;
     final Offset delta = scaledAndMovedCoords - lastPosition!;
-    perimeter = perimeter.map((point) => point + delta).toList();
-    selectionPoints = selectionPoints.map((point) => point + delta).toList();
-    lastPosition = scaledAndMovedCoords;
+    if (selectedShape == 'perimeter') {
+      perimeter = perimeter.map((point) => point + delta).toList();
+      selectionPoints = selectionPoints.map((point) => point + delta).toList();
+      lastPosition = scaledAndMovedCoords;
+    } else if (selectedShape == 'exclusion' && selectedExclusionIndex != null) {
+      exclusions[selectedExclusionIndex!] = exclusions[selectedExclusionIndex!]
+          .map((point) => point + delta)
+          .toList();
+      lastPosition = scaledAndMovedCoords;
+    }
   }
 
   List<Offset> _canvasCoordsToCartesian(List<Offset> shape, Maps maps) {
@@ -285,11 +383,13 @@ class ShapeLogic {
   }
 
   void addShape(List<Offset> shape, String shapeType) {
-    if (shapeType == 'polygon' && shape.length > 2 && !hasSelfIntersections(shape)) {
+    if (shapeType == 'polygon' &&
+        shape.length > 2 &&
+        !hasSelfIntersections(shape)) {
       if (perimeter.isEmpty) {
         shape.add(shape.first);
         perimeter = List.of(shape);
-      } else if (_intersectShapes([perimeter], [shape]).isNotEmpty){
+      } else if (_intersectShapes([perimeter], [shape]).isNotEmpty) {
         exclusions = _differenceShapes([shape], exclusions);
         perimeter = _unionShapes([shape], [perimeter])[0];
       }
@@ -301,7 +401,9 @@ class ShapeLogic {
   }
 
   void removeShape(List<Offset> shape, String shapeType) {
-    if (shapeType == 'polygon' && shape.length > 2 && !hasSelfIntersections(shape)) {
+    if (shapeType == 'polygon' &&
+        shape.length > 2 &&
+        !hasSelfIntersections(shape)) {
       if (perimeter.isEmpty) {
         return;
       } else if (exclusions.isEmpty) {

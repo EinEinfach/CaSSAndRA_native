@@ -16,7 +16,7 @@ import 'package:cassandra_native/components/common/joystick_drawer.dart';
 import 'package:cassandra_native/components/home_page/map_view.dart';
 import 'package:cassandra_native/components/home_page/select_tasks.dart';
 import 'package:cassandra_native/components/home_page/status_window.dart';
-import 'package:cassandra_native/components/home_page/command_button.dart';
+import 'package:cassandra_native/components/common/command_button.dart';
 import 'package:cassandra_native/components/logic/ui_logic.dart';
 import 'package:cassandra_native/components/common/new_mow_parameters.dart';
 import 'package:cassandra_native/utils/mow_parameters_storage.dart';

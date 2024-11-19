@@ -83,13 +83,13 @@ class _SelectMapState extends State<SelectMap> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     CustomizedElevatedButton(
-                      text: 'cancel',
+                      text: 'upload',
                       onPressed: () {
-                        // widget.server.serverInterface.commandSelectMap([]);
                         Navigator.pop(context);
+                        widget.server.serverInterface.commandLoadMap([widget.server.maps.selected]);
                       },
                     ),
-                    const SizedBox(
+                     const SizedBox(
                       width: 10,
                     ),
                     CustomizedElevatedButton(

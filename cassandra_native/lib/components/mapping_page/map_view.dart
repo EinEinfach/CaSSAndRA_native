@@ -1,4 +1,3 @@
-import 'package:cassandra_native/components/home_page/command_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -14,8 +13,10 @@ import 'package:cassandra_native/components/logic/ui_logic.dart';
 import 'package:cassandra_native/components/mapping_page/map_painter.dart';
 import 'package:cassandra_native/components/home_page/map_button.dart';
 import 'package:cassandra_native/components/home_page/status_bar.dart';
-import 'package:cassandra_native/utils/custom_shape_calcs.dart';
+import 'package:cassandra_native/components/common/command_button.dart';
+import 'package:cassandra_native/components/common/command_button_small.dart';
 import 'package:cassandra_native/components/common/customized_dialog_ok_cancel.dart';
+import 'package:cassandra_native/utils/custom_shape_calcs.dart';
 
 class MapView extends StatefulWidget {
   final Server server;
@@ -70,7 +71,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    shapesHistory.progress.add(shapeLogic);
+    shapesHistory.onNewProgress(shapeLogic);
     mapAnimation = MapAnimationLogic(robot: widget.server.robot);
     _loadImage(categoryImages[widget.server.category]!.elementAt(1));
     lasso.reset();
@@ -212,7 +213,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
         widget.server.robot.mapsScalePosition(screenSize, widget.server.maps);
         _onNewCoordinatesReceived(widget.server.robot.mapsScaledPosition,
             widget.server.robot.angle, false);
-        lasso.onScreenSizeChanged(widget.server.currentMap);
+        // lasso.onScreenSizeChanged(widget.server.currentMap);
       }
     }
 
@@ -263,7 +264,6 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
               onScaleUpdate: (details) {
                 setState(() {
                   //selection or zoom and pan
-
                   //selection
                   if (lasso.active) {
                     RenderBox box = context.findRenderObject() as RenderBox;
@@ -308,14 +308,15 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                 lasso.onDoubleTap();
                 shapeLogic.onDoubleTap();
                 shapeLogic.onLongPressedEnd(widget.server.maps);
+                shapesHistory.onNewProgress(shapeLogic);
                 setState(() {});
               },
               onScaleEnd: (_) {
                 if (lasso.active) {
                   setState(() {
                     lasso.onScaleEnd(zoomPan);
-                    widget.server.currentMap
-                        .lassoSelectionToJsonData(lasso.selection);
+                    // widget.server.currentMap
+                    //     .lassoSelectionToJsonData(lasso.selection);
                   });
                 }
               },
@@ -330,8 +331,8 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
               onLongPressMoveUpdate: (details) {
                 if (lasso.selection.isNotEmpty) {
                   lasso.onLongPressedMoveUpdate(details, zoomPan);
-                  widget.server.currentMap
-                      .lassoSelectionToJsonData(lasso.selection);
+                  // widget.server.currentMap
+                  //     .lassoSelectionToJsonData(lasso.selection);
                 } else if (shapeLogic.active) {
                   shapeLogic.onLongPressedMoveUpdate(details, zoomPan);
                 }
@@ -340,9 +341,11 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
               onLongPressEnd: (_) {
                 shapeLogic.onLongPressedEnd(widget.server.maps);
                 lasso.onLongPressedEnd();
+                shapesHistory.onNewProgress(shapeLogic);
                 setState(() {});
               },
               onTapDown: (details) {},
+/******************************************************************************************Main Content********************************************************************************************/
               child: SizedBox(
                 width: constraints.maxWidth,
                 height: constraints.maxHeight,
@@ -378,6 +381,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                             .shake()),
                   )
                 : SizedBox.shrink(),
+/*************************************************************************************Command Buttons***********************************************************************************************/
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
@@ -386,32 +390,40 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        CommandButton(
-                          icon: BootstrapIcons.plus,
-                          onPressed: () {
-                            shapeLogic.addShape(
-                                lasso.selection, lasso.selectedShape);
-                            lasso.reset();
-                          },
-                          onLongPressed: () {},
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        CommandButton(
-                          icon: BootstrapIcons.dash,
-                          onPressed: () {
-                            shapeLogic.removeShape(
-                                lasso.selection, lasso.selectedShape);
-                            lasso.reset();
-                          },
-                          onLongPressed: () {},
-                        ),
                         const Expanded(
                           child: SizedBox(),
+                        ),
+                        Column(
+                          children: [
+                            CommandButtonSmall(
+                              icon: BootstrapIcons.plus,
+                              onPressed: () {
+                                shapeLogic.addShape(
+                                    lasso.selection, lasso.selectedShape);
+                                lasso.reset();
+                                shapeLogic.onLongPressedEnd(widget.server.maps);
+                                shapesHistory.onNewProgress(shapeLogic);
+                              },
+                              onLongPressed: () {},
+                            ),
+                            const SizedBox(
+                              height: 8,
+                            ),
+                            CommandButtonSmall(
+                              icon: BootstrapIcons.dash,
+                              onPressed: () {
+                                shapeLogic.removeShape(
+                                    lasso.selection, lasso.selectedShape);
+                                lasso.reset();
+                                shapeLogic.onLongPressedEnd(widget.server.maps);
+                                shapesHistory.onNewProgress(shapeLogic);
+                              },
+                              onLongPressed: () {},
+                            ),
+                          ],
                         ),
                         const SizedBox(
                           width: 10,
@@ -420,7 +432,8 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                           icon: recorderLogic.recordButtonIcon,
                           onPressed: () {
                             if (recorderLogic.recording) {
-                              lasso.selection = List.of(recorderLogic.coordinates);
+                              lasso.selection =
+                                  List.of(recorderLogic.coordinates);
                               recorderLogic.coordinates = [];
                               lasso.onScaleEnd(zoomPan);
                             } else {
@@ -447,6 +460,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                 ),
               ),
             ),
+/*******************************************************************************Map buttons right side*******************************************************************************************/
             Align(
               alignment: Alignment.centerRight,
               child: Column(
@@ -528,6 +542,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
             const SizedBox(
               width: 3,
             ),
+/*************************************************************************************Map buttons on top*********************************************************************************************/
             Column(
               children: [
                 StatusBar(robot: widget.server.robot),
@@ -540,6 +555,16 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                           const SizedBox(
                             width: 50,
                           ),
+                          MapButton(
+                              icon: Icons.undo,
+                              isActive: false,
+                              onPressed: () {
+                                shapeLogic =
+                                    shapesHistory.onUndoPressed().copy();
+                                shapeLogic.scaleShapes(
+                                    screenSize, widget.server.maps);
+                                setState(() {});
+                              }),
                           MapButton(
                             icon: Icons.zoom_in_map,
                             isActive: false,
@@ -563,6 +588,16 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                               setState(() {});
                             },
                           ),
+                          MapButton(
+                              icon: Icons.redo,
+                              isActive: false,
+                              onPressed: () {
+                                shapeLogic =
+                                    shapesHistory.onRedoPressed().copy();
+                                shapeLogic.scaleShapes(
+                                    screenSize, widget.server.maps);
+                                setState(() {});
+                              }),
                         ],
                       ),
                     ),

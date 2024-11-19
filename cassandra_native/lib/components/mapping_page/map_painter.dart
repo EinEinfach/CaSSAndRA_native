@@ -143,6 +143,12 @@ class MapPainter extends CustomPainter {
             Offset(selectedPoint.dx, selectedPoint.dy + 6 / scale),
             selectedPointBrush);
       }
+      if (shapes.selectedShape == 'perimeter' && shapes.selectedPointIndex == null) {
+        var perimeterFillColor = Paint()
+          ..color = colors.secondary.withOpacity(0.7)
+          ..style = PaintingStyle.fill;
+        canvas.drawPath(pathPerimeter, perimeterFillColor);
+      } 
     }
 
     // draw exclusions
@@ -206,6 +212,11 @@ class MapPainter extends CustomPainter {
             Offset(selectedPoint.dx, selectedPoint.dy + 6 / scale),
             selectedPointBrush);
       }
+      if (shapes.selectedShape == 'exclusion' && shapes.selectedPointIndex == null && shapes.selectedExclusionIndex != null) {
+        Path pathSelectedExclusion = Path();
+        pathSelectedExclusion = drawPolygonFromGeoJson(pathSelectedExclusion, shapes.exclusions[shapes.selectedExclusionIndex!]);
+        canvas.drawPath(pathSelectedExclusion, exclusionsFillColor);
+      } 
     }
 
     // draw dockPath and search wire
