@@ -210,4 +210,14 @@ class ServerInterface {
     }
     _sendCommand(cmdLoadMapJson);  
   }
+
+  void commandSaveMap(Map<String, dynamic> mapData) {
+    final Map<String, dynamic> cmdSaveMap =
+        _addTopicAndCommandToValue('maps', 'save', mapData);
+    final String cmdSaveMapJson = jsonEncode(cmdSaveMap);
+    if (kDebugMode) {
+      debugPrint(cmdSaveMapJson);
+    }
+    _sendCommand(cmdSaveMapJson);
+  }
 }

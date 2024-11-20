@@ -145,7 +145,7 @@ class MapPainter extends CustomPainter {
       }
       if (shapes.selectedShape == 'perimeter' && shapes.selectedPointIndex == null) {
         var perimeterFillColor = Paint()
-          ..color = colors.secondary.withOpacity(0.7)
+          ..color = colors.onSurface.withOpacity(0.4)
           ..style = PaintingStyle.fill;
         canvas.drawPath(pathPerimeter, perimeterFillColor);
       } 
@@ -215,7 +215,10 @@ class MapPainter extends CustomPainter {
       if (shapes.selectedShape == 'exclusion' && shapes.selectedPointIndex == null && shapes.selectedExclusionIndex != null) {
         Path pathSelectedExclusion = Path();
         pathSelectedExclusion = drawPolygonFromGeoJson(pathSelectedExclusion, shapes.exclusions[shapes.selectedExclusionIndex!]);
-        canvas.drawPath(pathSelectedExclusion, exclusionsFillColor);
+        var exclusionSelectedFillColor = Paint()
+          ..color = colors.onSurface.withOpacity(0.4)
+          ..style = PaintingStyle.fill;
+        canvas.drawPath(pathSelectedExclusion, exclusionSelectedFillColor);
       } 
     }
 
@@ -224,13 +227,13 @@ class MapPainter extends CustomPainter {
       ..color =
           shapes.active ? colors.onSurface.withOpacity(0.15) : colors.onSurface
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.8 * adjustedLineWidth;
+      ..strokeWidth = 0.5 * adjustedLineWidth;
 
     var searchWireBrush = Paint()
       ..color =
           shapes.active ? colors.onSurface.withOpacity(0.15) : colors.onSurface
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.8 * adjustedLineWidth;
+      ..strokeWidth = 0.5 * adjustedLineWidth;
 
     Path pathDock = Path();
     pathDock = drawLine(pathDock, maps.scaledDockPath);
@@ -246,7 +249,7 @@ class MapPainter extends CustomPainter {
             ? colors.error
             : colors.inversePrimary
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 0.8 * adjustedLineWidth;
+        ..strokeWidth = 0.5 * adjustedLineWidth;
 
       pathDock = Path();
       pathDock = drawLine(pathDock, shapes.dockPath);
@@ -257,7 +260,7 @@ class MapPainter extends CustomPainter {
             ? colors.error
             : colors.inversePrimary
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 0.8 * adjustedLineWidth;
+        ..strokeWidth = 0.5 * adjustedLineWidth;
 
       pathSearchWire = Path();
       pathSearchWire = drawLine(pathSearchWire, shapes.searchWire);

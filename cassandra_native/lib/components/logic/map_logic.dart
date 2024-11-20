@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:polybool/polybool.dart';
@@ -22,6 +24,11 @@ class ZoomPanLogic {
 class ShapesHistory {
   List<ShapeLogic> progress = [];
   int? currentIdx;
+
+  void reset() {
+    progress = [];
+    currentIdx = null;
+  }
 
   void onNewProgress(ShapeLogic shapeLogic) {
     if (progress.isNotEmpty) {
@@ -314,6 +321,68 @@ class ShapeLogic {
     searchWire = searchWire
         .map((p) => Offset(p.dx + maps.offsetX, p.dy + maps.offsetY))
         .toList();
+  }
+
+  Map<String, dynamic> mapCoordsToGeoJson(String name) {
+    List<dynamic> features = [];
+    Map<String, dynamic> mapJson = {};
+    if (perimeterCartesian.isNotEmpty) {
+      final nameFeature = {
+        'type': 'Feature',
+        'properties': {'name': name}
+      };
+      features.add(nameFeature);
+      var perimeterFeature = {
+        'type': 'Feature',
+        'properties': {'name': 'perimeter'},
+        'geometry': {
+          'type': 'Polygon',
+          'coordinates': perimeterCartesian.map((p) => [p.dx, p.dy]).toList(),
+        }
+      };
+      features.add(perimeterFeature);
+      if (exclusionsCartesian.isNotEmpty) {
+        for (var exclusion in exclusionsCartesian) {
+          var exclusionsFeature = {
+            'type': 'Feature',
+            'properties': {'name': 'exclusion'},
+            'geometry': {
+              'type': 'Polygon',
+              'coordinates':
+                  exclusion.map((p) => [p.dx, p.dy]).toList(),
+            }
+          };
+          features.add(exclusionsFeature);
+        }
+      }
+      if (dockPathCartesian.isNotEmpty) {
+        var dockPathFeature = {
+          'type': 'Feature',
+          'properties': {'name': 'dockPath'},
+          'geometry': {
+            'type': 'LineString',
+            'coordinates': 
+              dockPathCartesian.map((p) => [p.dx, p.dy]).toList(),
+          }
+        };
+        features.add(dockPathFeature);
+      }
+      if (searchWireCartesian.isNotEmpty) {
+        var searchWireFeature = {
+          'type': 'Feature',
+          'properties': {'name': 'searchWire'},
+          'geometry': {
+            'type': 'LineString',
+            'coordinates': 
+              searchWireCartesian.map((p) => [p.dx, p.dy]).toList(),
+          }
+        };
+        features.add(searchWireFeature);
+      }
+      mapJson = {'type': 'FeatureCollection', 'features': features};
+      print(jsonEncode(mapJson));
+    }
+    return mapJson;
   }
 
   void _moveSelectedPoint(

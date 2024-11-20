@@ -1,3 +1,4 @@
+import 'package:cassandra_native/components/common/customized_dialog_input.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -14,7 +15,6 @@ import 'package:cassandra_native/components/mapping_page/map_painter.dart';
 import 'package:cassandra_native/components/home_page/map_button.dart';
 import 'package:cassandra_native/components/home_page/status_bar.dart';
 import 'package:cassandra_native/components/common/command_button.dart';
-import 'package:cassandra_native/components/common/command_button_small.dart';
 import 'package:cassandra_native/components/common/customized_dialog_ok_cancel.dart';
 import 'package:cassandra_native/utils/custom_shape_calcs.dart';
 
@@ -135,9 +135,10 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   }
 
   void _handleCancelButton() {
-    lasso.reset();
     mapRobotLogic.focusOnMowerActive = false;
-    if (shapeLogic.selectedShape != null) {
+    if(lasso.selection.isNotEmpty){
+      lasso.reset();
+    } else if (shapeLogic.selectedShape != null) {
       if (shapeLogic.selectedShape == 'dockPath') {
         shapeLogic.selectedShape = null;
         shapeLogic.dockPath = [];
@@ -152,7 +153,9 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
         shapeLogic.exclusions.removeAt(shapeLogic.selectedExclusionIndex!);
         shapeLogic.selectedExclusionIndex = null;
         shapeLogic.selectedPointIndex = null;
-      }
+      } 
+    } else {
+      //shapeLogic.reset();
     }
   }
 
@@ -170,6 +173,8 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
             onOkPressed: () {
               lasso.reset();
               shapeLogic.reset();
+              shapesHistory.reset();
+              shapesHistory.onNewProgress(shapeLogic);
               Navigator.pop(context);
               widget.onOpenMapsOverlay();
             }),
@@ -193,6 +198,26 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
       lasso.reset();
       lasso.active = true;
       _onActivateEditMode();
+    }
+  }
+
+  Future<void> _handleSaveMap() async {
+    //var test = shapeLogic.mapCoordsToGeoJson('test');
+    final mapName = await showDialog(
+      context: context,
+      builder: (context) => CustomizedDialogInput(
+        title: 'Save changes',
+        content:
+            'You are about to exit edit mode. Do you want to save the changes?',
+        suggestionText: widget.server.maps.selected,
+      ),
+    );
+    if (mapName != null) {
+      final mapData = shapeLogic.mapCoordsToGeoJson(mapName);
+      widget.server.serverInterface.commandSaveMap(mapData);
+      lasso.reset();
+      shapeLogic.reset();
+      setState(() {});
     }
   }
 
@@ -323,7 +348,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
               onLongPressStart: (details) {
                 if (lasso.selection.isNotEmpty) {
                   lasso.onLongPressedStart(details, zoomPan);
-                } else if (shapeLogic.active) {
+                } else if (shapeLogic.active && !lasso.active) {
                   shapeLogic.onLongPressedStart(details, zoomPan);
                 }
                 setState(() {});
@@ -390,43 +415,36 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Row(
-                      //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        const Expanded(
-                          child: SizedBox(),
-                        ),
-                        Column(
-                          children: [
-                            CommandButtonSmall(
-                              icon: BootstrapIcons.plus,
-                              onPressed: () {
-                                shapeLogic.addShape(
-                                    lasso.selection, lasso.selectedShape);
-                                lasso.reset();
-                                shapeLogic.onLongPressedEnd(widget.server.maps);
-                                shapesHistory.onNewProgress(shapeLogic);
-                              },
-                              onLongPressed: () {},
-                            ),
-                            const SizedBox(
-                              height: 8,
-                            ),
-                            CommandButtonSmall(
-                              icon: BootstrapIcons.dash,
-                              onPressed: () {
-                                shapeLogic.removeShape(
-                                    lasso.selection, lasso.selectedShape);
-                                lasso.reset();
-                                shapeLogic.onLongPressedEnd(widget.server.maps);
-                                shapesHistory.onNewProgress(shapeLogic);
-                              },
-                              onLongPressed: () {},
-                            ),
-                          ],
+                        CommandButton(
+                          icon: BootstrapIcons.plus,
+                          onPressed: () {
+                            shapeLogic.addShape(
+                                lasso.selection, lasso.selectedShape);
+                            lasso.reset();
+                            shapeLogic.onLongPressedEnd(widget.server.maps);
+                            shapesHistory.onNewProgress(shapeLogic);
+                          },
+                          onLongPressed: () {},
                         ),
                         const SizedBox(
                           width: 10,
+                        ),
+                        CommandButton(
+                          icon: BootstrapIcons.dash,
+                          onPressed: () {
+                            shapeLogic.removeShape(
+                                lasso.selection, lasso.selectedShape);
+                            lasso.reset();
+                            shapeLogic.onLongPressedEnd(widget.server.maps);
+                            shapesHistory.onNewProgress(shapeLogic);
+                          },
+                          onLongPressed: () {},
+                        ),
+                        const Expanded(
+                          child: SizedBox(),
                         ),
                         CommandButton(
                           icon: recorderLogic.recordButtonIcon,
@@ -472,9 +490,9 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                     onPressed: () {
                       if (!shapeLogic.active) {
                         _onActivateEditMode();
+                        shapesHistory.onNewProgress(shapeLogic);
                       } else {
-                        lasso.reset();
-                        shapeLogic.reset();
+                        _handleSaveMap();
                       }
                       setState(() {});
                     },
@@ -527,12 +545,10 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                     icon: Icons.list,
                     isActive: false,
                     onPressed: () {
-                      // mapRobotLogic.focusOnMowerActive = false;
                       recorderLogic.recording = false;
                       recorderLogic.onPress();
                       recorderLogic.coordinates = [];
                       _onSelectMapPressed();
-                      // widget.onOpenMapsOverlay();
                       setState(() {});
                     },
                   ),

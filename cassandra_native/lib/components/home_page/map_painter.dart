@@ -223,7 +223,7 @@ class MapPainter extends CustomPainter {
     var dockPathBrush = Paint()
       ..color = colors.onSurface
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.8 * adjustedLineWidth;
+      ..strokeWidth = 0.5 * adjustedLineWidth;
 
     Path pathDock = Path();
     pathDock = drawLine(pathDock, currentMap.scaledDockPath);
