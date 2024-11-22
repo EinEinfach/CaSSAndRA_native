@@ -1,4 +1,4 @@
-import 'package:cassandra_native/components/common/customized_dialog_input.dart';
+import 'package:cassandra_native/components/mapping_page/maps_overview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -12,22 +12,20 @@ import 'package:cassandra_native/components/logic/map_logic.dart';
 import 'package:cassandra_native/components/logic/animation_logic.dart';
 import 'package:cassandra_native/components/logic/ui_logic.dart';
 import 'package:cassandra_native/components/mapping_page/map_painter.dart';
+//import 'package:cassandra_native/components/mapping_page/select_map.dart';
 import 'package:cassandra_native/components/home_page/map_button.dart';
 import 'package:cassandra_native/components/home_page/status_bar.dart';
 import 'package:cassandra_native/components/common/command_button.dart';
 import 'package:cassandra_native/components/common/customized_dialog_ok_cancel.dart';
+import 'package:cassandra_native/components/common/customized_dialog_input.dart';
 import 'package:cassandra_native/utils/custom_shape_calcs.dart';
 
 class MapView extends StatefulWidget {
   final Server server;
-  // final void Function() openMowParametersOverlay;
-  final void Function() onOpenMapsOverlay;
 
   const MapView({
     super.key,
     required this.server,
-    // required this.openMowParametersOverlay,
-    required this.onOpenMapsOverlay,
   });
 
   @override
@@ -35,6 +33,8 @@ class MapView extends StatefulWidget {
 }
 
 class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
+  late String selectedMap;
+
   //zoom and pan
   ZoomPanLogic zoomPan = ZoomPanLogic();
 
@@ -71,6 +71,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    selectedMap = widget.server.maps.selected;
     shapesHistory.onNewProgress(shapeLogic);
     mapAnimation = MapAnimationLogic(robot: widget.server.robot);
     _loadImage(categoryImages[widget.server.category]!.elementAt(1));
@@ -136,7 +137,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
 
   void _handleCancelButton() {
     mapRobotLogic.focusOnMowerActive = false;
-    if(lasso.selection.isNotEmpty){
+    if (lasso.selection.isNotEmpty) {
       lasso.reset();
     } else if (shapeLogic.selectedShape != null) {
       if (shapeLogic.selectedShape == 'dockPath') {
@@ -153,10 +154,34 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
         shapeLogic.exclusions.removeAt(shapeLogic.selectedExclusionIndex!);
         shapeLogic.selectedExclusionIndex = null;
         shapeLogic.selectedPointIndex = null;
-      } 
+      }
     } else {
-      //shapeLogic.reset();
+      shapeLogic.reset();
+      widget.server.maps.resetSelection();
+      widget.server.serverInterface.commandSelectMap([]);
     }
+  }
+
+  void _openMapsOverlay() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        title: const Text(
+          'Available maps',
+          style: TextStyle(fontSize: 14),
+        ),
+        content: MapsOverview(
+          server: widget.server,
+        ),
+        // content: SelectMap(
+        //   server: widget.server,
+        // ),
+      ),
+    );
   }
 
   void _onSelectMapPressed() {
@@ -176,12 +201,25 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
               shapesHistory.reset();
               shapesHistory.onNewProgress(shapeLogic);
               Navigator.pop(context);
-              widget.onOpenMapsOverlay();
+              _openMapsOverlay();
             }),
       );
     } else {
-      widget.onOpenMapsOverlay();
+      _openMapsOverlay();
     }
+  }
+
+  void onConfirmMapSelect() {
+    Size screenSize = MediaQuery.of(context).size;
+    if (widget.server.maps.selected == '') {
+      widget.server.maps.resetSelection();
+    }
+    widget.server.maps.scaleShapes(screenSize);
+    shapeLogic.scaleShapes(screenSize, widget.server.maps);
+    widget.server.robot.mapsScalePosition(screenSize, widget.server.maps);
+    _onNewCoordinatesReceived(widget.server.robot.mapsScaledPosition,
+        widget.server.robot.angle, false);
+    // lasso.onScreenSizeChanged(widget.server.currentMap);
   }
 
   void _onActivateEditMode() {
@@ -202,7 +240,6 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   }
 
   Future<void> _handleSaveMap() async {
-    //var test = shapeLogic.mapCoordsToGeoJson('test');
     final mapName = await showDialog(
       context: context,
       builder: (context) => CustomizedDialogInput(
@@ -233,13 +270,13 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
           screenSize.height - oldScreenSize!.height);
       oldScreenSize = screenSize;
       if (screenSizeDelta != Offset.zero) {
-        widget.server.maps.scaleShapes(screenSize);
-        shapeLogic.scaleShapes(screenSize, widget.server.maps);
-        widget.server.robot.mapsScalePosition(screenSize, widget.server.maps);
-        _onNewCoordinatesReceived(widget.server.robot.mapsScaledPosition,
-            widget.server.robot.angle, false);
-        // lasso.onScreenSizeChanged(widget.server.currentMap);
+        onConfirmMapSelect();
       }
+    }
+    // New map selected, new scale necassary
+    if (selectedMap != widget.server.maps.selected) {
+      selectedMap = widget.server.maps.selected;
+      onConfirmMapSelect();
     }
 
     // Robot position for animation
@@ -458,6 +495,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                               lasso.selection.add(_currentPosition);
                               lasso.onScaleEnd(zoomPan);
                             }
+                            _onActivateEditMode();
                             recorderLogic.onPress();
                             setState(() {});
                           },
@@ -579,6 +617,8 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                                     shapesHistory.onUndoPressed().copy();
                                 shapeLogic.scaleShapes(
                                     screenSize, widget.server.maps);
+                                widget.server.robot.mapsScalePosition(
+                                    screenSize, widget.server.maps);
                                 setState(() {});
                               }),
                           MapButton(
@@ -611,6 +651,8 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                                 shapeLogic =
                                     shapesHistory.onRedoPressed().copy();
                                 shapeLogic.scaleShapes(
+                                    screenSize, widget.server.maps);
+                                widget.server.robot.mapsScalePosition(
                                     screenSize, widget.server.maps);
                                 setState(() {});
                               }),

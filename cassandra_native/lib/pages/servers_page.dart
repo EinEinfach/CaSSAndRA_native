@@ -21,7 +21,7 @@ import 'package:cassandra_native/components/common/customized_elevated_button.da
 import 'package:cassandra_native/components/servers_page/new_server.dart';
 import 'package:cassandra_native/components/servers_page/server_item.dart';
 import 'package:cassandra_native/components/servers_page/server_item_v_2.dart';
-import 'package:cassandra_native/components/servers_page/dismiss_item.dart';
+import 'package:cassandra_native/components/common/dismiss_item.dart';
 import 'package:cassandra_native/components/servers_page/info_item.dart';
 
 import 'package:cassandra_native/models/server.dart';

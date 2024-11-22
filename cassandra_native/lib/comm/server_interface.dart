@@ -41,7 +41,7 @@ class ServerInterface {
 
   void _sendCommand(String command) {
     if (MqttManager.instance.isNotConnected(id)) {
-      if(kDebugMode) {
+      if (kDebugMode) {
         debugPrint('Disconnected. Message could not be sent');
       }
     } else {
@@ -194,7 +194,8 @@ class ServerInterface {
   }
 
   void commandSelectMap(List<String> map) {
-    final Map<String, dynamic> cmdSelectMap = _addTopicAndCommandToValue('maps', 'select', map);
+    final Map<String, dynamic> cmdSelectMap =
+        _addTopicAndCommandToValue('maps', 'select', map);
     final String cmdSelectMapJson = jsonEncode(cmdSelectMap);
     if (kDebugMode) {
       debugPrint(cmdSelectMapJson);
@@ -203,12 +204,13 @@ class ServerInterface {
   }
 
   void commandLoadMap(List<String> map) {
-    final Map<String, dynamic> cmdLoadMap = _addTopicAndCommandToValue('maps', 'load', map);
+    final Map<String, dynamic> cmdLoadMap =
+        _addTopicAndCommandToValue('maps', 'load', map);
     final String cmdLoadMapJson = jsonEncode(cmdLoadMap);
     if (kDebugMode) {
       debugPrint(cmdLoadMapJson);
     }
-    _sendCommand(cmdLoadMapJson);  
+    _sendCommand(cmdLoadMapJson);
   }
 
   void commandSaveMap(Map<String, dynamic> mapData) {
@@ -219,5 +221,25 @@ class ServerInterface {
       debugPrint(cmdSaveMapJson);
     }
     _sendCommand(cmdSaveMapJson);
+  }
+
+  void commandRemoveMap(List<String> map) {
+    final Map<String, dynamic> cmdRemoveMap =
+        _addTopicAndCommandToValue('maps', 'remove', map);
+    final String cmdRemoveMapJson = jsonEncode(cmdRemoveMap);
+    if (kDebugMode) {
+      debugPrint(cmdRemoveMapJson);
+    }
+    _sendCommand(cmdRemoveMapJson);
+  }
+
+  void commandRenameMap(List<String> names) {
+    final Map<String, dynamic> cmdRenameMap =
+        _addTopicAndCommandToValue('maps', 'rename', names);
+    final String cmdRenameMapJson = jsonEncode(cmdRenameMap);
+    if (kDebugMode) {
+      debugPrint(cmdRenameMapJson);
+    }
+    _sendCommand(cmdRenameMapJson);
   }
 }

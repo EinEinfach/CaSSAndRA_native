@@ -12,7 +12,7 @@ import 'package:cassandra_native/components/joystick/joystick_v_2.dart';
 import 'package:cassandra_native/components/common/nav_button.dart';
 import 'package:cassandra_native/components/common/nav_drawer.dart';
 import 'package:cassandra_native/components/mapping_page/map_view.dart';
-import 'package:cassandra_native/components/mapping_page/select_map.dart';
+//import 'package:cassandra_native/components/mapping_page/select_map.dart';
 
 class MappingPage extends StatefulWidget {
   final Server server;
@@ -91,25 +91,6 @@ class _MappingPageState extends State<MappingPage> {
     setState(() {});
   }
 
-  void openMapsOverlay() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        title: const Text(
-          'Available maps',
-          style: TextStyle(fontSize: 14),
-        ),
-        content: SelectMap(
-          server: widget.server,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     // Do some lifecycle stuff before render the widget
@@ -131,7 +112,7 @@ class _MappingPageState extends State<MappingPage> {
             children: [
               MapView(
                 server: widget.server,
-                onOpenMapsOverlay: openMapsOverlay,
+                //onOpenMapsOverlay: openMapsOverlay,
               ),
               _showJoystick
                   ? Align(

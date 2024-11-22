@@ -6,8 +6,8 @@ import 'dart:convert';
 import 'package:cassandra_native/models/tasks.dart';
 
 class Landscape {
-  String mapId = '';
-  String receivedMapId = '';
+  String? mapId;
+  String? receivedMapId;
   List<Offset> perimeter = [];
   List<Offset> shiftedPerimeter = [];
   List<Offset> scaledPerimeter = [];
@@ -21,20 +21,20 @@ class Landscape {
   List<Offset> shiftedSearchWire = [];
   List<Offset> scaledSearchWire = [];
 
-  String previewId = '';
-  String receivedPreviewId = '';
+  String? previewId;
+  String? receivedPreviewId;
   List<Offset> preview = [];
   List<Offset> shiftedPreview = [];
   List<Offset> scaledPreview = [];
 
-  String mowPathId = '';
-  String receivedMowPathId = '';
+  String? mowPathId;
+  String? receivedMowPathId;
   List<Offset> mowPath = [];
   List<Offset> shiftedMowPath = [];
   List<Offset> scaledMowPath = [];
 
-  String obstaclesId = '';
-  String receivedObstaclesId = '';
+  String? obstaclesId;
+  String? receivedObstaclesId;
   List<List<Offset>> obstacles = [];
   List<List<Offset>> shiftedObstacles = [];
   List<List<Offset>> scaledObstacles = [];
@@ -119,7 +119,7 @@ class Landscape {
     _resetCoords();
     try {
       for (var feature in decodedMessage["features"]) {
-        if (feature['properties']['name'] == 'perimeter') {
+        if (feature['properties']['name'] == 'perimeter' && feature['geometry']['coordinates'].isNotEmpty) {
           for (var coord in feature['geometry']['coordinates'][0]) {
             perimeter.add(Offset(coord[0], coord[1]));
           }

@@ -22,17 +22,17 @@ class ServerItem extends StatelessWidget {
     required this.selectServer,
   });
 
+  void _navigateTo(Widget page, BuildContext context) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => page,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    void _navigateTo(Widget page) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => page,
-        ),
-      );
-    }
-
     return Container(
       decoration: BoxDecoration(
         color: serverItemColor,
@@ -115,11 +115,13 @@ class ServerItem extends StatelessWidget {
                     if (server.rtspUrl != null) {
                       _navigateTo(
                         StreamPage(server: server),
+                        context,
                       );
                     }
                   },
                   onTap: () => _navigateTo(
                     HomePage(server: server),
+                    context,
                   ),
                 ),
               ),

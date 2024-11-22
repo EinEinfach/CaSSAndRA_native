@@ -18,25 +18,26 @@ class ServerItemV2 extends StatelessWidget {
     required this.selectServer,
   });
 
+  void _navigateTo(Widget page, BuildContext context) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => page,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    void _navigateTo(Widget page) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => page,
-        ),
-      );
-    }
-
     return GestureDetector(
       onTap: () => _navigateTo(
         HomePage(server: server),
+        context,
       ),
       child: Container(
         decoration: BoxDecoration(
           color: serverItemColor,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
         ),
         height: 80,
         margin: const EdgeInsets.all(2),
@@ -109,6 +110,7 @@ class ServerItemV2 extends StatelessWidget {
                 if (server.rtspUrl != null) {
                   _navigateTo(
                     StreamPage(server: server),
+                    context,
                   );
                 }
               },
