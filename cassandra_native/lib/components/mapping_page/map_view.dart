@@ -1,4 +1,3 @@
-import 'package:cassandra_native/components/mapping_page/maps_overview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +11,8 @@ import 'package:cassandra_native/components/logic/map_logic.dart';
 import 'package:cassandra_native/components/logic/animation_logic.dart';
 import 'package:cassandra_native/components/logic/ui_logic.dart';
 import 'package:cassandra_native/components/mapping_page/map_painter.dart';
+import 'package:cassandra_native/components/mapping_page/maps_overview.dart';
+import 'package:cassandra_native/components/mapping_page/point_information.dart';
 //import 'package:cassandra_native/components/mapping_page/select_map.dart';
 import 'package:cassandra_native/components/home_page/map_button.dart';
 import 'package:cassandra_native/components/home_page/status_bar.dart';
@@ -443,6 +444,16 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                             .shake()),
                   )
                 : SizedBox.shrink(),
+/***********************************************************************************Point Informations**********************************************************************************************/
+            if (shapeLogic.selectedPointIndex != null)
+              Positioned(
+                left: shapeLogic.selectedPointCoords!.dx*zoomPan.scale + zoomPan.offset.dx + 60,
+                top: shapeLogic.selectedPointCoords!.dy*zoomPan.scale + zoomPan.offset.dy - 70,
+                child: PointInformation(
+                  shapeLogic: shapeLogic,
+                  maps: widget.server.maps,
+                ),
+              ),
 /*************************************************************************************Command Buttons***********************************************************************************************/
             Align(
               alignment: Alignment.bottomCenter,
@@ -619,6 +630,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                                     screenSize, widget.server.maps);
                                 widget.server.robot.mapsScalePosition(
                                     screenSize, widget.server.maps);
+                                shapeLogic.onTap();
                                 setState(() {});
                               }),
                           MapButton(
@@ -654,6 +666,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                                     screenSize, widget.server.maps);
                                 widget.server.robot.mapsScalePosition(
                                     screenSize, widget.server.maps);
+                                shapeLogic.onTap();
                                 setState(() {});
                               }),
                         ],

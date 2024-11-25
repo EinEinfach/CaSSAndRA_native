@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:polybool/polybool.dart';
@@ -62,6 +60,8 @@ class ShapeLogic {
     List<Offset>? selectionPoints,
     this.selectedPointIndex,
     this.selectedExclusionIndex,
+    this.selectedPointCoords,
+    this.selectedPointCoordsStart,
     List<Offset>? perimeter,
     List<Offset>? perimeterCartesian,
     List<List<Offset>>? exclusions,
@@ -87,6 +87,8 @@ class ShapeLogic {
   List<Offset> selectionPoints;
   int? selectedPointIndex;
   int? selectedExclusionIndex;
+  Offset? selectedPointCoords;
+  Offset? selectedPointCoordsStart;
   List<Offset> perimeter;
   List<Offset> perimeterCartesian;
   List<List<Offset>> exclusions;
@@ -113,6 +115,8 @@ class ShapeLogic {
       selectionPoints: selectionPoints,
       selectedPointIndex: selectedPointIndex,
       selectedExclusionIndex: selectedExclusionIndex,
+      selectedPointCoords: selectedPointCoords,
+      selectedPointCoordsStart: selectedPointCoordsStart,
       perimeter: List.of(perimeter),
       perimeterCartesian: List.of(perimeterCartesian),
       exclusions: tmpExclusions,
@@ -141,6 +145,8 @@ class ShapeLogic {
     selectionPoints = [];
     selectedPointIndex = null;
     selectedExclusionIndex = null;
+    selectedPointCoords = null;
+    selectedPointCoordsStart = null;
     selected = false;
     selectedShape = null;
     lastPosition = null;
@@ -174,6 +180,8 @@ class ShapeLogic {
         currentDistance = (perimeter[i] - scaledAndMovedCoords).distance;
         selectedShape = 'perimeter';
         selectedPointIndex = i;
+        selectedPointCoords = perimeter[i];
+        selectedPointCoordsStart = perimeter[i];
       }
     }
     for (int k = 0; k < exclusions.length; k++) {
@@ -185,6 +193,8 @@ class ShapeLogic {
           selectedShape = 'exclusion';
           selectedExclusionIndex = k;
           selectedPointIndex = i;
+          selectedPointCoords = exclusions[k][i];
+          selectedPointCoordsStart = exclusions[k][i];
         }
       }
     }
@@ -194,6 +204,8 @@ class ShapeLogic {
         currentDistance = (dockPath[i] - scaledAndMovedCoords).distance;
         selectedShape = 'dockPath';
         selectedPointIndex = i;
+        selectedPointCoords = dockPath[i];
+        selectedPointCoordsStart = dockPath[i];
       }
     }
     for (int i = 0; i < searchWire.length; i++) {
@@ -202,6 +214,8 @@ class ShapeLogic {
         currentDistance = (searchWire[i] - scaledAndMovedCoords).distance;
         selectedShape = 'searchWire';
         selectedPointIndex = i;
+        selectedPointCoords = searchWire[i];
+        selectedPointCoordsStart = searchWire[i];
       }
     }
     for (int i = 0; i < exclusions.length; i++) {
@@ -252,6 +266,8 @@ class ShapeLogic {
   void onTap() {
     selectedPointIndex = null;
     selectedExclusionIndex = null;
+    selectedPointCoords = null;
+    selectedPointCoordsStart = null;
     selected = false;
     selectedShape = null;
   }
@@ -348,8 +364,7 @@ class ShapeLogic {
             'properties': {'name': 'exclusion'},
             'geometry': {
               'type': 'Polygon',
-              'coordinates':
-                  exclusion.map((p) => [p.dx, p.dy]).toList(),
+              'coordinates': exclusion.map((p) => [p.dx, p.dy]).toList(),
             }
           };
           features.add(exclusionsFeature);
@@ -361,8 +376,7 @@ class ShapeLogic {
           'properties': {'name': 'dockPath'},
           'geometry': {
             'type': 'LineString',
-            'coordinates': 
-              dockPathCartesian.map((p) => [p.dx, p.dy]).toList(),
+            'coordinates': dockPathCartesian.map((p) => [p.dx, p.dy]).toList(),
           }
         };
         features.add(dockPathFeature);
@@ -373,14 +387,13 @@ class ShapeLogic {
           'properties': {'name': 'searchWire'},
           'geometry': {
             'type': 'LineString',
-            'coordinates': 
-              searchWireCartesian.map((p) => [p.dx, p.dy]).toList(),
+            'coordinates':
+                searchWireCartesian.map((p) => [p.dx, p.dy]).toList(),
           }
         };
         features.add(searchWireFeature);
       }
       mapJson = {'type': 'FeatureCollection', 'features': features};
-      print(jsonEncode(mapJson));
     }
     return mapJson;
   }
@@ -390,14 +403,33 @@ class ShapeLogic {
     final Offset scaledAndMovedCoords =
         (details.localPosition - zoomPan.offset) / zoomPan.scale;
     if (selectedShape == 'perimeter') {
-      perimeter[selectedPointIndex!] = scaledAndMovedCoords;
+      if (selectedPointIndex! == 0 ||
+          selectedPointIndex == perimeter.length - 1) {
+        perimeter.first = scaledAndMovedCoords;
+        perimeter.last = scaledAndMovedCoords;
+        selectedPointCoords = scaledAndMovedCoords;
+      } else {
+        perimeter[selectedPointIndex!] = scaledAndMovedCoords;
+        selectedPointCoords = scaledAndMovedCoords;
+      }
     } else if (selectedShape == 'exclusion') {
-      exclusions[selectedExclusionIndex!][selectedPointIndex!] =
-          scaledAndMovedCoords;
+      if (selectedPointIndex! == 0 ||
+          selectedPointIndex! ==
+              exclusions[selectedExclusionIndex!].length - 1) {
+        exclusions[selectedExclusionIndex!].first = scaledAndMovedCoords;
+        exclusions[selectedExclusionIndex!].last = scaledAndMovedCoords;
+        selectedPointCoords = scaledAndMovedCoords;
+      } else {
+        exclusions[selectedExclusionIndex!][selectedPointIndex!] =
+            scaledAndMovedCoords;
+        selectedPointCoords = scaledAndMovedCoords;
+      }
     } else if (selectedShape == 'dockPath') {
       dockPath[selectedPointIndex!] = scaledAndMovedCoords;
+      selectedPointCoords = scaledAndMovedCoords;
     } else if (selectedShape == 'searchWire') {
       searchWire[selectedPointIndex!] = scaledAndMovedCoords;
+      selectedPointCoords = scaledAndMovedCoords;
     }
   }
 

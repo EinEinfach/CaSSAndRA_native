@@ -19,6 +19,14 @@ class MapsOverview extends StatefulWidget {
 }
 
 class _MapsOverviewState extends State<MapsOverview> {
+  List<String> sortedMapNames = [];
+
+  @override
+  void initState() {
+    sortedMapNames = widget.server.maps.available.map((item) => item.toString()).toList();
+    sortedMapNames.sort((a, b) => a.compareTo(b));
+    super.initState();
+  }
   void onNewMapSelected() {
     setState(() {});
   }
@@ -34,9 +42,9 @@ class _MapsOverviewState extends State<MapsOverview> {
             height: 200,
             child: ListView.builder(
               scrollDirection: Axis.vertical,
-              itemCount: widget.server.maps.available.length,
+              itemCount: sortedMapNames.length,
               itemBuilder: (context, index) {
-                final map = widget.server.maps.available[index];
+                final map = sortedMapNames[index];
                 return Dismissible(
                   key: Key(map),
                   background: const DismissItem(),
