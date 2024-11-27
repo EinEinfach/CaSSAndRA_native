@@ -1,58 +1,85 @@
 import 'package:flutter/material.dart';
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 
-import 'package:cassandra_native/components/logic/map_logic.dart';
+import 'package:cassandra_native/components/logic/shapes_logic.dart';
+import 'package:cassandra_native/components/home_page/map_button.dart';
 import 'package:cassandra_native/models/maps.dart';
 
 class PointInformation extends StatelessWidget {
-  final ShapeLogic shapeLogic;
+  final Shapes shapes;
   final Maps maps;
+  final bool insertPointActive;
+  final VoidCallback onRemovePoint;
+  final VoidCallback onAddPointActivate;
   const PointInformation({
     super.key,
-    required this.shapeLogic,
+    required this.shapes,
     required this.maps,
+    required this.insertPointActive,
+    required this.onRemovePoint,
+    required this.onAddPointActivate,
   });
 
   @override
   Widget build(BuildContext context) {
     final Offset cartesianCoords = Offset(
-        ((shapeLogic.selectedPointCoords!.dx - maps.offsetX) / maps.mapScale) +
+        ((shapes.selectedPointCoords!.dx - maps.offsetX) / maps.mapScale) +
             maps.minX,
-        -(shapeLogic.selectedPointCoords!.dy - maps.offsetY) / maps.mapScale +
+        -(shapes.selectedPointCoords!.dy - maps.offsetY) / maps.mapScale +
             maps.minY);
     final Offset cartesianCoordsStart = Offset(
-        ((shapeLogic.selectedPointCoordsStart!.dx - maps.offsetX) /
-                maps.mapScale) +
+        ((shapes.selectedPointCoordsStart!.dx - maps.offsetX) / maps.mapScale) +
             maps.minX,
-        -(shapeLogic.selectedPointCoordsStart!.dy - maps.offsetY) /
-                maps.mapScale +
+        -(shapes.selectedPointCoordsStart!.dy - maps.offsetY) / maps.mapScale +
             maps.minY);
     final double distance = (cartesianCoords - cartesianCoordsStart).distance;
 
-    return Material(
-      color: Colors.transparent,
-      child: Container(
-        padding: EdgeInsets.all(3),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'start x: ${cartesianCoordsStart.dx.toStringAsFixed(2)} y: ${cartesianCoordsStart.dy.toStringAsFixed(2)}',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            Text(
-              'end x: ${cartesianCoords.dx.toStringAsFixed(2)} y: ${cartesianCoords.dy.toStringAsFixed(2)}',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            Text(
-              'distance: ${distance.toStringAsFixed(2)}',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
-        ),
+    return Container(
+      padding: EdgeInsets.all(5),
+      width: 180,
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        // color: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'x: ${cartesianCoords.dx.toStringAsFixed(2)} (${cartesianCoordsStart.dx.toStringAsFixed(2)}) y: ${cartesianCoords.dy.toStringAsFixed(2)} (${cartesianCoordsStart.dy.toStringAsFixed(2)})',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          SizedBox(
+            height: 4,
+          ),
+          Text(
+            'distance: ${distance.toStringAsFixed(2)}',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          Text(
+            '${shapes.selectedShape} idx: ${shapes.selectedPointIndex}',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          SizedBox(
+            height: 4,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              MapButton(
+                icon: BootstrapIcons.plus,
+                isActive: insertPointActive,
+                onPressed: onAddPointActivate,
+              ),
+              MapButton(
+                icon: BootstrapIcons.trash,
+                isActive: false,
+                onPressed: onRemovePoint,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

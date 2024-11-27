@@ -65,9 +65,9 @@ bool isPointInsidePolygon(Offset point, List<Offset> polygon) {
 double normalizeAngle(double startAngle, double endAngle) {
   double delta = endAngle - startAngle;
   if (delta > pi) {
-    delta -= 2*pi;
+    delta -= 2 * pi;
   } else if (delta < -pi) {
-    delta += 2*pi;
+    delta += 2 * pi;
   }
   return startAngle + delta;
 }
@@ -126,4 +126,15 @@ bool hasSelfIntersections(List<Offset> polygon) {
   }
 
   return false; // Keine Selbstüberschneidung gefunden
+}
+
+Offset getClosestPointOnSegment(Offset a, Offset b, Offset p) {
+  // Vector AB
+  Offset ab = b - a;
+  // Vector AP
+  Offset ap = p - a;
+  // Projection of AP onto AB normalized
+  double t = (ap.dx * ab.dx + ap.dy * ab.dy) / (ab.dx * ab.dx + ab.dy * ab.dy);
+  t = t.clamp(0.0, 1.0); // Ensure the projection is within the segment
+  return Offset(a.dx + t * ab.dx, a.dy + t * ab.dy);
 }

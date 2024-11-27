@@ -7,6 +7,7 @@ import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/components/logic/map_logic.dart';
+import 'package:cassandra_native/components/logic/lasso_logic.dart';
 import 'package:cassandra_native/components/logic/animation_logic.dart';
 import 'package:cassandra_native/components/logic/ui_logic.dart';
 import 'package:cassandra_native/components/home_page/map_painter.dart';
@@ -202,7 +203,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
         _onNewCoordinatesReceived(widget.server.robot.scaledPosition,
             widget.server.robot.angle, false);
         gotoPoint.onScreenSizeChanged(widget.server.currentMap);
-        lasso.onScreenSizeChanged(widget.server.currentMap);
+        lasso.scale(widget.server.currentMap);
       }
     }
 
@@ -297,7 +298,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
               },
               onLongPressStart: (details) {
                 if (lasso.selection.isNotEmpty) {
-                  lasso.onLongPressedStart(details, zoomPan);
+                  lasso.selectPoint(details, zoomPan);
                 } else if (gotoPoint.coords != null) {
                   gotoPoint.onLongPressedStart(details, zoomPan);
                 }
@@ -305,7 +306,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
               },
               onLongPressMoveUpdate: (details) {
                 if (lasso.selection.isNotEmpty) {
-                  lasso.onLongPressedMoveUpdate(details, zoomPan);
+                  lasso.move(details, zoomPan);
                   widget.server.currentMap
                       .lassoSelectionToJsonData(lasso.selection);
                 } else if (gotoPoint.coords != null) {
@@ -316,19 +317,17 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                 setState(() {});
               },
               onLongPressEnd: (_) {
-                if (lasso.selection.isNotEmpty) {
-                  lasso.onLongPressedEnd();
-                } else if (gotoPoint.coords != null) {
+                if (gotoPoint.coords != null) {
                   gotoPoint.onLongPressedEnd(widget.server.currentMap);
                 }
                 setState(() {});
               },
               onTap: () {
-                lasso.onTap();
+                lasso.unselectAll();
                 setState(() {});
               },
               onDoubleTap: () {
-                lasso.onDoubleTap();
+                lasso.removePoint();
                 gotoPoint.onDoubleTap();
                 setState(() {});
               },

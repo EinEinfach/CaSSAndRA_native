@@ -8,8 +8,9 @@ import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/components/logic/map_logic.dart';
+import 'package:cassandra_native/components/logic/lasso_logic.dart';
+import 'package:cassandra_native/components/logic/shapes_logic.dart';
 import 'package:cassandra_native/components/logic/animation_logic.dart';
-import 'package:cassandra_native/components/logic/ui_logic.dart';
 import 'package:cassandra_native/components/mapping_page/map_painter.dart';
 import 'package:cassandra_native/components/mapping_page/maps_overview.dart';
 import 'package:cassandra_native/components/mapping_page/point_information.dart';
@@ -41,12 +42,12 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
 
   //selcection
   LassoLogic lasso = LassoLogic();
-  ShapeLogic shapeLogic = ShapeLogic();
+  Shapes shapes = Shapes();
   ShapesHistory shapesHistory = ShapesHistory();
   RecorderLogic recorderLogic = RecorderLogic();
+  bool _addPointActive = false;
 
   //ui
-  PlayButtonLogic playButtonLogic = PlayButtonLogic();
   MapRobotLogic mapRobotLogic = MapRobotLogic();
   ui.Image? roverImage;
   Offset screenSizeDelta = Offset.zero;
@@ -73,7 +74,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     selectedMap = widget.server.maps.selected;
-    shapesHistory.onNewProgress(shapeLogic);
+    shapesHistory.addNewProgress(shapes);
     mapAnimation = MapAnimationLogic(robot: widget.server.robot);
     _loadImage(categoryImages[widget.server.category]!.elementAt(1));
     lasso.reset();
@@ -140,24 +141,30 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     mapRobotLogic.focusOnMowerActive = false;
     if (lasso.selection.isNotEmpty) {
       lasso.reset();
-    } else if (shapeLogic.selectedShape != null) {
-      if (shapeLogic.selectedShape == 'dockPath') {
-        shapeLogic.selectedShape = null;
-        shapeLogic.dockPath = [];
-        shapeLogic.selectedPointIndex = null;
-      } else if (shapeLogic.selectedShape == 'searchWire') {
-        shapeLogic.selectedShape = null;
-        shapeLogic.searchWire = [];
-        shapeLogic.selectedPointIndex = null;
-      } else if (shapeLogic.selectedShape == 'exclusion' &&
-          shapeLogic.selectedExclusionIndex != null) {
-        shapeLogic.selectedShape = null;
-        shapeLogic.exclusions.removeAt(shapeLogic.selectedExclusionIndex!);
-        shapeLogic.selectedExclusionIndex = null;
-        shapeLogic.selectedPointIndex = null;
+    } else if (shapes.selectedShape != null &&
+        shapes.selectedPointIndex == null) {
+      if (shapes.selectedShape == 'dockPath') {
+        shapes.selectedShape = null;
+        shapes.dockPath = [];
+        shapes.selectedPointIndex = null;
+      } else if (shapes.selectedShape == 'searchWire') {
+        shapes.selectedShape = null;
+        shapes.searchWire = [];
+        shapes.selectedPointIndex = null;
+      } else if (shapes.selectedShape == 'exclusion' &&
+          shapes.selectedExclusionIndex != null) {
+        shapes.selectedShape = null;
+        shapes.exclusions.removeAt(shapes.selectedExclusionIndex!);
+        shapes.selectedExclusionIndex = null;
+        shapes.selectedPointIndex = null;
+      } else if (shapes.selectedShape == 'perimeter') {
+        shapes.reset();
       }
+    } else if (shapes.selectedShape != null &&
+        shapes.selectedPointIndex != null) {
+      shapes.removePoint();
     } else {
-      shapeLogic.reset();
+      shapes.reset();
       widget.server.maps.resetSelection();
       widget.server.serverInterface.commandSelectMap([]);
     }
@@ -186,7 +193,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   }
 
   void _onSelectMapPressed() {
-    if (shapeLogic.active) {
+    if (shapes.active) {
       showDialog(
         context: context,
         builder: (context) => CustomizedDialogOkCancel(
@@ -198,9 +205,9 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
             },
             onOkPressed: () {
               lasso.reset();
-              shapeLogic.reset();
+              shapes.reset();
               shapesHistory.reset();
-              shapesHistory.onNewProgress(shapeLogic);
+              shapesHistory.addNewProgress(shapes);
               Navigator.pop(context);
               _openMapsOverlay();
             }),
@@ -216,18 +223,20 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
       widget.server.maps.resetSelection();
     }
     widget.server.maps.scaleShapes(screenSize);
-    shapeLogic.scaleShapes(screenSize, widget.server.maps);
+    shapes.scale(screenSize, widget.server.maps);
     widget.server.robot.mapsScalePosition(screenSize, widget.server.maps);
     _onNewCoordinatesReceived(widget.server.robot.mapsScaledPosition,
         widget.server.robot.angle, false);
+    _addPointActive = false;
+    shapes.unselectAll();
     // lasso.onScreenSizeChanged(widget.server.currentMap);
   }
 
   void _onActivateEditMode() {
-    shapeLogic.onTap();
-    if (!shapeLogic.active) {
-      shapeLogic.setMap(widget.server.maps);
-      shapeLogic.active = true;
+    shapes.unselectAll();
+    if (!shapes.active) {
+      shapes.fromMap(widget.server.maps);
+      shapes.active = true;
     }
   }
 
@@ -251,12 +260,51 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
       ),
     );
     if (mapName != null) {
-      final mapData = shapeLogic.mapCoordsToGeoJson(mapName);
+      final mapData = shapes.toGeoJson(mapName);
       widget.server.serverInterface.commandSaveMap(mapData);
       lasso.reset();
-      shapeLogic.reset();
+      shapes.reset();
       setState(() {});
     }
+  }
+
+  void _onRemovePoint() {
+    lasso.removePoint();
+    shapes.removePoint();
+    shapes.toCartesian(widget.server.maps);
+    shapesHistory.addNewProgress(shapes);
+    setState(() {});
+  }
+
+  void _onAddPointActivate() {
+    _addPointActive = !_addPointActive;
+    setState(() {});
+  }
+
+  void _onAddPoint(TapDownDetails details) {
+    if (_addPointActive) {
+      _addPointActive = false;
+      shapes.addPoint(details, zoomPan);
+      shapes.toCartesian(widget.server.maps);
+      shapesHistory.addNewProgress(shapes);
+      setState(() {});
+    }
+  }
+
+  void _onAddShape() {
+    shapes.addShape(lasso.selection, lasso.selectedShape);
+    lasso.reset();
+    shapes.toCartesian(widget.server.maps);
+    shapesHistory.addNewProgress(shapes);
+    setState(() {});
+  }
+
+  void _onRemoveShape() {
+    shapes.removeShape(lasso.selection, lasso.selectedShape);
+    lasso.reset();
+    shapes.toCartesian(widget.server.maps);
+    shapesHistory.addNewProgress(shapes);
+    setState(() {});
   }
 
   @override
@@ -363,17 +411,11 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                 });
               },
               onTap: () {
-                shapeLogic.onTap();
-                lasso.onTap();
+                shapes.unselectAll();
+                lasso.unselectAll();
                 setState(() {});
               },
-              onDoubleTap: () {
-                lasso.onDoubleTap();
-                shapeLogic.onDoubleTap();
-                shapeLogic.onLongPressedEnd(widget.server.maps);
-                shapesHistory.onNewProgress(shapeLogic);
-                setState(() {});
-              },
+              onDoubleTap: _onRemovePoint,
               onScaleEnd: (_) {
                 if (lasso.active) {
                   setState(() {
@@ -385,29 +427,30 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
               },
               onLongPressStart: (details) {
                 if (lasso.selection.isNotEmpty) {
-                  lasso.onLongPressedStart(details, zoomPan);
-                } else if (shapeLogic.active && !lasso.active) {
-                  shapeLogic.onLongPressedStart(details, zoomPan);
+                  lasso.selectPoint(details, zoomPan);
+                } else if (shapes.active && !lasso.active) {
+                  shapes.selectPoint(details, zoomPan);
                 }
                 setState(() {});
               },
               onLongPressMoveUpdate: (details) {
                 if (lasso.selection.isNotEmpty) {
-                  lasso.onLongPressedMoveUpdate(details, zoomPan);
+                  lasso.move(details, zoomPan);
                   // widget.server.currentMap
                   //     .lassoSelectionToJsonData(lasso.selection);
-                } else if (shapeLogic.active) {
-                  shapeLogic.onLongPressedMoveUpdate(details, zoomPan);
+                } else if (shapes.active) {
+                  shapes.move(details, zoomPan);
                 }
                 setState(() {});
               },
               onLongPressEnd: (_) {
-                shapeLogic.onLongPressedEnd(widget.server.maps);
-                lasso.onLongPressedEnd();
-                shapesHistory.onNewProgress(shapeLogic);
+                shapes.toCartesian(widget.server.maps);
+                shapesHistory.addNewProgress(shapes);
                 setState(() {});
               },
-              onTapDown: (details) {},
+              onTapDown: (details) {
+                _onAddPoint(details);
+              },
 /******************************************************************************************Main Content********************************************************************************************/
               child: SizedBox(
                 width: constraints.maxWidth,
@@ -420,7 +463,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                         scale: zoomPan.scale,
                         roverImage: roverImage,
                         currentServer: widget.server,
-                        shapes: shapeLogic,
+                        shapes: shapes,
                         lasso: lasso,
                         recoderLogic: recorderLogic,
                         currentPostion: _currentPosition,
@@ -431,7 +474,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
               ),
             ),
             widget.server.maps.selected == '' &&
-                    !shapeLogic.active &&
+                    !shapes.active &&
                     !recorderLogic.recording
                 ? Align(
                     alignment: Alignment(0, -0.1),
@@ -445,13 +488,20 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                   )
                 : SizedBox.shrink(),
 /***********************************************************************************Point Informations**********************************************************************************************/
-            if (shapeLogic.selectedPointIndex != null)
+            if (shapes.selectedPointIndex != null)
               Positioned(
-                left: shapeLogic.selectedPointCoords!.dx*zoomPan.scale + zoomPan.offset.dx + 60,
-                top: shapeLogic.selectedPointCoords!.dy*zoomPan.scale + zoomPan.offset.dy - 70,
+                left: shapes.selectedPointCoords!.dx * zoomPan.scale +
+                    zoomPan.offset.dx -
+                    75,
+                top: shapes.selectedPointCoords!.dy * zoomPan.scale +
+                    zoomPan.offset.dy -
+                    120,
                 child: PointInformation(
-                  shapeLogic: shapeLogic,
+                  shapes: shapes,
                   maps: widget.server.maps,
+                  insertPointActive: _addPointActive,
+                  onRemovePoint: _onRemovePoint,
+                  onAddPointActivate: _onAddPointActivate,
                 ),
               ),
 /*************************************************************************************Command Buttons***********************************************************************************************/
@@ -468,13 +518,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                       children: [
                         CommandButton(
                           icon: BootstrapIcons.plus,
-                          onPressed: () {
-                            shapeLogic.addShape(
-                                lasso.selection, lasso.selectedShape);
-                            lasso.reset();
-                            shapeLogic.onLongPressedEnd(widget.server.maps);
-                            shapesHistory.onNewProgress(shapeLogic);
-                          },
+                          onPressed: _onAddShape,
                           onLongPressed: () {},
                         ),
                         const SizedBox(
@@ -482,13 +526,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                         ),
                         CommandButton(
                           icon: BootstrapIcons.dash,
-                          onPressed: () {
-                            shapeLogic.removeShape(
-                                lasso.selection, lasso.selectedShape);
-                            lasso.reset();
-                            shapeLogic.onLongPressedEnd(widget.server.maps);
-                            shapesHistory.onNewProgress(shapeLogic);
-                          },
+                          onPressed: _onRemoveShape,
                           onLongPressed: () {},
                         ),
                         const Expanded(
@@ -535,11 +573,11 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                 children: [
                   MapButton(
                     icon: Icons.edit,
-                    isActive: shapeLogic.active,
+                    isActive: shapes.active,
                     onPressed: () {
-                      if (!shapeLogic.active) {
+                      if (!shapes.active) {
                         _onActivateEditMode();
-                        shapesHistory.onNewProgress(shapeLogic);
+                        shapesHistory.addNewProgress(shapes);
                       } else {
                         _handleSaveMap();
                       }
@@ -624,13 +662,11 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                               icon: Icons.undo,
                               isActive: false,
                               onPressed: () {
-                                shapeLogic =
-                                    shapesHistory.onUndoPressed().copy();
-                                shapeLogic.scaleShapes(
-                                    screenSize, widget.server.maps);
+                                shapes = shapesHistory.prevProgress().copy();
+                                shapes.scale(screenSize, widget.server.maps);
                                 widget.server.robot.mapsScalePosition(
                                     screenSize, widget.server.maps);
-                                shapeLogic.onTap();
+                                shapes.unselectAll();
                                 setState(() {});
                               }),
                           MapButton(
@@ -660,13 +696,11 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                               icon: Icons.redo,
                               isActive: false,
                               onPressed: () {
-                                shapeLogic =
-                                    shapesHistory.onRedoPressed().copy();
-                                shapeLogic.scaleShapes(
-                                    screenSize, widget.server.maps);
+                                shapes = shapesHistory.nextProgress().copy();
+                                shapes.scale(screenSize, widget.server.maps);
                                 widget.server.robot.mapsScalePosition(
                                     screenSize, widget.server.maps);
-                                shapeLogic.onTap();
+                                shapes.unselectAll();
                                 setState(() {});
                               }),
                         ],

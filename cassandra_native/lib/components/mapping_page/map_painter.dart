@@ -5,6 +5,8 @@ import 'dart:math';
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/models/maps.dart';
 import 'package:cassandra_native/components/logic/map_logic.dart';
+import 'package:cassandra_native/components/logic/lasso_logic.dart';
+import 'package:cassandra_native/components/logic/shapes_logic.dart';
 
 // should be refactored to make rover size selectable
 const double minRoverImageSize = 20;
@@ -15,7 +17,7 @@ class MapPainter extends CustomPainter {
   final double scale;
   final ui.Image? roverImage;
   final Server currentServer;
-  final ShapeLogic shapes;
+  final Shapes shapes;
   final LassoLogic lasso;
   final RecorderLogic recoderLogic;
   final ColorScheme colors;
@@ -95,101 +97,92 @@ class MapPainter extends CustomPainter {
     final adjustedLineWidth = baseLineWidth / scale;
     final Maps maps = currentServer.maps;
 
-    // draw perimeter
-    var polygonBrush = Paint()
-      ..color = shapes.active
-          ? colors.inversePrimary.withOpacity(0.15)
-          : colors.inversePrimary
+    // brushes
+    // strokes
+    var strokeNoColor05 = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.5 * adjustedLineWidth;
+
+    var strokeNoColor10 = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = adjustedLineWidth;
 
+    // stroke with round caps
+    var strokeRoundCapsNoColor10 = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = adjustedLineWidth
+      ..strokeCap = StrokeCap.round;
+
+    // fills
+    var fillNoColor = Paint()..style = PaintingStyle.fill;
+
+    // draw perimeter
+    strokeNoColor10.color = shapes.active
+        ? colors.inversePrimary.withOpacity(0.15)
+        : colors.inversePrimary;
     Path pathPerimeter = Path();
     pathPerimeter = drawPolygonFromGeoJson(pathPerimeter, maps.scaledPerimeter);
-    canvas.drawPath(pathPerimeter, polygonBrush);
+    canvas.drawPath(pathPerimeter, strokeNoColor10);
 
     if (shapes.active) {
-      var polygonBrush = Paint()
-        ..color = shapes.selectedShape == 'perimeter'
-            ? colors.error
-            : colors.inversePrimary
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = adjustedLineWidth;
-
+      strokeNoColor10.color = shapes.selectedShape == 'perimeter'
+          ? colors.error
+          : colors.inversePrimary;
       pathPerimeter = Path();
       pathPerimeter = drawPolygonFromGeoJson(pathPerimeter, shapes.perimeter);
-      canvas.drawPath(pathPerimeter, polygonBrush);
+      canvas.drawPath(pathPerimeter, strokeNoColor10);
 
-      polygonBrush = Paint()
-        ..color = colors.onSurface
-        ..style = PaintingStyle.fill;
+      fillNoColor.color = colors.onSurface;
       for (int i = 0; i < shapes.perimeter.length - 1; i++) {
-        canvas.drawCircle(shapes.perimeter[i], 2 / scale, polygonBrush);
+        canvas.drawCircle(shapes.perimeter[i], 2 / scale, fillNoColor);
       }
 
       if (shapes.selectedShape == 'perimeter' &&
           shapes.selectedPointIndex != null) {
         final selectedPoint = shapes.perimeter[shapes.selectedPointIndex!];
-        var selectedPointBrush = Paint()
-          ..color = colors.error
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = adjustedLineWidth
-          ..strokeCap = StrokeCap.round;
+        strokeRoundCapsNoColor10.color = colors.error;
         canvas.drawLine(
             Offset(selectedPoint.dx - 6 / scale, selectedPoint.dy),
             Offset(selectedPoint.dx + 6 / scale, selectedPoint.dy),
-            selectedPointBrush);
+            strokeRoundCapsNoColor10);
         canvas.drawLine(
             Offset(selectedPoint.dx, selectedPoint.dy - 6 / scale),
             Offset(selectedPoint.dx, selectedPoint.dy + 6 / scale),
-            selectedPointBrush);
+            strokeRoundCapsNoColor10);
       }
-      if (shapes.selectedShape == 'perimeter' && shapes.selectedPointIndex == null) {
-        var perimeterFillColor = Paint()
-          ..color = colors.onSurface.withOpacity(0.4)
-          ..style = PaintingStyle.fill;
-        canvas.drawPath(pathPerimeter, perimeterFillColor);
-      } 
+      if (shapes.selectedShape == 'perimeter' &&
+          shapes.selectedPointIndex == null) {
+        fillNoColor.color = colors.onSurface.withOpacity(0.4);
+        canvas.drawPath(pathPerimeter, fillNoColor);
+      }
     }
 
     // draw exclusions
-    var exclusionsStrokeBrusch = Paint()
-      ..color = shapes.active
-          ? colors.inversePrimary.withOpacity(0.15)
-          : colors.inversePrimary
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = adjustedLineWidth;
-
-    var exclusionsFillColor = Paint()
-      ..color = colors.secondary.withOpacity(0.7)
-      ..style = PaintingStyle.fill;
-
+    strokeNoColor10.color = shapes.active
+        ? colors.inversePrimary.withOpacity(0.15)
+        : colors.inversePrimary;
+    fillNoColor.color = colors.secondary.withOpacity(0.7);
     Path pathExclusions = Path();
     for (var exclusion in maps.scaledExclusions) {
       pathExclusions = drawPolygonFromGeoJson(pathExclusions, exclusion);
     }
-    canvas.drawPath(pathExclusions, exclusionsFillColor);
-    canvas.drawPath(pathExclusions, exclusionsStrokeBrusch);
+    canvas.drawPath(pathExclusions, fillNoColor);
+    canvas.drawPath(pathExclusions, strokeNoColor10);
 
     if (shapes.active) {
-      exclusionsStrokeBrusch = Paint()
-        ..color = shapes.selectedShape == 'exclusion'
-            ? colors.error
-            : colors.inversePrimary
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = adjustedLineWidth;
-
+      strokeNoColor10.color = shapes.selectedShape == 'exclusion'
+          ? colors.error
+          : colors.inversePrimary;
       pathExclusions = Path();
       for (var exclusion in shapes.exclusions) {
         pathExclusions = drawPolygonFromGeoJson(pathExclusions, exclusion);
       }
-      canvas.drawPath(pathExclusions, exclusionsStrokeBrusch);
+      canvas.drawPath(pathExclusions, strokeNoColor10);
 
-      exclusionsStrokeBrusch = Paint()
-        ..color = colors.onSurface
-        ..style = PaintingStyle.fill;
+      fillNoColor.color = colors.onSurface;
       for (var exclusion in shapes.exclusions) {
         for (int i = 0; i < exclusion.length - 1; i++) {
-          canvas.drawCircle(exclusion[i], 2 / scale, exclusionsStrokeBrusch);
+          canvas.drawCircle(exclusion[i], 2 / scale, fillNoColor);
         }
       }
 
@@ -198,174 +191,131 @@ class MapPainter extends CustomPainter {
           shapes.selectedPointIndex != null) {
         final selectedPoint = shapes.exclusions[shapes.selectedExclusionIndex!]
             [shapes.selectedPointIndex!];
-        var selectedPointBrush = Paint()
-          ..color = colors.error
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = adjustedLineWidth
-          ..strokeCap = StrokeCap.round;
+        strokeRoundCapsNoColor10.color = colors.error;
         canvas.drawLine(
             Offset(selectedPoint.dx - 6 / scale, selectedPoint.dy),
             Offset(selectedPoint.dx + 6 / scale, selectedPoint.dy),
-            selectedPointBrush);
+            strokeRoundCapsNoColor10);
         canvas.drawLine(
             Offset(selectedPoint.dx, selectedPoint.dy - 6 / scale),
             Offset(selectedPoint.dx, selectedPoint.dy + 6 / scale),
-            selectedPointBrush);
+            strokeRoundCapsNoColor10);
       }
-      if (shapes.selectedShape == 'exclusion' && shapes.selectedPointIndex == null && shapes.selectedExclusionIndex != null) {
+      if (shapes.selectedShape == 'exclusion' &&
+          shapes.selectedPointIndex == null &&
+          shapes.selectedExclusionIndex != null) {
         Path pathSelectedExclusion = Path();
-        pathSelectedExclusion = drawPolygonFromGeoJson(pathSelectedExclusion, shapes.exclusions[shapes.selectedExclusionIndex!]);
-        var exclusionSelectedFillColor = Paint()
-          ..color = colors.onSurface.withOpacity(0.4)
-          ..style = PaintingStyle.fill;
-        canvas.drawPath(pathSelectedExclusion, exclusionSelectedFillColor);
-      } 
+        pathSelectedExclusion = drawPolygonFromGeoJson(pathSelectedExclusion,
+            shapes.exclusions[shapes.selectedExclusionIndex!]);
+        fillNoColor.color = colors.onSurface.withOpacity(0.4);
+        canvas.drawPath(pathSelectedExclusion, fillNoColor);
+      }
     }
 
     // draw dockPath and search wire
-    var dockPathBrush = Paint()
-      ..color =
-          shapes.active ? colors.onSurface.withOpacity(0.15) : colors.onSurface
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.5 * adjustedLineWidth;
-
-    var searchWireBrush = Paint()
-      ..color =
-          shapes.active ? colors.onSurface.withOpacity(0.15) : colors.onSurface
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.5 * adjustedLineWidth;
-
+    strokeNoColor05.color =
+        shapes.active ? colors.onSurface.withOpacity(0.15) : colors.onSurface;
     Path pathDock = Path();
     pathDock = drawLine(pathDock, maps.scaledDockPath);
-    canvas.drawPath(pathDock, dockPathBrush);
+    canvas.drawPath(pathDock, strokeNoColor05);
 
     Path pathSearchWire = Path();
     pathSearchWire = drawLine(pathSearchWire, maps.scaledSearchWire);
-    canvas.drawPath(pathSearchWire, searchWireBrush);
+    canvas.drawPath(pathSearchWire, strokeNoColor05);
 
     if (shapes.active) {
-      dockPathBrush = Paint()
-        ..color = shapes.selectedShape == 'dockPath'
-            ? colors.error
-            : colors.inversePrimary
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 0.5 * adjustedLineWidth;
-
+      strokeNoColor05.color = shapes.selectedShape == 'dockPath'
+          ? colors.error
+          : colors.inversePrimary;
       pathDock = Path();
       pathDock = drawLine(pathDock, shapes.dockPath);
-      canvas.drawPath(pathDock, dockPathBrush);
+      canvas.drawPath(pathDock, strokeNoColor05);
 
-      searchWireBrush = Paint()
-        ..color = shapes.selectedShape == 'searchWire'
-            ? colors.error
-            : colors.inversePrimary
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 0.5 * adjustedLineWidth;
-
+      strokeNoColor05.color = shapes.selectedShape == 'searchWire'
+          ? colors.error
+          : colors.inversePrimary;
       pathSearchWire = Path();
       pathSearchWire = drawLine(pathSearchWire, shapes.searchWire);
-      canvas.drawPath(pathSearchWire, searchWireBrush);
+      canvas.drawPath(pathSearchWire, strokeNoColor05);
 
-      dockPathBrush = Paint()
-        ..color = colors.onSurface
-        ..style = PaintingStyle.fill;
+      fillNoColor.color = colors.onSurface;
       for (Offset point in shapes.dockPath) {
-        canvas.drawCircle(point, 2 / scale, dockPathBrush);
+        canvas.drawCircle(point, 2 / scale, fillNoColor);
       }
       for (Offset point in shapes.searchWire) {
-        canvas.drawCircle(point, 2 / scale, dockPathBrush);
+        canvas.drawCircle(point, 2 / scale, fillNoColor);
       }
 
       if (shapes.selectedShape == 'dockPath' &&
           shapes.selectedPointIndex != null) {
         final selectedPoint = shapes.dockPath[shapes.selectedPointIndex!];
-        var selectedPointBrush = Paint()
-          ..color = colors.error
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = adjustedLineWidth
-          ..strokeCap = StrokeCap.round;
+        strokeRoundCapsNoColor10.color = colors.error;
         canvas.drawLine(
             Offset(selectedPoint.dx - 6 / scale, selectedPoint.dy),
             Offset(selectedPoint.dx + 6 / scale, selectedPoint.dy),
-            selectedPointBrush);
+            strokeRoundCapsNoColor10);
         canvas.drawLine(
             Offset(selectedPoint.dx, selectedPoint.dy - 6 / scale),
             Offset(selectedPoint.dx, selectedPoint.dy + 6 / scale),
-            selectedPointBrush);
+            strokeRoundCapsNoColor10);
       }
 
       if (shapes.selectedShape == 'searchWire' &&
           shapes.selectedPointIndex != null) {
         final selectedPoint = shapes.searchWire[shapes.selectedPointIndex!];
-        var selectedPointBrush = Paint()
-          ..color = colors.error
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = adjustedLineWidth
-          ..strokeCap = StrokeCap.round;
+        strokeRoundCapsNoColor10.color = colors.error;
         canvas.drawLine(
             Offset(selectedPoint.dx - 6 / scale, selectedPoint.dy),
             Offset(selectedPoint.dx + 6 / scale, selectedPoint.dy),
-            selectedPointBrush);
+            strokeRoundCapsNoColor10);
         canvas.drawLine(
             Offset(selectedPoint.dx, selectedPoint.dy - 6 / scale),
             Offset(selectedPoint.dx, selectedPoint.dy + 6 / scale),
-            selectedPointBrush);
+            strokeRoundCapsNoColor10);
       }
     }
 
     // draw lassoSelection
     if (lasso.selection.isNotEmpty) {
-      var lassoSelectionBrush = Paint()
-        ..color = lasso.selectedPointIndex != null
-            ? colors.error
-            : colors.onSurface.withOpacity(0.4)
-        ..style = lasso.selected ? PaintingStyle.fill : PaintingStyle.stroke
-        ..strokeWidth = 0.5 * adjustedLineWidth;
+      strokeNoColor05.color = lasso.selectedPointIndex != null
+          ? colors.error
+          : colors.onSurface.withOpacity(0.4);
       Path pathLassoSelection = Path();
-      if (lasso.selectedShape == 'polygon') {
-        pathLassoSelection = drawPolygon(pathLassoSelection, lasso.selection);
-      } else {
-        pathLassoSelection = drawLine(pathLassoSelection, lasso.selection);
+      pathLassoSelection = drawPolygon(pathLassoSelection, lasso.selection);
+      canvas.drawPath(pathLassoSelection, strokeNoColor05);
+      if (lasso.selected) {
+        fillNoColor.color = colors.onSurface.withOpacity(0.4);
+        canvas.drawPath(pathLassoSelection, fillNoColor);
       }
-      canvas.drawPath(pathLassoSelection, lassoSelectionBrush);
     }
 
     // draw lassoSelectionPoints
-    if (lasso.selectionPoints.isNotEmpty) {
-      var lassoSelectionPointsBrush = Paint()
-        ..color = lasso.selectedPointIndex != null
-            ? colors.error
-            : colors.onSurface.withOpacity(0.5)
-        ..style = PaintingStyle.fill;
+     if (lasso.selectionPoints.isNotEmpty) {
+      fillNoColor.color = lasso.selectedPointIndex != null
+          ? colors.error
+          : colors.onSurface.withOpacity(0.5);
       for (Offset point in lasso.selectionPoints) {
-        canvas.drawCircle(point, 2 / scale, lassoSelectionPointsBrush);
+        canvas.drawCircle(point, 2 / scale, fillNoColor);
       }
     }
 
     // draw selected lasso point
     if (lasso.selectedPointIndex != null) {
       final selectedPoint = lasso.selection[lasso.selectedPointIndex!];
-      var lassoSelectedPointBrush = Paint()
-        ..color = colors.error
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = adjustedLineWidth
-        ..strokeCap = StrokeCap.round;
+      strokeRoundCapsNoColor10.color = colors.error;
       canvas.drawLine(
           Offset(selectedPoint.dx - 6 / scale, selectedPoint.dy),
           Offset(selectedPoint.dx + 6 / scale, selectedPoint.dy),
-          lassoSelectedPointBrush);
+          strokeRoundCapsNoColor10);
       canvas.drawLine(
           Offset(selectedPoint.dx, selectedPoint.dy - 6 / scale),
           Offset(selectedPoint.dx, selectedPoint.dy + 6 / scale),
-          lassoSelectedPointBrush);
+          strokeRoundCapsNoColor10);
     }
 
     // draw new shape
     if (recoderLogic.coordinates.isNotEmpty) {
-      var recorderBrush = Paint()
-        ..color = colors.onSurface.withOpacity(0.4)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 0.5 * adjustedLineWidth;
+      strokeNoColor05.color = colors.onSurface.withOpacity(0.4);
       Path pathRecordedShape = Path();
       if (recoderLogic.selectedShape == 'polygon') {
         pathRecordedShape =
@@ -374,23 +324,19 @@ class MapPainter extends CustomPainter {
         pathRecordedShape =
             drawLine(pathRecordedShape, recoderLogic.coordinates);
       }
-      canvas.drawPath(pathRecordedShape, recorderBrush);
+      canvas.drawPath(pathRecordedShape, strokeNoColor05);
     }
 
     // draw position point
-    var positionPointBrush = Paint()
-      ..color = colors.error
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = adjustedLineWidth
-      ..strokeCap = StrokeCap.round;
+    strokeRoundCapsNoColor10.color = colors.error;
     canvas.drawLine(
         Offset(currentPostion.dx - 6 / scale, currentPostion.dy),
         Offset(currentPostion.dx + 6 / scale, currentPostion.dy),
-        positionPointBrush);
+        strokeRoundCapsNoColor10);
     canvas.drawLine(
         Offset(currentPostion.dx, currentPostion.dy - 6 / scale),
         Offset(currentPostion.dx, currentPostion.dy + 6 / scale),
-        positionPointBrush);
+        strokeRoundCapsNoColor10);
 
     // draw rover image
     if (roverImage != null) {

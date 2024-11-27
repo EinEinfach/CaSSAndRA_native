@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -45,7 +44,7 @@ class Landscape {
   int idxPercent = 0;
   int distancePercent = 0;
 
-  int areaTotal= 0;
+  int areaTotal = 0;
   int finishedDistance = 0;
   int totalDistance = 0;
 
@@ -108,7 +107,7 @@ class Landscape {
       finishedDistance = decodedMessage['finishedDistance'];
       totalDistance = decodedMessage['distanceTotal'];
     } catch (e) {
-      if(kDebugMode) {
+      if (kDebugMode) {
         debugPrint('Invalid map JSON: $e');
       }
     }
@@ -119,7 +118,8 @@ class Landscape {
     _resetCoords();
     try {
       for (var feature in decodedMessage["features"]) {
-        if (feature['properties']['name'] == 'perimeter' && feature['geometry']['coordinates'].isNotEmpty) {
+        if (feature['properties']['name'] == 'perimeter' &&
+            feature['geometry']['coordinates'].isNotEmpty) {
           for (var coord in feature['geometry']['coordinates'][0]) {
             perimeter.add(Offset(coord[0], coord[1]));
           }
@@ -170,7 +170,9 @@ class Landscape {
       previewId = decodedMessage["features"][0]["properties"]["id"];
       _shiftPreview();
     } catch (e) {
-      print('Invalid preview json data: $e');
+      if (kDebugMode) {
+        debugPrint('Invalid preview json data: $e');
+      }
     }
   }
 
@@ -191,7 +193,9 @@ class Landscape {
       mowPathId = decodedMessage["features"][0]["properties"]["id"];
       _shiftMowPath();
     } catch (e) {
-      print('Invalid mow path json data: $e');
+      if (kDebugMode) {
+        debugPrint('Invalid mow path json data: $e');
+      }
     }
   }
 
