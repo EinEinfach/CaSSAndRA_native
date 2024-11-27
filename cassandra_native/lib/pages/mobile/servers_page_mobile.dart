@@ -1,8 +1,7 @@
+import 'package:cassandra_native/components/common/command_button_small.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cassandra_native/models/server.dart';
-import 'package:cassandra_native/components/servers_page/info_button.dart';
-import 'package:cassandra_native/components/servers_page/list_button.dart';
 import 'package:cassandra_native/components/common/joystick_drawer.dart';
 import 'package:cassandra_native/data/app_data.dart';
 
@@ -27,16 +26,26 @@ class ServersPageMobile extends StatelessWidget {
     return Scaffold(
       key: scafoldKey,
       backgroundColor: Theme.of(context).colorScheme.surface,
-      endDrawer: selectedServer != null ? JoystickDrawer(server: selectedServer!) : null,
+      endDrawer: selectedServer != null
+          ? JoystickDrawer(server: selectedServer!)
+          : null,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         automaticallyImplyLeading: false,
         actions: [
-          ListButton(
-              listViewIcon: listViewIcon, onListViewChange: onListViewChange),
-          InfoButton(
-            onInfoButtonPressed: onInfoButtonPressed,
+          CommandButtonSmall(
+            icon: listViewIcon,
+            onPressed: onListViewChange,
+            onLongPressed: () {},
+          ),
+          SizedBox(
+            width: 4,
+          ),
+          CommandButtonSmall(
+            icon: Icons.info_outline,
+            onPressed: onInfoButtonPressed,
+            onLongPressed: () {},
           ),
         ],
       ),

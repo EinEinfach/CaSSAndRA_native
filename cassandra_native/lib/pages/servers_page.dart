@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/cassandra_native.dart';
 import 'package:cassandra_native/utils/ui_state_storage.dart';
@@ -23,6 +24,7 @@ import 'package:cassandra_native/components/servers_page/server_item.dart';
 import 'package:cassandra_native/components/servers_page/server_item_v_2.dart';
 import 'package:cassandra_native/components/common/dismiss_item.dart';
 import 'package:cassandra_native/components/servers_page/info_item.dart';
+import 'package:cassandra_native/components/common/command_button.dart';
 
 import 'package:cassandra_native/models/server.dart';
 
@@ -337,27 +339,12 @@ class _ServersPageState extends State<ServersPage> {
         Container(
           child: mainContent,
         ),
-        Container(
+        Align(
           alignment: const Alignment(0.9, 0.9),
-          child: Container(
-            height: 80,
-            width: 80,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: ElevatedButton(
-              onPressed: openAddServerOverlay,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Icon(
-                Icons.add,
-                color: Theme.of(context).colorScheme.inversePrimary,
-              ),
-            ),
+          child: CommandButton(
+            icon: BootstrapIcons.plus,
+            onPressed: openAddServerOverlay,
+            onLongPressed: () {},
           ),
         ),
       ],
