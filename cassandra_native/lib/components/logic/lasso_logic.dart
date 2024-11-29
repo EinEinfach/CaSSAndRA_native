@@ -44,6 +44,7 @@ class LassoLogic {
   }
 
   void selectPoint(LongPressStartDetails details, ZoomPanLogic zoomPan) {
+    selected = false;
     double minDistance = 20 / zoomPan.scale;
     double currentDistance = double.infinity;
     final Offset scaledAndMovedCoords =

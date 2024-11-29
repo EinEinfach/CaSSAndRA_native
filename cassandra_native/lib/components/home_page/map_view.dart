@@ -3,7 +3,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui' as ui;
 import 'dart:async';
-import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/components/logic/map_logic.dart';
@@ -50,6 +49,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   Size? oldScreenSize;
   bool _isBusy = false;
   Timer? _isBusyTimer;
+  bool _moved = false;
 
   //animation
   late MapAnimationLogic mapAnimation;
@@ -156,15 +156,116 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     widget.server.serverInterface.commandSelectTasks([]);
   }
 
-  void _handleCancelButton() {
-    if (widget.server.currentMap.scaledObstacles.isNotEmpty) {
-      widget.server.serverInterface.commandResetObstacles();
-      widget.server.currentMap.resetObstaclesCoords();
+  void _resetObstacles() {
+    widget.server.serverInterface.commandResetObstacles();
+    widget.server.currentMap.resetObstaclesCoords();
+  }
+
+  void _onScaleStart(ScaleStartDetails details) {
+    //selection or zoom and
+    if (lasso.active) {
+      lasso.selection = [];
+      lasso.selectionPoints = [];
     } else {
-      _resetLassoSelection();
+      zoomPan.previousScale = zoomPan.scale;
+      zoomPan.focalPoint = details.focalPoint;
+      zoomPan.initialFocalPoint = details.focalPoint;
+    }
+  }
+
+  void _onScaleUpdate(ScaleUpdateDetails details) {
+    //selection or zoom and pan
+    //selection
+    if (lasso.active) {
+      RenderBox box = context.findRenderObject() as RenderBox;
+      Offset widgetGlobalPosition = box.localToGlobal(Offset.zero);
+      Offset selection =
+          (details.focalPoint - widgetGlobalPosition - zoomPan.offset) /
+              zoomPan.scale;
+      lasso.selection.add(selection);
+      //zoom and pan
+    } else {
+      //limit sensivity of zoom
+      double newScale = (zoomPan.previousScale * details.scale)
+          .clamp(0.0001, double.infinity);
+      //calc new offset to center zoom between focal point
+      Offset focalPointDelta = zoomPan.initialFocalPoint - zoomPan.offset;
+      zoomPan.offset =
+          zoomPan.offset - (focalPointDelta * (newScale / zoomPan.scale - 1));
+      zoomPan.scale = zoomPan.previousScale * details.scale;
+      //if map is just moved, callc new offset
+      if (details.scale == 1.0) {
+        zoomPan.offset += details.focalPoint - zoomPan.focalPoint;
+        zoomPan.focalPoint = details.focalPoint;
+      }
+      //set new scale
+      zoomPan.scale = newScale;
+    }
+    setState(() {});
+  }
+
+  void _onScaleEnd() {
+    if (lasso.active) {
+      lasso.active = false;
+      lasso.selection = simplifyPath(lasso.selection, 2.0 / zoomPan.scale);
+      lasso.selectionPoints = lasso.selection;
+      widget.server.currentMap.lassoSelectionToJsonData(lasso.selection);
+    }
+    setState(() {});
+  }
+
+  void _onLongPressStart(LongPressStartDetails details) {
+    _moved = false;
+    if (lasso.selection.isNotEmpty) {
+      lasso.selectPoint(details, zoomPan);
+    } else if (gotoPoint.coords != null) {
+      gotoPoint.select(details, zoomPan);
+    }
+    setState(() {});
+  }
+
+  void _onLongPressMoveUpdate(LongPressMoveUpdateDetails details) {
+    _moved = true;
+    if (lasso.selection.isNotEmpty) {
+      lasso.move(details, zoomPan);
+      widget.server.currentMap.lassoSelectionToJsonData(lasso.selection);
+    } else if (gotoPoint.coords != null) {
+      gotoPoint.move(details, zoomPan);
+      widget.server.currentMap.gotoPointToJsonData(gotoPoint.coords!);
+    }
+    setState(() {});
+  }
+
+  void _onLongPressEnd() {
+    if (_moved) {
+      lasso.unselectAll();
+    }
+    if (gotoPoint.coords != null) {
+      gotoPoint.finalize(widget.server.currentMap);
+    }
+    setState(() {});
+  }
+
+  void _onTap() {
+    lasso.unselectAll();
+    setState(() {});
+  }
+
+  void _onDoubleTap() {
+    _resetObstacles();
+    lasso.selected ? _resetLassoSelection() : lasso.removePoint();
+    if (widget.server.robot.status != 'transit') {
       _resetGotoPoint();
-      _resetTasksSelection();
-      mapRobotLogic.focusOnMowerActive = false;
+    }
+    _resetTasksSelection();
+    setState(() {});
+  }
+
+  void _onTapDown(TapDownDetails details) {
+    if (gotoPoint.active) {
+      gotoPoint.setCoords(details, zoomPan, widget.server.currentMap);
+      widget.server.currentMap.gotoPointToJsonData(gotoPoint.coords!);
+      setState(() {});
     }
   }
 
@@ -234,112 +335,16 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
         return Stack(
           children: [
             GestureDetector(
-              onScaleStart: (details) {
-                //selection or zoom and
-                if (lasso.active) {
-                  lasso.selection = [];
-                  lasso.selectionPoints = [];
-                } else {
-                  zoomPan.previousScale = zoomPan.scale;
-                  zoomPan.focalPoint = details.focalPoint;
-                  zoomPan.initialFocalPoint = details.focalPoint;
-                }
-              },
-              onScaleUpdate: (details) {
-                setState(() {
-                  //selection or zoom and pan
-
-                  //selection
-                  if (lasso.active) {
-                    RenderBox box = context.findRenderObject() as RenderBox;
-                    Offset widgetGlobalPosition =
-                        box.localToGlobal(Offset.zero);
-                    Offset selection = (details.focalPoint -
-                            widgetGlobalPosition -
-                            zoomPan.offset) /
-                        zoomPan.scale;
-                    lasso.selection.add(selection);
-
-                    //zoom and pan
-                  } else {
-                    //limit sensivity of zoom
-                    double newScale = (zoomPan.previousScale * details.scale)
-                        .clamp(0.0001, double.infinity);
-
-                    //calc new offset to center zoom between focal point
-                    Offset focalPointDelta =
-                        zoomPan.initialFocalPoint - zoomPan.offset;
-                    zoomPan.offset = zoomPan.offset -
-                        (focalPointDelta * (newScale / zoomPan.scale - 1));
-                    zoomPan.scale = zoomPan.previousScale * details.scale;
-
-                    //if map is just moved, callc new offset
-                    if (details.scale == 1.0) {
-                      zoomPan.offset += details.focalPoint - zoomPan.focalPoint;
-                      zoomPan.focalPoint = details.focalPoint;
-                    }
-
-                    //set new scale
-                    zoomPan.scale = newScale;
-                  }
-                });
-              },
-              onScaleEnd: (_) {
-                if (lasso.active) {
-                  setState(() {
-                    lasso.active = false;
-                    lasso.selection =
-                        simplifyPath(lasso.selection, 2.0 / zoomPan.scale);
-                    lasso.selectionPoints = lasso.selection;
-                    widget.server.currentMap
-                        .lassoSelectionToJsonData(lasso.selection);
-                  });
-                }
-              },
-              onLongPressStart: (details) {
-                if (lasso.selection.isNotEmpty) {
-                  lasso.selectPoint(details, zoomPan);
-                } else if (gotoPoint.coords != null) {
-                  gotoPoint.onLongPressedStart(details, zoomPan);
-                }
-                setState(() {});
-              },
-              onLongPressMoveUpdate: (details) {
-                if (lasso.selection.isNotEmpty) {
-                  lasso.move(details, zoomPan);
-                  widget.server.currentMap
-                      .lassoSelectionToJsonData(lasso.selection);
-                } else if (gotoPoint.coords != null) {
-                  gotoPoint.onLongPressedMoveUpdate(details, zoomPan);
-                  widget.server.currentMap
-                      .gotoPointToJsonData(gotoPoint.coords!);
-                }
-                setState(() {});
-              },
-              onLongPressEnd: (_) {
-                if (gotoPoint.coords != null) {
-                  gotoPoint.onLongPressedEnd(widget.server.currentMap);
-                }
-                setState(() {});
-              },
-              onTap: () {
-                lasso.unselectAll();
-                setState(() {});
-              },
-              onDoubleTap: () {
-                lasso.removePoint();
-                gotoPoint.onDoubleTap();
-                setState(() {});
-              },
-              onTapDown: (details) {
-                if (gotoPoint.active) {
-                  gotoPoint.setCoords(
-                      details, zoomPan, widget.server.currentMap);
-                  widget.server.currentMap
-                      .gotoPointToJsonData(gotoPoint.coords!);
-                  setState(() {});
-                }
-              },
+              onScaleStart: (details) => _onScaleStart(details),
+              onScaleUpdate: (details) => _onScaleUpdate(details),
+              onScaleEnd: (_) => _onScaleEnd(),
+              onLongPressStart: (details) => _onLongPressStart(details),
+              onLongPressMoveUpdate: (details) =>
+                  _onLongPressMoveUpdate(details),
+              onLongPressEnd: (_) => _onLongPressEnd(),
+              onTap: _onTap,
+              onDoubleTap: _onDoubleTap,
+              onTapDown: (details) => _onTapDown(details),
               child: SizedBox(
                 width: constraints.maxWidth,
                 height: constraints.maxHeight,
@@ -426,9 +431,6 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const SizedBox(
-                            width: 50,
-                          ),
                           MapButton(
                             icon: Icons.zoom_in_map,
                             isActive: false,
@@ -455,14 +457,6 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                           ),
                         ],
                       ),
-                    ),
-                    MapButton(
-                      icon: BootstrapIcons.trash,
-                      isActive: false,
-                      onPressed: () {
-                        _handleCancelButton();
-                        setState(() {});
-                      },
                     ),
                   ],
                 ),

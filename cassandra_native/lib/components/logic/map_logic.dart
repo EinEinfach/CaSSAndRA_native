@@ -81,7 +81,7 @@ class MapPointLogic {
     }
   }
 
-  void onLongPressedStart(LongPressStartDetails details, ZoomPanLogic zoomPan) {
+  void select(LongPressStartDetails details, ZoomPanLogic zoomPan) {
     double minDistance = 20 / zoomPan.scale;
     final Offset scaledAndMovedCoords =
         (details.localPosition - zoomPan.offset) / zoomPan.scale;
@@ -91,15 +91,11 @@ class MapPointLogic {
     }
   }
 
-  void onLongPressedMoveUpdate(
+  void move(
       LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
     if (selected) {
       _moveSelectedPoint(details, zoomPan);
     }
-  }
-
-  void onDoubleTap() {
-    coords = null;
   }
 
   void _moveSelectedPoint(
@@ -109,7 +105,7 @@ class MapPointLogic {
     coords = scaledAndMovedCoords;
   }
 
-  void onLongPressedEnd(Landscape currentMap) {
+  void finalize(Landscape currentMap) {
     selected = false;
     if (!isPointInsidePolygon(coords!, currentMap.scaledPerimeter)) {
       coords = null;
