@@ -9,6 +9,8 @@ class LassoLogic {
   String selectedShape = 'polygon';
   List<Offset> selection = [];
   List<Offset> selectionPoints = [];
+  Offset? selectedPointCoords;
+  Offset? selectedPointCoordsStart;
   int? selectedPointIndex;
   bool selected = false;
   Offset? lastPosition;
@@ -17,6 +19,8 @@ class LassoLogic {
     active = false;
     selection = [];
     selectionPoints = [];
+    selectedPointCoords = null;
+    selectedPointCoordsStart = null;
     selectedPointIndex = null;
     selected = false;
     lastPosition = null;
@@ -49,6 +53,8 @@ class LassoLogic {
           (selection[i] - scaledAndMovedCoords).distance < currentDistance) {
         currentDistance = (selection[i] - scaledAndMovedCoords).distance;
         selectedPointIndex = i;
+        selectedPointCoords = selection[i];
+        selectedPointCoordsStart = selection[i];
       }
     }
     if (selectedPointIndex == null) {
@@ -94,7 +100,7 @@ class LassoLogic {
     }
   }
 
-  void onScaleEnd(ZoomPanLogic zoomPan) {
+  void finalize(ZoomPanLogic zoomPan) {
     active = false;
     selection = simplifyPath(selection, 2.0 / zoomPan.scale);
     selectionPoints = selection;
@@ -105,6 +111,7 @@ class LassoLogic {
     final Offset scaledAndMovedCoords =
         (details.localPosition - zoomPan.offset) / zoomPan.scale;
     selection[selectedPointIndex!] = scaledAndMovedCoords;
+    selectedPointCoords = scaledAndMovedCoords;
     //selectionPoints[selectedPointIndex!] = scaledAndMovedCoords;
   }
 

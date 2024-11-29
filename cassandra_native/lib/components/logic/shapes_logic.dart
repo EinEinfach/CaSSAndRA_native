@@ -228,8 +228,7 @@ class Shapes {
     }
   }
 
-  void move(
-      LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
+  void move(LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
     if (selectedPointIndex != null) {
       _moveSelectedPoint(details, zoomPan);
     } else if (selected) {
@@ -264,14 +263,15 @@ class Shapes {
     selectedShape = null;
   }
 
-  void removePoint() {
+  int removePoint() {
+    int response = 0;
     if (selectedPointIndex != null) {
       if (selectedShape == 'perimeter' && perimeter.length > 4) {
-        _removePerimeterPoint();
+        response = _removePerimeterPoint();
       }
       if (selectedShape == 'exclusion' &&
           exclusions[selectedExclusionIndex!].length > 4) {
-        _removeExclusionPoint();
+        response = _removeExclusionPoint();
       }
       if (selectedShape == 'dockPath' && dockPath.length > 2) {
         dockPath.removeAt(selectedPointIndex!);
@@ -279,6 +279,23 @@ class Shapes {
       if (selectedShape == 'searchWire' && searchWire.length > 2) {
         searchWire.removeAt(selectedPointIndex!);
       }
+      unselectAll();
+    }
+    return response;
+  }
+
+  void removeShape() {
+    if (selectedShape == 'perimeter') {
+      reset();
+    } else if (selectedShape == 'exclusion' && selectedExclusionIndex != null) {
+      selectedShape = null;
+      exclusions.removeAt(selectedExclusionIndex!);
+      unselectAll();
+    } else if (selectedShape == 'dockPath') {
+      dockPath = [];
+      unselectAll();
+    } else if (selectedShape == 'searchWire') {
+      searchWire = [];
       unselectAll();
     }
   }
@@ -394,34 +411,32 @@ class Shapes {
       LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
     final Offset scaledAndMovedCoords =
         (details.localPosition - zoomPan.offset) / zoomPan.scale;
+    selectedPointCoords = scaledAndMovedCoords;
     if (selectedShape == 'perimeter') {
-      if (selectedPointIndex! == 0 ||
-          selectedPointIndex == perimeter.length - 1) {
-        perimeter.first = scaledAndMovedCoords;
-        perimeter.last = scaledAndMovedCoords;
-        selectedPointCoords = scaledAndMovedCoords;
-      } else {
-        perimeter[selectedPointIndex!] = scaledAndMovedCoords;
-        selectedPointCoords = scaledAndMovedCoords;
-      }
+      perimeter = _moveSelectedPointPolygon(perimeter, scaledAndMovedCoords);
     } else if (selectedShape == 'exclusion') {
-      if (selectedPointIndex! == 0 ||
-          selectedPointIndex! ==
-              exclusions[selectedExclusionIndex!].length - 1) {
-        exclusions[selectedExclusionIndex!].first = scaledAndMovedCoords;
-        exclusions[selectedExclusionIndex!].last = scaledAndMovedCoords;
-        selectedPointCoords = scaledAndMovedCoords;
-      } else {
-        exclusions[selectedExclusionIndex!][selectedPointIndex!] =
-            scaledAndMovedCoords;
-        selectedPointCoords = scaledAndMovedCoords;
-      }
+      exclusions[selectedExclusionIndex!] = _moveSelectedPointPolygon(
+          exclusions[selectedExclusionIndex!], scaledAndMovedCoords);
     } else if (selectedShape == 'dockPath') {
       dockPath[selectedPointIndex!] = scaledAndMovedCoords;
-      selectedPointCoords = scaledAndMovedCoords;
     } else if (selectedShape == 'searchWire') {
       searchWire[selectedPointIndex!] = scaledAndMovedCoords;
-      selectedPointCoords = scaledAndMovedCoords;
+    }
+  }
+
+  List<Offset> _moveSelectedPointPolygon(
+      List<Offset> polygon, Offset newCoords) {
+    final polygonCopy = List.of(polygon);
+    if (selectedPointIndex! == 0 || selectedPointIndex == polygon.length - 1) {
+      polygon.first = newCoords;
+      polygon.last = newCoords;
+    } else {
+      polygon[selectedPointIndex!] = newCoords;
+    }
+    if (hasSelfIntersections(polygon.sublist(1, polygon.length))) {
+      return polygonCopy;
+    } else {
+      return polygon;
     }
   }
 
@@ -453,61 +468,84 @@ class Shapes {
     return shape;
   }
 
-  void _removePerimeterPoint() {
+  int _removePerimeterPoint() {
+    final newShape = List.of(perimeter);
     if (selectedPointIndex == 0) {
-      perimeter.removeAt(selectedPointIndex!);
-      perimeter.removeAt(perimeter.length - 1);
-      perimeter.add(perimeter[0]);
+      newShape.removeAt(selectedPointIndex!);
+      newShape.removeAt(newShape.length - 1);
+      newShape.add(newShape[0]);
     } else {
-      perimeter.removeAt(selectedPointIndex!);
+      newShape.removeAt(selectedPointIndex!);
+    }
+    if (hasSelfIntersections(newShape.sublist(1, newShape.length))) {
+      return -1;
+    } else {
+      perimeter = newShape;
+      return 0;
     }
   }
 
-  void _removeExclusionPoint() {
+  int _removeExclusionPoint() {
+    List<List<Offset>> newShape = [];
+    for (var exclusion in exclusions) {
+      newShape.add(List.of(exclusion));
+    }
     if (selectedPointIndex == 0) {
-      exclusions[selectedExclusionIndex!].removeAt(selectedPointIndex!);
-      exclusions[selectedExclusionIndex!]
-          .removeAt(exclusions[selectedExclusionIndex!].length - 1);
-      exclusions[selectedExclusionIndex!]
-          .add(exclusions[selectedExclusionIndex!][0]);
+      newShape[selectedExclusionIndex!].removeAt(selectedPointIndex!);
+      newShape[selectedExclusionIndex!]
+          .removeAt(newShape[selectedExclusionIndex!].length - 1);
+      newShape[selectedExclusionIndex!]
+          .add(newShape[selectedExclusionIndex!][0]);
     } else {
-      exclusions[selectedExclusionIndex!].removeAt(selectedPointIndex!);
+      newShape[selectedExclusionIndex!].removeAt(selectedPointIndex!);
+    }
+    if (hasSelfIntersections(newShape[selectedExclusionIndex!]
+        .sublist(1, newShape[selectedExclusionIndex!].length))) {
+      return -1;
+    } else {
+      exclusions = newShape;
+      return 0;
     }
   }
 
-  void addShape(List<Offset> shape, String shapeType) {
-    if (shapeType == 'polygon' &&
-        shape.length > 2 &&
-        !hasSelfIntersections(shape)) {
-      if (perimeter.isEmpty) {
-        shape.add(shape.first);
-        perimeter = List.of(shape);
-      } else if (_intersectShapes([perimeter], [shape]).isNotEmpty) {
-        exclusions = _differenceShapes([shape], exclusions);
-        perimeter = _unionShapes([shape], [perimeter])[0];
-      }
-    } else if (shapeType == 'dockPath') {
-      if (perimeter.isNotEmpty) dockPath.addAll(shape);
-    } else if (shapeType == 'searchWire') {
-      if (perimeter.isNotEmpty) searchWire.addAll(shape);
-    }
-  }
-
-  void removeShape(List<Offset> shape, String shapeType) {
-    if (shapeType == 'polygon' &&
-        shape.length > 2 &&
-        !hasSelfIntersections(shape)) {
-      if (perimeter.isEmpty) {
-        return;
-      } else if (exclusions.isEmpty) {
+  int addExclusion(List<Offset> shape) {
+    if (shape.length > 2 && !hasSelfIntersections(shape)) {
+      if (exclusions.isEmpty) {
         shape.add(shape.first);
         exclusions.add(shape);
       } else {
         exclusions = _unionShapes([shape], exclusions);
-        final newShapes = _differenceShapes(exclusions, [perimeter]);
-        perimeter = newShapes.last;
-        exclusions = newShapes.sublist(0, newShapes.length - 1);
       }
+      return 0;
+    } else {
+      return -1;
+    }
+  }
+
+  int addPerimeter(List<Offset> shape) {
+    if (shape.length > 2 && !hasSelfIntersections(shape)) {
+      if (perimeter.isEmpty) {
+        shape.add(shape.first);
+        perimeter = shape;
+      } else if ((_intersectShapes([perimeter], [shape])).isNotEmpty) {
+        exclusions = _differenceShapes([shape], exclusions);
+        perimeter = _unionShapes([shape], [perimeter])[0];
+      }
+      return 0;
+    } else {
+      return -1;
+    }
+  }
+
+  void addDockPath(List<Offset> shape) {
+    if (perimeter.isNotEmpty) {
+      dockPath.addAll(shape);
+    }
+  }
+
+  void addSearchWire(List<Offset> shape) {
+    if (perimeter.isNotEmpty) {
+      searchWire.addAll(shape);
     }
   }
 
@@ -609,6 +647,33 @@ class Shapes {
     }
     if (newPoint != null && insertIndex != null) {
       newShape.insert(insertIndex, newPoint);
+    }
+  }
+
+  void finalizeMap() {
+    if (perimeter.isNotEmpty) {
+      if (exclusions.length == 2) {
+        exclusions = _unionShapes([exclusions[0]], [exclusions[1]]);
+      } else if (exclusions.length > 2) {
+        exclusions = _unionShapes(
+            [exclusions[0]], exclusions.sublist(1, exclusions.length));
+      }
+      final newMap = _differenceShapes(exclusions, [perimeter]);
+      perimeter = newMap.last;
+      exclusions = newMap.sublist(0, newMap.length - 1);
+    }
+    _checkSelection();
+  }
+
+  void _checkSelection() {
+    if (perimeter.isEmpty && selectedShape == 'perimeter') {
+      selectedShape = null;
+    } else if (exclusions.isEmpty && selectedShape == 'exclusion') {
+      selectedShape = null;
+    } else if (dockPath.isEmpty && selectedShape == 'dockPath') {
+      selectedShape = null;
+    } else if (searchWire.isEmpty && selectedShape == 'searchWire') {
+      selectedShape = null;
     }
   }
 }

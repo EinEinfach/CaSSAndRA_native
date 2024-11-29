@@ -281,7 +281,9 @@ class MapPainter extends CustomPainter {
           ? colors.error
           : colors.onSurface.withOpacity(0.4);
       Path pathLassoSelection = Path();
-      pathLassoSelection = drawPolygon(pathLassoSelection, lasso.selection);
+      pathLassoSelection = lasso.selectedShape == 'polygon'
+          ? drawPolygon(pathLassoSelection, lasso.selection)
+          : drawLine(pathLassoSelection, lasso.selection);
       canvas.drawPath(pathLassoSelection, strokeNoColor05);
       if (lasso.selected) {
         fillNoColor.color = colors.onSurface.withOpacity(0.4);
@@ -290,7 +292,7 @@ class MapPainter extends CustomPainter {
     }
 
     // draw lassoSelectionPoints
-     if (lasso.selectionPoints.isNotEmpty) {
+    if (lasso.selectionPoints.isNotEmpty) {
       fillNoColor.color = lasso.selectedPointIndex != null
           ? colors.error
           : colors.onSurface.withOpacity(0.5);
