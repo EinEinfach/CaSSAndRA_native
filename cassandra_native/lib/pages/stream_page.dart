@@ -36,10 +36,10 @@ class _StreamPageState extends State<StreamPage> {
 
   @override
   void dispose() {
-      // SystemChrome.setPreferredOrientations([
-      //   DeviceOrientation.portraitUp,
-      //   DeviceOrientation.portraitDown,
-      // ]);
+    // SystemChrome.setPreferredOrientations([
+    //   DeviceOrientation.portraitUp,
+    //   DeviceOrientation.portraitDown,
+    // ]);
     super.dispose();
   }
 
@@ -64,50 +64,51 @@ class _StreamPageState extends State<StreamPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Center(
-              child: RtspStream(rtspUrl: widget.server.rtspUrl!),
-            ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: IconButton(
-                onPressed: () {
-                  _navigateTo(
-                    ServersPage(),
-                  );
-                },
-                icon: Icon(
-                  Icons.arrow_back_ios,
-                  color: Theme.of(context).colorScheme.primary,
+      body: Stack(
+        children: [
+          Center(
+            child: RtspStream(rtspUrl: widget.server.rtspUrl!),
+          ),
+          SafeArea(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    _navigateTo(
+                      ServersPage(),
+                    );
+                  },
+                  icon: Icon(
+                    Icons.arrow_back_ios,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
-              ),
-            ),
-            Align(
-              alignment: Alignment.topRight,
-              child: IconButton(
-                onPressed: () {
-                  _showJoystick = !_showJoystick;
-                  setState(() {});
-                },
-                icon: Icon(
-                  BootstrapIcons.joystick,
-                  color: Theme.of(context).colorScheme.primary,
+                IconButton(
+                  onPressed: () {
+                    _showJoystick = !_showJoystick;
+                    setState(() {});
+                  },
+                  icon: Icon(
+                    BootstrapIcons.joystick,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
-              ),
+              ],
             ),
-            _showJoystick
-                ? Align(
+          ),
+          _showJoystick
+              ? SafeArea(
+                child: Align(
                     alignment: Alignment.bottomRight,
                     child: JoystickV2(
                       server: widget.server,
                       onJoystickMoved: _onJoystickMove,
                     ).animate().fadeIn().scale(),
-                  )
-                : const SizedBox.shrink(),
-          ],
-        ),
+                  ),
+              )
+              : const SizedBox.shrink(),
+        ],
       ),
     );
   }

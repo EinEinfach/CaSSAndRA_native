@@ -213,7 +213,9 @@ class _HomePageState extends State<HomePage> {
       if (constrains.maxWidth < smallWidth) {
         return Scaffold(
           backgroundColor: Theme.of(context).colorScheme.surface,
-          endDrawer: JoystickDrawer(server: widget.server),
+          endDrawer: JoystickDrawer(
+            server: widget.server,
+          ),
           drawer: NavDrawer(
             server: widget.server,
           ),

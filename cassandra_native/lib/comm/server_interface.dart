@@ -173,6 +173,36 @@ class ServerInterface {
     _sendCommand(cmdGotoJson);
   }
 
+  void commandShutdown() {
+    final Map<String, dynamic> cmdShutdown =
+        _addTopicAndCommandToValue('robot', 'shutdown', []);
+    final String cmdShutdownJson = jsonEncode(cmdShutdown);
+    if(kDebugMode){
+      debugPrint(cmdShutdownJson);
+    }
+    _sendCommand(cmdShutdownJson);
+  }
+
+  void commandReboot() {
+    final Map<String, dynamic> cmdReboot =
+        _addTopicAndCommandToValue('robot', 'reboot', []);
+    final String cmdRebootJson= jsonEncode(cmdReboot);
+    if(kDebugMode){
+      debugPrint(cmdRebootJson);
+    }
+    _sendCommand(cmdRebootJson);
+  }
+
+  void commandRebootGps() {
+    final Map<String, dynamic> cmdRebootGps =
+        _addTopicAndCommandToValue('robot', 'rebootGps', []);
+    final String cmdRebootGpsJson= jsonEncode(cmdRebootGps);
+    if(kDebugMode){
+      debugPrint(cmdRebootGpsJson);
+    }
+    _sendCommand(cmdRebootGpsJson);
+  }
+
   void commandResetObstacles() {
     final Map<String, dynamic> cmdResetObstacles =
         _addTopicAndCommandToValue('map', 'resetObstacles', []);

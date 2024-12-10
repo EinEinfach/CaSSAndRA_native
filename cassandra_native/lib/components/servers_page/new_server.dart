@@ -113,9 +113,9 @@ class _NewServerState extends State<NewServer> {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 300,
-      height: 350,
       child: SingleChildScrollView(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: _aliasController,

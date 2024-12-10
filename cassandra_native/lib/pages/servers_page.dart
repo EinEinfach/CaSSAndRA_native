@@ -18,6 +18,7 @@ import 'package:cassandra_native/pages/tablet/servers_page_tablet.dart';
 import 'package:cassandra_native/pages/desktop/servers_page_desktop.dart';
 
 import 'package:cassandra_native/components/common/customized_elevated_button.dart';
+import 'package:cassandra_native/components/common/customized_dialog_ok_cancel.dart';
 
 import 'package:cassandra_native/components/servers_page/new_server.dart';
 import 'package:cassandra_native/components/servers_page/server_item.dart';
@@ -134,32 +135,18 @@ class _ServersPageState extends State<ServersPage> {
   void removeServer(BuildContext context, Server server) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        title: Text(
-          'Remove this server?',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        actions: [
-          CustomizedElevatedButton(
-            text: 'cancel',
-            onPressed: () => Navigator.pop(context),
-          ),
-          CustomizedElevatedButton(
-            text: 'yes',
-            onPressed: () {
-              Navigator.pop(context);
-              setState(() {
-                MqttManager.instance.disconnect(server.id);
-                user.registredServers.removeServer(server);
-                ServerStorage.saveServers(user.registredServers.servers);
-              });
-            },
-          ),
-        ],
+      builder: (context) => CustomizedDialogOkCancel(
+        title: 'Warning',
+        content: 'Remove this server?',
+        onCancelPressed: () => Navigator.pop(context),
+        onOkPressed: () {
+          Navigator.pop(context);
+          setState(() {
+            MqttManager.instance.disconnect(server.id);
+            user.registredServers.removeServer(server);
+            ServerStorage.saveServers(user.registredServers.servers);
+          });
+        },
       ),
     );
   }
