@@ -132,7 +132,7 @@ class _ServersPageState extends State<ServersPage> {
     setState(() {});
   }
 
-  void removeServer(BuildContext context, Server server) {
+  void _onRemoveServerPressed(BuildContext context, Server server) {
     showDialog(
       context: context,
       builder: (context) => CustomizedDialogOkCancel(
@@ -202,7 +202,7 @@ class _ServersPageState extends State<ServersPage> {
     );
   }
 
-  void openEditServerOverlay(BuildContext context, Server server) {
+  void _onEditServerPressed(BuildContext context, Server server) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -261,6 +261,36 @@ class _ServersPageState extends State<ServersPage> {
     });
   }
 
+  void _onRestartServerPressed(BuildContext context, Server server) {
+    showDialog(
+      context: context,
+      builder: (context) => CustomizedDialogOkCancel(
+        title: 'Info',
+        content: 'Restart selected server instance?',
+        onCancelPressed: () => Navigator.pop(context),
+        onOkPressed: () {
+          Navigator.pop(context);
+          server.serverInterface.commandRestartServer();
+        },
+      ),
+    );
+  }
+
+  void _onShutdownServerPressed(BuildContext context, Server server) {
+    showDialog(
+      context: context,
+      builder: (context) => CustomizedDialogOkCancel(
+        title: 'Info',
+        content: 'Shutdown selected server instance?\n\nIf selected server configured in UART mode the robot will be also shutdown',
+        onCancelPressed: () => Navigator.pop(context),
+        onOkPressed: () {
+          Navigator.pop(context);
+          server.serverInterface.commandShutdownServer();
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     _handleAppLifecycleState(_appLifecycleState,
@@ -286,8 +316,10 @@ class _ServersPageState extends State<ServersPage> {
               return ServerItem(
                 server: server,
                 serverItemColor: server.setStateColor(context),
-                onRemoveServer: () => removeServer(context, server),
-                openEditServer: () => openEditServerOverlay(context, server),
+                onRemoveServer: () => _onRemoveServerPressed(context, server),
+                openEditServer: () => _onEditServerPressed(context, server),
+                onRestartServer: () => _onRestartServerPressed(context, server),
+                onShutdownServer: () => _onShutdownServerPressed(context, server),
                 selectServer: onSelectServer,
               ).animate().fadeIn().scale();
             },
@@ -311,7 +343,7 @@ class _ServersPageState extends State<ServersPage> {
                 child: ServerItemV2(
                   server: server,
                   serverItemColor: server.setStateColor(context),
-                  openEditServer: () => openEditServerOverlay(context, server),
+                  openEditServer: () => _onEditServerPressed(context, server),
                   selectServer: onSelectServer,
                 ).animate().fadeIn().scale(),
               );

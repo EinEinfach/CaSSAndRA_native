@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class MapButton extends StatelessWidget {
+class CustomizedElevatedIconButton extends StatelessWidget {
   final IconData icon;
   final bool isActive;
   final void Function()? onPressed;
   
 
-  const MapButton({
+  const CustomizedElevatedIconButton({
     super.key,
     required this.icon,
     required this.isActive,

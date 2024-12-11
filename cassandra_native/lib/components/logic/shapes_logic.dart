@@ -529,7 +529,11 @@ class Shapes {
         perimeter = shape;
       } else if ((_intersectShapes([perimeter], [shape])).isNotEmpty) {
         exclusions = _differenceShapes([shape], exclusions);
-        perimeter = _unionShapes([shape], [perimeter])[0];
+        final newShapes = _unionShapes([shape], [perimeter]);
+        perimeter = newShapes.last;
+        if (newShapes.length > 1) {
+          exclusions.addAll(newShapes.sublist(0, newShapes.length -1));
+        }
       }
       return 0;
     } else {

@@ -126,9 +126,9 @@ class _NewMowParametersState extends State<NewMowParameters> {
     ];
     return SizedBox(
       width: 300,
-      height: 310,
       child: SingleChildScrollView(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               children: [

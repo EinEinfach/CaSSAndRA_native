@@ -5,13 +5,16 @@ import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/pages/home_page.dart';
 import 'package:cassandra_native/components/servers_page/rtsp_stream.dart';
+import 'package:cassandra_native/components/common/customized_elevated_icon_button.dart';
 
 class ServerItem extends StatelessWidget {
   final Server server;
   final Color serverItemColor;
-  final void Function()? onRemoveServer;
-  final void Function()? openEditServer;
+  final void Function() onRemoveServer;
+  final void Function() openEditServer;
   final void Function(Server) selectServer;
+  final void Function() onRestartServer;
+  final void Function() onShutdownServer;
 
   const ServerItem({
     super.key,
@@ -20,6 +23,8 @@ class ServerItem extends StatelessWidget {
     required this.onRemoveServer,
     required this.openEditServer,
     required this.selectServer,
+    required this.onRestartServer,
+    required this.onShutdownServer,
   });
 
   void _navigateTo(Widget page, BuildContext context) {
@@ -171,25 +176,25 @@ class ServerItem extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                onPressed: openEditServer,
-                child: Icon(Icons.edit,
-                    color: Theme.of(context).colorScheme.inversePrimary),
+              CustomizedElevatedIconButton(
+                icon: BootstrapIcons.power,
+                isActive: false,
+                onPressed: onShutdownServer,
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
+              CustomizedElevatedIconButton(
+                icon: BootstrapIcons.bootstrap_reboot,
+                isActive: false,
+                onPressed: onRestartServer,
+              ),
+              CustomizedElevatedIconButton(
+                isActive: false,
+                icon: Icons.edit,
+                onPressed: openEditServer,
+              ),
+              CustomizedElevatedIconButton(
+                isActive: false,
+                icon: Icons.delete,
                 onPressed: onRemoveServer,
-                child: Icon(Icons.delete_forever,
-                    color: Theme.of(context).colorScheme.inversePrimary),
               ),
             ],
           ),

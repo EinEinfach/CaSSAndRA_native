@@ -3,7 +3,7 @@ import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/components/logic/shapes_logic.dart';
 import 'package:cassandra_native/components/logic/lasso_logic.dart';
-import 'package:cassandra_native/components/home_page/map_button.dart';
+import 'package:cassandra_native/components/common/customized_elevated_icon_button.dart';
 import 'package:cassandra_native/models/maps.dart';
 
 class PointInformation extends StatelessWidget {
@@ -92,17 +92,17 @@ class PointInformation extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              MapButton(
+              CustomizedElevatedIconButton(
                 icon: BootstrapIcons.plus,
                 isActive: insertPointActive,
                 onPressed: onAddPointActivate,
               ),
-              MapButton(
+              CustomizedElevatedIconButton(
                 icon: BootstrapIcons.trash,
                 isActive: false,
                 onPressed: onRemoveShape,
               ),
-              MapButton(
+              CustomizedElevatedIconButton(
                 icon: BootstrapIcons.dash,
                 isActive: false,
                 onPressed: onRemovePoint,

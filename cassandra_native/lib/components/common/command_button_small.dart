@@ -19,7 +19,7 @@ class CommandButtonSmall extends StatelessWidget {
         backgroundColor:
             Theme.of(context).colorScheme.surface.withOpacity(0.90),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8),
         ),
         fixedSize: const Size(80, 35),
         //minimumSize: const Size(80, 80),

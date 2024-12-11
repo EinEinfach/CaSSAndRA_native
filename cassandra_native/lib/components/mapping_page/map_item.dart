@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/models/server.dart';
-import 'package:cassandra_native/components/home_page/map_button.dart';
+import 'package:cassandra_native/components/common/customized_elevated_icon_button.dart';
 
 class MapItem extends StatefulWidget {
   final String mapName;
@@ -96,19 +96,19 @@ class _MapItemState extends State<MapItem> {
                 SizedBox(
                   width: 8,
                 ),
-                MapButton(
+                CustomizedElevatedIconButton(
                   icon: BootstrapIcons.cloud_arrow_down,
                   isActive: false,
                   onPressed: () {
                     widget.server.serverInterface.commandLoadMap([_mapName]);
                   },
                 ),
-                MapButton(
+                CustomizedElevatedIconButton(
                   icon: BootstrapIcons.copy,
                   isActive: false,
                   onPressed: () {},
                 ),
-                MapButton(
+                CustomizedElevatedIconButton(
                     icon: BootstrapIcons.pencil_square,
                     isActive: _mapRename,
                     onPressed: () {
@@ -179,17 +179,17 @@ class _MapItemState extends State<MapItem> {
 //             ),
 //             Row(
 //               children: [
-//                 MapButton(
+//                 CustomizedElevatedIconButton(
 //                   icon: BootstrapIcons.cloud_arrow_down,
 //                   isActive: false,
 //                   onPressed: () {},
 //                 ),
-//                 MapButton(
+//                 CustomizedElevatedIconButton(
 //                   icon: BootstrapIcons.copy,
 //                   isActive: false,
 //                   onPressed: () {},
 //                 ),
-//                 MapButton(
+//                 CustomizedElevatedIconButton(
 //                   icon: BootstrapIcons.pencil_square,
 //                   isActive: false,
 //                   onPressed: () {},

@@ -4,7 +4,7 @@ import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/components/common/customized_dialog_ok_cancel.dart';
 import 'package:cassandra_native/components/joystick/joystick.dart';
-import 'package:cassandra_native/components/home_page/map_button.dart';
+import 'package:cassandra_native/components/common/customized_elevated_icon_button.dart';
 import 'package:cassandra_native/models/server.dart';
 
 class JoystickDrawer extends StatefulWidget {
@@ -33,7 +33,7 @@ class _JoystickDrawerState extends State<JoystickDrawer> {
       context: context,
       builder: (context) => CustomizedDialogOkCancel(
         title: 'Warning',
-        content: 'You are about to shut down the robot.\n\nIf CaSSAndRA is running on the same machine, the server will also be shut down. Do you want to proceed?',
+        content: 'You are about to shut down the robot.\n\nIf CaSSAndRA is running on the same machine or in UART mode, the server will also be shut down. Do you want to proceed?',
         onCancelPressed: () {
           Navigator.pop(context);
         },
@@ -108,7 +108,7 @@ class _JoystickDrawerState extends State<JoystickDrawer> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  MapButton(
+                  CustomizedElevatedIconButton(
                     icon: BootstrapIcons.power,
                     isActive: false,
                     onPressed: () {
@@ -116,7 +116,7 @@ class _JoystickDrawerState extends State<JoystickDrawer> {
                       _onShutdownPressed();
                     },
                   ),
-                  MapButton(
+                  CustomizedElevatedIconButton(
                     icon: BootstrapIcons.bootstrap_reboot,
                     isActive: false,
                     onPressed: () {
@@ -124,7 +124,7 @@ class _JoystickDrawerState extends State<JoystickDrawer> {
                       _onRebootPressed();
                     },
                   ),
-                  MapButton(
+                  CustomizedElevatedIconButton(
                     icon: Icons.satellite_alt,
                     isActive: false,
                     onPressed: () {

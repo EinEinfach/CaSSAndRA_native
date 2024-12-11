@@ -10,7 +10,7 @@ import 'package:cassandra_native/components/logic/lasso_logic.dart';
 import 'package:cassandra_native/components/logic/animation_logic.dart';
 import 'package:cassandra_native/components/logic/ui_logic.dart';
 import 'package:cassandra_native/components/home_page/map_painter.dart';
-import 'package:cassandra_native/components/home_page/map_button.dart';
+import 'package:cassandra_native/components/common/customized_elevated_icon_button.dart';
 import 'package:cassandra_native/components/home_page/status_bar.dart';
 import 'package:cassandra_native/utils/custom_shape_calcs.dart';
 
@@ -370,12 +370,12 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  MapButton(
+                  CustomizedElevatedIconButton(
                     icon: Icons.settings,
                     isActive: false,
                     onPressed: widget.openMowParametersOverlay,
                   ),
-                  MapButton(
+                  CustomizedElevatedIconButton(
                     icon: Icons.gesture_outlined,
                     isActive: lasso.active,
                     onPressed: () {
@@ -392,7 +392,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                       setState(() {});
                     },
                   ),
-                  MapButton(
+                  CustomizedElevatedIconButton(
                     icon: Icons.add_location,
                     isActive: gotoPoint.active,
                     onPressed: () {
@@ -405,7 +405,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                       setState(() {});
                     },
                   ),
-                  MapButton(
+                  CustomizedElevatedIconButton(
                     icon: Icons.list,
                     isActive: false,
                     onPressed: () {
@@ -431,7 +431,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          MapButton(
+                          CustomizedElevatedIconButton(
                             icon: Icons.zoom_in_map,
                             isActive: false,
                             onPressed: () {
@@ -442,7 +442,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                               setState(() {});
                             },
                           ),
-                          MapButton(
+                          CustomizedElevatedIconButton(
                             icon: Icons.center_focus_weak_outlined,
                             isActive: mapRobotLogic.focusOnMowerActive,
                             onPressed: () {

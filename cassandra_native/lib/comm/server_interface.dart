@@ -81,6 +81,16 @@ class ServerInterface {
     _sendCommand(cmdRestartServerJson);
   }
 
+  void commandShutdownServer() {
+    final Map<String, dynamic> cmdShutdownServer =
+        _addTopicAndCommandToValue('server', 'shutdown', []);
+    final String cmdShutdownServerJson = jsonEncode(cmdShutdownServer);
+    if (kDebugMode) {
+      debugPrint(cmdShutdownServerJson);
+    }
+    _sendCommand(cmdShutdownServerJson);
+  }
+
   void commandUpdateCoords(String value) {
     final Map<String, dynamic> cmdUpdateCoords =
         _addTopicAndCommandToValue('coords', 'update', [value]);
