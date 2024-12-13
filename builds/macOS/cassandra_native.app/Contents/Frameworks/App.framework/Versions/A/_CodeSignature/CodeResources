@@ -10,11 +10,11 @@
 		</data>
 		<key>Resources/flutter_assets/AssetManifest.bin</key>
 		<data>
-		8TR2KvPv5aAilTWyGkqwltaufZg=
+		znvK4ZRdm5RUkj/YCSfhf6WE4Gc=
 		</data>
 		<key>Resources/flutter_assets/AssetManifest.json</key>
 		<data>
-		f8iP3nhbCR9vk7diDbh3l6VSeDg=
+		VFD/BFaUX/U7UbgjzdKyIVDnqa4=
 		</data>
 		<key>Resources/flutter_assets/FontManifest.json</key>
 		<data>
@@ -26,15 +26,19 @@
 		</data>
 		<key>Resources/flutter_assets/fonts/MaterialIcons-Regular.otf</key>
 		<data>
-		eo2m6kGkGWGalGMb+SDUEyI3L4M=
+		oawwU9U3zk3yX5lqCCcASxwVi0I=
 		</data>
 		<key>Resources/flutter_assets/lib/images/alfred.png</key>
 		<data>
-		D5KBzfVVVoqOslXvgJjCfExvVNQ=
+		r2CaRP3vcddFVQhS+lkST47eaaM=
 		</data>
 		<key>Resources/flutter_assets/lib/images/alfred/rover0grad.png</key>
 		<data>
 		8h1KllAfpbMf3QstXxgmDKJ5p8k=
+		</data>
+		<key>Resources/flutter_assets/lib/images/alfred2.png</key>
+		<data>
+		D5KBzfVVVoqOslXvgJjCfExvVNQ=
 		</data>
 		<key>Resources/flutter_assets/lib/images/app_icon.png</key>
 		<data>
@@ -42,11 +46,15 @@
 		</data>
 		<key>Resources/flutter_assets/lib/images/ardumower.png</key>
 		<data>
-		mVnTF17GNuQDYEMxNeccFjh/oQ0=
+		qfWntYhpjKv2fuVaqOb0d0Vn0kI=
 		</data>
 		<key>Resources/flutter_assets/lib/images/ardumower/rover0grad.png</key>
 		<data>
 		7bP2rYhJYaIwFGV31L8IjAnOIZM=
+		</data>
+		<key>Resources/flutter_assets/lib/images/ardumower2.png</key>
+		<data>
+		mVnTF17GNuQDYEMxNeccFjh/oQ0=
 		</data>
 		<key>Resources/flutter_assets/lib/images/artic_hare.png</key>
 		<data>
@@ -58,11 +66,15 @@
 		</data>
 		<key>Resources/flutter_assets/lib/images/landrumower.png</key>
 		<data>
-		NIQgGN3QrnJotHz5ZuKLQleI3fg=
+		Bm8u7p3Yc0TXkiVOxeSHmf95Pjw=
 		</data>
 		<key>Resources/flutter_assets/lib/images/landrumower/rover0grad.png</key>
 		<data>
 		a7WE1wKA9owANG+lKn1xBXH+XXg=
+		</data>
+		<key>Resources/flutter_assets/lib/images/landrumower2.png</key>
+		<data>
+		NIQgGN3QrnJotHz5ZuKLQleI3fg=
 		</data>
 		<key>Resources/flutter_assets/lib/images/mower_icon.png</key>
 		<data>
@@ -74,7 +86,7 @@
 		</data>
 		<key>Resources/flutter_assets/packages/bootstrap_icons/fonts/BootstrapIcons.ttf</key>
 		<data>
-		FOn/wQqtk8fB2ICjk2O8Zx7d8rU=
+		Czzd/jjw3+1Kx9fQMjfNQ+05FiM=
 		</data>
 		<key>Resources/flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>
 		<data>
@@ -110,14 +122,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			glGrtJE79Tlhm3mRNXkGgMv3o8i9gwAmFHG5TDDjVvY=
+			wR7yQtv9zVs2FrlEGuPQVT9lMxPsVY+IofBfk32+h30=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/AssetManifest.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			OqvCRhuJXtAuQ3vTIP5z5gz2HaDKDHJ6rY/O4g4SkuQ=
+			iGtDweAhn27nZw6wFoSwAPamwTG4QmtcUnJeJoJa4R0=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/FontManifest.json</key>
@@ -138,14 +150,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			0E+SEKQ0ObhMCJ0tjS3xgSOc3EkUuZe6zwlR1hYn1/Y=
+			H72wPIZK4lrrA9H0Chu/GgVMZVD4usLL0hhRSOEwvt8=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/lib/images/alfred.png</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			/V7LFrx2U77vrPRptw8oRBTpZnCQx7yD8GNtzwkc+ZM=
+			NKRuOFa2UjoUu3ZwZp1E1LUJCGE0VqNNmJYUPwEof78=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/lib/images/alfred/rover0grad.png</key>
@@ -153,6 +165,13 @@
 			<key>hash2</key>
 			<data>
 			Ic/mGTax2eSL8uYf9o5hNPWNd5YoxpHJS0wnxIsrSiI=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/lib/images/alfred2.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			/V7LFrx2U77vrPRptw8oRBTpZnCQx7yD8GNtzwkc+ZM=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/lib/images/app_icon.png</key>
@@ -166,7 +185,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			DPUN5/u1tNVCtTWK9rxU9TPd7DqN1LekG8fwV+v3neY=
+			LF7+mwRx2SzEwzKc30FiXRerXGoY5WAd29gIpN6dUH4=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/lib/images/ardumower/rover0grad.png</key>
@@ -174,6 +193,13 @@
 			<key>hash2</key>
 			<data>
 			2qW6aGqBXDA9f7e7HsajMmfxZDnMcZ9PSiniQ/UtXZU=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/lib/images/ardumower2.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			DPUN5/u1tNVCtTWK9rxU9TPd7DqN1LekG8fwV+v3neY=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/lib/images/artic_hare.png</key>
@@ -194,7 +220,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			YFVGvblGYlSbL8A5PnR8KgzoBa3tAzkSlWkOHhPpClc=
+			+kG/JIRviwsDsWFKnHMGiegEX+9bnoQhZHNpgt925Tg=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/lib/images/landrumower/rover0grad.png</key>
@@ -202,6 +228,13 @@
 			<key>hash2</key>
 			<data>
 			CcGmPtwi+Nl6qT/ZE9un8zyAgJYauZmTYSuMo9698co=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/lib/images/landrumower2.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			YFVGvblGYlSbL8A5PnR8KgzoBa3tAzkSlWkOHhPpClc=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/lib/images/mower_icon.png</key>
@@ -222,7 +255,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			JOUbOiDggCUYrQZ5ia1EBN47si5h9JElQxBXhn75pr4=
+			DCqRl/llEjMqvEQo1AoqPk1XW2/VPQRhfMqqx8kI+qE=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>
