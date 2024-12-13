@@ -175,7 +175,7 @@ class ServerInterface {
   void commandGoto(Offset gotoPoint) {
     final Map<String, List<double>> gotoCoords = _coordsToMap([gotoPoint]);
     final Map<String, dynamic> cmdGoto =
-        _addTopicAndCommandToValue('robot', 'go to', gotoCoords);
+        _addTopicAndCommandToValue('robot', 'goTo', gotoCoords);
     final String cmdGotoJson = jsonEncode(cmdGoto);
     if (kDebugMode) {
       debugPrint(cmdGotoJson);
@@ -187,7 +187,7 @@ class ServerInterface {
     final Map<String, dynamic> cmdShutdown =
         _addTopicAndCommandToValue('robot', 'shutdown', []);
     final String cmdShutdownJson = jsonEncode(cmdShutdown);
-    if(kDebugMode){
+    if (kDebugMode) {
       debugPrint(cmdShutdownJson);
     }
     _sendCommand(cmdShutdownJson);
@@ -196,8 +196,8 @@ class ServerInterface {
   void commandReboot() {
     final Map<String, dynamic> cmdReboot =
         _addTopicAndCommandToValue('robot', 'reboot', []);
-    final String cmdRebootJson= jsonEncode(cmdReboot);
-    if(kDebugMode){
+    final String cmdRebootJson = jsonEncode(cmdReboot);
+    if (kDebugMode) {
       debugPrint(cmdRebootJson);
     }
     _sendCommand(cmdRebootJson);
@@ -206,8 +206,8 @@ class ServerInterface {
   void commandRebootGps() {
     final Map<String, dynamic> cmdRebootGps =
         _addTopicAndCommandToValue('robot', 'rebootGps', []);
-    final String cmdRebootGpsJson= jsonEncode(cmdRebootGps);
-    if(kDebugMode){
+    final String cmdRebootGpsJson = jsonEncode(cmdRebootGps);
+    if (kDebugMode) {
       debugPrint(cmdRebootGpsJson);
     }
     _sendCommand(cmdRebootGpsJson);
@@ -221,6 +221,16 @@ class ServerInterface {
       debugPrint(cmdResetObstaclesJson);
     }
     _sendCommand(cmdResetObstaclesJson);
+  }
+
+  void commandResetRoute() {
+    final Map<String, dynamic> cmdResetRoute=
+        _addTopicAndCommandToValue('map', 'resetRoute', []);
+    final String cmdResetRouteJson= jsonEncode(cmdResetRoute);
+    if (kDebugMode) {
+      debugPrint(cmdResetRouteJson);
+    }
+    _sendCommand(cmdResetRouteJson);
   }
 
   void commandSelectTasks(List<String> tasks) {
@@ -281,5 +291,35 @@ class ServerInterface {
       debugPrint(cmdRenameMapJson);
     }
     _sendCommand(cmdRenameMapJson);
+  }
+
+  void commandToggleMowMotor() {
+    final Map<String, dynamic> cmdToggleMowMotor =
+        _addTopicAndCommandToValue('robot', 'toggleMowMotor', []);
+    final String cmdToggleMowMotorJson = jsonEncode(cmdToggleMowMotor);
+    if (kDebugMode) {
+      debugPrint(cmdToggleMowMotorJson);
+    }
+    _sendCommand(cmdToggleMowMotorJson);
+  }
+
+  void commandSkipNextPoint() {
+    final Map<String, dynamic> cmdSkipNextPoint =
+        _addTopicAndCommandToValue('robot', 'skipNextPoint', []);
+    final String cmdSkipNextPointJson = jsonEncode(cmdSkipNextPoint);
+    if (kDebugMode) {
+      debugPrint(cmdSkipNextPointJson);
+    }
+    _sendCommand(cmdSkipNextPointJson);
+  }
+
+  void commandSetMowProgress(double value) {
+    final Map<String, dynamic> cmdSetMowProgress =
+        _addTopicAndCommandToValue('robot', 'setMowProgress', [value]);
+    final String cmdSetMowProgressJson = jsonEncode(cmdSetMowProgress);
+    if (kDebugMode) {
+      debugPrint(cmdSetMowProgressJson);
+    }
+    _sendCommand(cmdSetMowProgressJson);
   }
 }

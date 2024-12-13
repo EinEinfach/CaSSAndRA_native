@@ -154,11 +154,22 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
 
   void _resetTasksSelection() {
     widget.server.serverInterface.commandSelectTasks([]);
+    widget.server.currentMap.tasks.selected = [];
   }
 
   void _resetObstacles() {
     widget.server.serverInterface.commandResetObstacles();
     widget.server.currentMap.resetObstaclesCoords();
+  }
+
+  void _resetRoute() {
+    final List<String> jobStates = ['mow', 'transit', 'docking'];
+    if (jobStates.contains(widget.server.robot.status)) {
+      widget.server.serverInterface.commandStop();
+    }
+    widget.server.serverInterface.commandResetRoute();
+    widget.server.currentMap.resetMowPathCoords();
+    widget.server.currentMap.resetPreviewCoords();
   }
 
   void _onScaleStart(ScaleStartDetails details) {
@@ -252,10 +263,15 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   }
 
   void _onDoubleTap() {
-    _resetObstacles();
-    lasso.selected ? _resetLassoSelection() : lasso.removePoint();
-    if (widget.server.robot.status != 'transit') {
+    if (widget.server.currentMap.obstacles.isNotEmpty) {
+      _resetObstacles();
+    } else if (lasso.selectedPointIndex != null) {
+      lasso.removePoint();
+    } else if (lasso.selected || lasso.selection.isNotEmpty) {
+      _resetLassoSelection();
+    } else {
       _resetGotoPoint();
+      _resetRoute();
     }
     _resetTasksSelection();
     setState(() {});
@@ -265,8 +281,23 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     if (gotoPoint.active) {
       gotoPoint.setCoords(details, zoomPan, widget.server.currentMap);
       widget.server.currentMap.gotoPointToJsonData(gotoPoint.coords!);
+      gotoPoint.active = false;
       setState(() {});
     }
+  }
+
+  void _onLassoActivatePressed() {
+    lasso.active = !lasso.active;
+    if (lasso.active) {
+      mapRobotLogic.focusOnMowerActive = false;
+      _resetGotoPoint();
+      _resetLassoSelection();
+      lasso.active = true;
+      _resetTasksSelection();
+      lasso.selection = [];
+      lasso.selectionPoints = [];
+    }
+    setState(() {});
   }
 
   void _startBusyTimer() {
@@ -378,26 +409,14 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                   CustomizedElevatedIconButton(
                     icon: Icons.gesture_outlined,
                     isActive: lasso.active,
-                    onPressed: () {
-                      lasso.active = !lasso.active;
-                      if (lasso.active) {
-                        mapRobotLogic.focusOnMowerActive = false;
-                        _resetGotoPoint();
-                        _resetLassoSelection();
-                        lasso.active = true;
-                        _resetTasksSelection();
-                        lasso.selection = [];
-                        lasso.selectionPoints = [];
-                      }
-                      setState(() {});
-                    },
+                    onPressed: _onLassoActivatePressed,
                   ),
                   CustomizedElevatedIconButton(
                     icon: Icons.add_location,
                     isActive: gotoPoint.active,
                     onPressed: () {
                       mapRobotLogic.focusOnMowerActive = false;
-                      _resetGotoPoint();
+                      //_resetGotoPoint();
                       _resetLassoSelection();
                       _resetTasksSelection();
                       gotoPoint.active = !gotoPoint.active;

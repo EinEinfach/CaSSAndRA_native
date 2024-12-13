@@ -28,6 +28,7 @@ class Robot {
   double? secondsPerIdx;
   double speed = 0;
   double averageSpeed = 0;
+  bool mowMotorActive = false;
 
   void jsonToClassData(String message) {
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
@@ -55,7 +56,7 @@ class Robot {
       secondsPerIdx = decodedMessage['secondsPerIdx'];
       speed = decodedMessage['speed'];
       averageSpeed = decodedMessage['averageSpeed'];
-      //notifyListeners();
+      mowMotorActive = decodedMessage['mowMotorActive'];
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Invalid robot json data: $e');

@@ -164,7 +164,9 @@ class MapPainter extends CustomPainter {
     }
 
     // draw mow path
-    if (currentMap.scaledMowPath.isNotEmpty && robot.status == 'mow') {
+    if (currentMap.scaledMowPath.isNotEmpty
+     //&& robot.status == 'mow'
+     ) {
       //finished
       Path pathMowPathFinished = Path();
       strokeNoColor05.color = Colors.grey.shade300;

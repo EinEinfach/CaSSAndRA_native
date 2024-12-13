@@ -4,6 +4,7 @@ import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/components/common/customized_dialog_ok_cancel.dart';
 import 'package:cassandra_native/components/joystick/joystick.dart';
+import 'package:cassandra_native/components/common/progress_slider.dart';
 import 'package:cassandra_native/components/common/customized_elevated_icon_button.dart';
 import 'package:cassandra_native/models/server.dart';
 
@@ -32,8 +33,9 @@ class _JoystickDrawerState extends State<JoystickDrawer> {
     showDialog(
       context: context,
       builder: (context) => CustomizedDialogOkCancel(
-        title: 'Warning',
-        content: 'You are about to shut down the robot.\n\nIf CaSSAndRA is running on the same machine or in UART mode, the server will also be shut down. Do you want to proceed?',
+        title: 'Info',
+        content:
+            'You are about to shut down the robot.\n\nIf CaSSAndRA is running on the same machine or in UART mode, the server will also be shut down. Do you want to proceed?',
         onCancelPressed: () {
           Navigator.pop(context);
         },
@@ -49,8 +51,9 @@ class _JoystickDrawerState extends State<JoystickDrawer> {
     showDialog(
       context: context,
       builder: (context) => CustomizedDialogOkCancel(
-        title: 'Warning',
-        content: 'You are about to reboot the robot.\n\nIf CaSSAndRA is running on the same machine, the server will also be restarted. Do you want to proceed?',
+        title: 'Info',
+        content:
+            'You are about to reboot the robot.\n\nIf CaSSAndRA is running on the same machine, the server will also be restarted. Do you want to proceed?',
         onCancelPressed: () {
           Navigator.pop(context);
         },
@@ -79,6 +82,27 @@ class _JoystickDrawerState extends State<JoystickDrawer> {
     );
   }
 
+  void _onToggleMowMotorPressed() {
+    if (widget.server.robot.mowMotorActive) {
+      widget.server.serverInterface.commandToggleMowMotor();
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) => CustomizedDialogOkCancel(
+          title: 'Warning',
+          content: 'Activate mow motor?',
+          onCancelPressed: () {
+            Navigator.pop(context);
+          },
+          onOkPressed: () {
+            widget.server.serverInterface.commandToggleMowMotor();
+            Navigator.pop(context);
+          },
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -97,14 +121,51 @@ class _JoystickDrawerState extends State<JoystickDrawer> {
                   },
                 ),
               ),
-              const Spacer(),
+              Expanded(
+                child: SizedBox.shrink(),
+              ),
               Center(
                 child: Joystick(
                   server: widget.server,
                   onJoystickMoved: _onJoystickMove,
                 ),
               ),
-              const Spacer(),
+              Expanded(
+                child: SizedBox.shrink(),
+              ),
+              ProgressSlider(
+                server: widget.server,
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  SizedBox(
+                    width: 50,
+                  ),
+                  CustomizedElevatedIconButton(
+                    icon: BootstrapIcons.fan,
+                    isActive: widget.server.robot.mowMotorActive,
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      _onToggleMowMotorPressed();
+                    },
+                  ),
+                  CustomizedElevatedIconButton(
+                    icon: BootstrapIcons.skip_end,
+                    isActive: false,
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      widget.server.serverInterface.commandSkipNextPoint();
+                    },
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 10,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -144,83 +205,3 @@ class _JoystickDrawerState extends State<JoystickDrawer> {
     );
   }
 }
-
-// class JoystickDrawer extends StatelessWidget {
-//   final Server server;
-
-//   const JoystickDrawer({
-//     super.key,
-//     required this.server,
-//   });
-
-//   void _onJoystickMove(Offset position, double maxSpeed, double radius) {
-//     String linearSpeed =
-//         (-1 * maxSpeed * position.dy / radius).toStringAsFixed(2);
-//     String angularSpeed =
-//         (-1 * maxSpeed * position.dx / radius).toStringAsFixed(2);
-//     server.serverInterface
-//         .commandMove(double.parse(linearSpeed), double.parse(angularSpeed));
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return GestureDetector(
-//       onHorizontalDragEnd: (v) {},
-//       child: SafeArea(
-//         child: Drawer(
-//           backgroundColor: Theme.of(context).colorScheme.surface,
-//           child: Column(
-//             children: [
-//               Align(
-//                 alignment: Alignment.topLeft,
-//                 child: IconButton(
-//                   icon: const Icon(Icons.close),
-//                   onPressed: () {
-//                     Navigator.of(context).pop();
-//                   },
-//                 ),
-//               ),
-//               const Spacer(),
-//               Center(
-//                 child: Joystick(
-//                   server: server,
-//                   onJoystickMoved: _onJoystickMove,
-//                 ),
-//               ),
-//               const Spacer(),
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-//                 children: [
-//                   MapButton(
-//                     icon: BootstrapIcons.power,
-//                     isActive: false,
-//                     onPressed: () {
-//                       HapticFeedback.lightImpact();
-//                     },
-//                   ),
-//                   MapButton(
-//                     icon: BootstrapIcons.bootstrap_reboot,
-//                     isActive: false,
-//                     onPressed: () {
-//                       HapticFeedback.lightImpact();
-//                     },
-//                   ),
-//                   MapButton(
-//                     icon: Icons.satellite_alt,
-//                     isActive: false,
-//                     onPressed: () {
-//                       HapticFeedback.lightImpact();
-//                     },
-//                   ),
-//                 ],
-//               ),
-//               const SizedBox(
-//                 height: 20,
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }

@@ -29,11 +29,11 @@ class _SelectTasksState extends State<SelectTasks> {
     }
     return SizedBox(
       width: 300,
-      height: 130,
       child: SingleChildScrollView(
         child: Form(
           key: _formKey,
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(

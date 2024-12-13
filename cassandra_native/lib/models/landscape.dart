@@ -154,7 +154,7 @@ class Landscape {
   }
 
   void _previewJsonToClassData(Map decodedMessage) {
-    _resetPreviewCoords();
+    resetPreviewCoords();
     try {
       if (decodedMessage['features'][1]['geometry']['coordinates'].isEmpty) {
         previewId = decodedMessage["features"][0]["properties"]["id"];
@@ -177,7 +177,7 @@ class Landscape {
   }
 
   void _mowPathJsonToClassData(Map decodedMessage) {
-    _resetMowPathCoords();
+    resetMowPathCoords();
     try {
       if (decodedMessage['features'][1]['geometry']['coordinates'].isEmpty) {
         mowPathId = decodedMessage["features"][0]["properties"]["id"];
@@ -412,13 +412,13 @@ class Landscape {
     shiftedMaxY = double.negativeInfinity;
   }
 
-  void _resetPreviewCoords() {
+  void resetPreviewCoords() {
     preview = [];
     shiftedPreview = [];
     scaledPreview = [];
   }
 
-  void _resetMowPathCoords() {
+  void resetMowPathCoords() {
     mowPath = [];
     shiftedMowPath = [];
     scaledMowPath = [];
