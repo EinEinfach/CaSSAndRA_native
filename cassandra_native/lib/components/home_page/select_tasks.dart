@@ -86,6 +86,9 @@ class _SelectTasksState extends State<SelectTasks> {
                 onSelectionChange: (selectedItems) {
                   widget.server.serverInterface
                       .commandSelectTasks(selectedItems);
+                  widget.server.serverInterface.commandResetRoute();
+                  widget.server.currentMap.resetPreviewCoords();
+                  widget.server.currentMap.resetMowPathCoords();
                 },
               ),
               const SizedBox(height: 5),

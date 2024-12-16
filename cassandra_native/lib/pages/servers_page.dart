@@ -137,7 +137,7 @@ class _ServersPageState extends State<ServersPage> {
       context: context,
       builder: (context) => CustomizedDialogOkCancel(
         title: 'Warning',
-        content: 'Remove this server?',
+        content: 'Remove server instance?',
         onCancelPressed: () => Navigator.pop(context),
         onOkPressed: () {
           Navigator.pop(context);
@@ -266,7 +266,7 @@ class _ServersPageState extends State<ServersPage> {
       context: context,
       builder: (context) => CustomizedDialogOkCancel(
         title: 'Info',
-        content: 'Restart selected server instance?',
+        content: 'Restart server instance?',
         onCancelPressed: () => Navigator.pop(context),
         onOkPressed: () {
           Navigator.pop(context);
@@ -281,7 +281,7 @@ class _ServersPageState extends State<ServersPage> {
       context: context,
       builder: (context) => CustomizedDialogOkCancel(
         title: 'Info',
-        content: 'Shutdown selected server instance?\n\nIf selected server configured in UART mode the robot will be also shutdown',
+        content: 'Shutdown server instance?\n\nIf selected server configured in UART mode the robot will be also shutdown',
         onCancelPressed: () => Navigator.pop(context),
         onOkPressed: () {
           Navigator.pop(context);

@@ -130,9 +130,6 @@ class _JoystickDrawerState extends State<JoystickDrawer> {
                   onJoystickMoved: _onJoystickMove,
                 ),
               ),
-              Expanded(
-                child: SizedBox.shrink(),
-              ),
               ProgressSlider(
                 server: widget.server,
               ),

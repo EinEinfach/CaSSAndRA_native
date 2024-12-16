@@ -67,7 +67,15 @@ class _StreamPageState extends State<StreamPage> {
       body: Stack(
         children: [
           Center(
-            child: RtspStream(rtspUrl: widget.server.rtspUrl!),
+            child: MediaQuery.of(context).orientation == Orientation.portrait
+                ? RtspStream(
+                    rtspUrl: widget.server.rtspUrl!,
+                  )
+                : RtspStream(
+                    rtspUrl: widget.server.rtspUrl!,
+                    aspectRatio: MediaQuery.of(context).size.width /
+                        MediaQuery.of(context).size.height,
+                  ),
           ),
           SafeArea(
             child: Row(
@@ -99,14 +107,14 @@ class _StreamPageState extends State<StreamPage> {
           ),
           _showJoystick
               ? SafeArea(
-                child: Align(
+                  child: Align(
                     alignment: Alignment.bottomRight,
                     child: JoystickV2(
                       server: widget.server,
                       onJoystickMoved: _onJoystickMove,
                     ).animate().fadeIn().scale(),
                   ),
-              )
+                )
               : const SizedBox.shrink(),
         ],
       ),

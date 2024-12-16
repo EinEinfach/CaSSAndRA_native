@@ -7,9 +7,11 @@ import 'package:cassandra_native/cassandra_native.dart';
 
 class RtspStream extends StatefulWidget {
   final String rtspUrl;
+  final double aspectRatio;
   const RtspStream({
     super.key,
     required this.rtspUrl,
+    this.aspectRatio = 16 / 9,
   });
 
   @override
@@ -47,19 +49,16 @@ class _RtspStreamState extends State<RtspStream> {
 
   @override
   Widget build(BuildContext context) {
-    
     _handleAppLifecycleState(_appLifecycleState,
         Provider.of<CassandraNative>(context).appLifecycleState);
     _appLifecycleState =
         Provider.of<CassandraNative>(context).appLifecycleState;
 
-    return AspectRatio(
-      aspectRatio: 16 / 9,
-      child: Video(
-        fill: Theme.of(context).colorScheme.secondary,
-        controller: controller,
-        controls: null,
-      ),
+    return Video(
+      aspectRatio: widget.aspectRatio,
+      fill: Theme.of(context).colorScheme.secondary,
+      controller: controller,
+      controls: null,
     );
   }
 }

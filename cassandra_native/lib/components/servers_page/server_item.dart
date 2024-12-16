@@ -69,8 +69,11 @@ class ServerItem extends StatelessWidget {
                           child: server.rtspUrl == null
                               ? Image.asset(
                                   categoryImages[server.category]!.elementAt(0))
-                              : RtspStream(
-                                  rtspUrl: server.rtspUrl!,
+                              : AspectRatio(
+                                  aspectRatio: 16 / 9,
+                                  child: RtspStream(
+                                    rtspUrl: server.rtspUrl!,
+                                  ),
                                 ),
                         ),
                         Row(
