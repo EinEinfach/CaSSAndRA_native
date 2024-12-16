@@ -2,7 +2,7 @@ import 'package:cassandra_native/components/common/command_button_small.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cassandra_native/models/server.dart';
-import 'package:cassandra_native/components/common/joystick_drawer.dart';
+import 'package:cassandra_native/components/common/remote_control/remote_control_drawer.dart';
 import 'package:cassandra_native/data/app_data.dart';
 
 class ServersPageMobile extends StatelessWidget {
@@ -27,7 +27,7 @@ class ServersPageMobile extends StatelessWidget {
       key: scafoldKey,
       backgroundColor: Theme.of(context).colorScheme.surface,
       endDrawer: selectedServer != null
-          ? JoystickDrawer(server: selectedServer!)
+          ? RemoteControlDrawer(server: selectedServer!)
           : null,
       appBar: AppBar(
         backgroundColor: Colors.transparent,

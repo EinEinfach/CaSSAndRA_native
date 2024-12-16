@@ -8,7 +8,7 @@ import 'package:cassandra_native/comm/mqtt_manager.dart';
 
 import 'package:cassandra_native/models/server.dart';
 // import 'package:cassandra_native/components/common/joystick_drawer.dart';
-import 'package:cassandra_native/components/joystick/joystick_v_2.dart';
+import 'package:cassandra_native/components/common/remote_control/joystick_v_2.dart';
 import 'package:cassandra_native/components/common/nav_button.dart';
 import 'package:cassandra_native/components/common/nav_drawer.dart';
 import 'package:cassandra_native/components/mapping_page/map_view.dart';

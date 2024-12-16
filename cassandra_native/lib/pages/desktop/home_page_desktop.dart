@@ -2,7 +2,7 @@ import 'package:cassandra_native/components/common/nav_button.dart';
 import 'package:flutter/material.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 
-import 'package:cassandra_native/components/common/joystick_drawer.dart';
+import 'package:cassandra_native/components/common/remote_control/remote_control_drawer.dart';
 import 'package:cassandra_native/components/common/nav_drawer.dart';
 import 'package:cassandra_native/components/home_page/map_view.dart';
 import 'package:cassandra_native/models/server.dart';
@@ -29,7 +29,7 @@ class HomePageDesktop extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      endDrawer: JoystickDrawer(server: server),
+      endDrawer: RemoteControlDrawer(server: server),
       body: Builder(builder: (context) {
         return Stack(
           children: [

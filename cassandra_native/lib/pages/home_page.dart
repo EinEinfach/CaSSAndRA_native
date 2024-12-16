@@ -5,6 +5,7 @@ import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:cassandra_native/cassandra_native.dart';
 import 'package:cassandra_native/comm/mqtt_manager.dart';
 
+import 'package:cassandra_native/pages/mobile/joystick_page.dart';
 import 'package:cassandra_native/pages/tablet/home_page_tablet.dart';
 import 'package:cassandra_native/pages/desktop/home_page_desktop.dart';
 import 'package:cassandra_native/data/app_data.dart';
@@ -12,7 +13,7 @@ import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/models/mow_parameters.dart';
 import 'package:cassandra_native/components/common/nav_drawer.dart';
 import 'package:cassandra_native/components/common/nav_button.dart';
-import 'package:cassandra_native/components/common/joystick_drawer.dart';
+import 'package:cassandra_native/components/common/remote_control/remote_control_drawer.dart';
 import 'package:cassandra_native/components/home_page/map_view.dart';
 import 'package:cassandra_native/components/home_page/select_tasks.dart';
 import 'package:cassandra_native/components/home_page/status_window.dart';
@@ -213,7 +214,7 @@ class _HomePageState extends State<HomePage> {
       if (constrains.maxWidth < smallWidth) {
         return Scaffold(
           backgroundColor: Theme.of(context).colorScheme.surface,
-          endDrawer: JoystickDrawer(
+          endDrawer: RemoteControlDrawer(
             server: widget.server,
           ),
           drawer: NavDrawer(
@@ -223,11 +224,13 @@ class _HomePageState extends State<HomePage> {
             return SafeArea(
               child: Stack(
                 children: [
+                  /************************** Map ***************************************/
                   MapView(
                     server: widget.server,
                     openMowParametersOverlay: openMowParametersOverlay,
                     onOpenTasksOverlay: openTasksOverlay,
                   ),
+                  /************************** Dynamic status window ********************/
                   Align(
                     alignment: Alignment.bottomCenter,
                     child: Container(
@@ -296,6 +299,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
+                  /*****************************Buttons top ****************************************/
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -308,7 +312,13 @@ class _HomePageState extends State<HomePage> {
                       NavButton(
                         icon: BootstrapIcons.joystick,
                         onPressed: () {
-                          Scaffold.of(context).openEndDrawer();
+                          //Scaffold.of(context).openEndDrawer();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => JoystickPage(server: widget.server),
+                            ),
+                          );
                         },
                       ),
                     ],

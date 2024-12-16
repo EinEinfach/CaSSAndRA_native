@@ -6,7 +6,7 @@ import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:cassandra_native/pages/servers_page.dart';
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/components/servers_page/rtsp_stream.dart';
-import 'package:cassandra_native/components/joystick/joystick_v_2.dart';
+import 'package:cassandra_native/components/common/remote_control/joystick_v_2.dart';
 
 class StreamPage extends StatefulWidget {
   final Server server;
@@ -88,7 +88,7 @@ class _StreamPageState extends State<StreamPage> {
                     );
                   },
                   icon: Icon(
-                    Icons.arrow_back_ios,
+                    Icons.close,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),

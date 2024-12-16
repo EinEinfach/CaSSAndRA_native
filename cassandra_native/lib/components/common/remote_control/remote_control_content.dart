@@ -3,23 +3,23 @@ import 'package:flutter/services.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/components/common/customized_dialog_ok_cancel.dart';
-import 'package:cassandra_native/components/joystick/joystick.dart';
+import 'package:cassandra_native/components/common/remote_control/joystick.dart';
 import 'package:cassandra_native/components/common/progress_slider.dart';
 import 'package:cassandra_native/components/common/customized_elevated_icon_button.dart';
 import 'package:cassandra_native/models/server.dart';
 
-class JoystickDrawer extends StatefulWidget {
+class RemoteControlContent extends StatefulWidget {
   final Server server;
-  const JoystickDrawer({
+  const RemoteControlContent({
     super.key,
     required this.server,
   });
 
   @override
-  State<JoystickDrawer> createState() => _JoystickDrawerState();
+  State<RemoteControlContent> createState() => _RemoteControlContentState();
 }
 
-class _JoystickDrawerState extends State<JoystickDrawer> {
+class _RemoteControlContentState extends State<RemoteControlContent> {
   void _onJoystickMove(Offset position, double maxSpeed, double radius) {
     String linearSpeed =
         (-1 * maxSpeed * position.dy / radius).toStringAsFixed(2);
@@ -105,99 +105,97 @@ class _JoystickDrawerState extends State<JoystickDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onHorizontalDragEnd: (v) {},
-      child: SafeArea(
-        child: Drawer(
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          child: Column(
+    return SafeArea(
+      child: Column(
+        children: [
+          Align(
+            alignment: Alignment.topLeft,
+            child: IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          Expanded(
+            child: SizedBox.shrink(),
+          ),
+          Center(
+            child: Joystick(
+              server: widget.server,
+              onJoystickMoved: _onJoystickMove,
+            ),
+          ),
+          Expanded(
+            child: SizedBox.shrink(),
+          ),
+          ProgressSlider(
+            server: widget.server,
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Align(
-                alignment: Alignment.topLeft,
-                child: IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ),
-              Expanded(
-                child: SizedBox.shrink(),
-              ),
-              Center(
-                child: Joystick(
-                  server: widget.server,
-                  onJoystickMoved: _onJoystickMove,
-                ),
-              ),
-              ProgressSlider(
-                server: widget.server,
-              ),
               SizedBox(
-                height: 20,
+                width: 50,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  SizedBox(
-                    width: 50,
-                  ),
-                  CustomizedElevatedIconButton(
-                    icon: BootstrapIcons.fan,
-                    isActive: widget.server.robot.mowMotorActive,
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      _onToggleMowMotorPressed();
-                    },
-                  ),
-                  CustomizedElevatedIconButton(
-                    icon: BootstrapIcons.skip_end,
-                    isActive: false,
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      widget.server.serverInterface.commandSkipNextPoint();
-                    },
-                  ),
-                ],
+              CustomizedElevatedIconButton(
+                icon: BootstrapIcons.fan,
+                isActive: widget.server.robot.mowMotorActive,
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  _onToggleMowMotorPressed();
+                },
               ),
-              SizedBox(
-                height: 10,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  CustomizedElevatedIconButton(
-                    icon: BootstrapIcons.power,
-                    isActive: false,
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      _onShutdownPressed();
-                    },
-                  ),
-                  CustomizedElevatedIconButton(
-                    icon: BootstrapIcons.bootstrap_reboot,
-                    isActive: false,
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      _onRebootPressed();
-                    },
-                  ),
-                  CustomizedElevatedIconButton(
-                    icon: Icons.satellite_alt,
-                    isActive: false,
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      _onRebootGpsPressed();
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 20,
+              CustomizedElevatedIconButton(
+                icon: BootstrapIcons.skip_end,
+                isActive: false,
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  widget.server.serverInterface.commandSkipNextPoint();
+                },
               ),
             ],
           ),
-        ),
+          SizedBox(
+            height: 10,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              CustomizedElevatedIconButton(
+                icon: BootstrapIcons.power,
+                isActive: false,
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  _onShutdownPressed();
+                },
+              ),
+              CustomizedElevatedIconButton(
+                icon: BootstrapIcons.bootstrap_reboot,
+                isActive: false,
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  _onRebootPressed();
+                },
+              ),
+              CustomizedElevatedIconButton(
+                icon: Icons.satellite_alt,
+                isActive: false,
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  _onRebootGpsPressed();
+                },
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+        ],
       ),
     );
   }
