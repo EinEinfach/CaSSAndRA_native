@@ -185,11 +185,70 @@ class NavDrawer extends StatelessWidget {
                   child: Column(
                     children: [
                       DrawerHeader(
-                        child: Image.asset('lib/images/in_app_icon.png'),
+                        child: Stack(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.fromLTRB(20, 30, 0, 10),
+                              child: Image.asset(
+                                  categoryImages[server.category]!
+                                      .elementAt(0)),
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      server.alias,
+                                      style:
+                                          Theme.of(context).textTheme.bodyLarge,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Column(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          '${server.robot.firmware}: ${server.robot.version}',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall,
+                                        ),
+                                        Text(
+                                          '${server.software}: ${server.version}',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall,
+                                        ),
+                                        Text(
+                                          'CaSSAndRA native: $appVersion',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                       DrawerTile(
                         title: "Overview",
-                        leading: const Icon(Icons.home),
+                        leading: Icon(
+                          Icons.home,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                         onTap: () {
                           navigateTo(
                             HomePage(server: server),
@@ -198,12 +257,18 @@ class NavDrawer extends StatelessWidget {
                       ),
                       DrawerTile(
                         title: "Taskplanner",
-                        leading: const Icon(Icons.timelapse),
+                        leading: Icon(
+                          Icons.timelapse,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                         onTap: () {},
                       ),
                       DrawerTile(
                         title: "Mapping",
-                        leading: const Icon(Icons.map_outlined),
+                        leading: Icon(
+                          Icons.map_outlined,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                         onTap: () {
                           navigateTo(
                             MappingPage(
@@ -214,7 +279,10 @@ class NavDrawer extends StatelessWidget {
                       ),
                       DrawerTile(
                         title: "Settings",
-                        leading: const Icon(Icons.settings),
+                        leading: Icon(
+                          Icons.settings,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                         onTap: () {
                           navigateTo(
                             SettingsPage(
@@ -228,7 +296,10 @@ class NavDrawer extends StatelessWidget {
                 ),
                 DrawerTile(
                   title: "Exit",
-                  leading: const Icon(Icons.logout),
+                  leading: Icon(
+                    Icons.logout,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                   onTap: () {
                     navigateTo(
                       const ServersPage(),

@@ -30,9 +30,9 @@ class PointInformation extends StatelessWidget {
     String selectedShape = '';
     if (lasso.selectedPointCoords != null) {
       selectedShape = 'lasso';
-    } else if(shapes.selectedShape == 'dockPath') {
+    } else if (shapes.selectedShape == 'dockPath') {
       selectedShape = 'dock path';
-    } else if(shapes.selectedShape == 'searchWire') {
+    } else if (shapes.selectedShape == 'searchWire') {
       selectedShape = 'search wire';
     } else {
       selectedShape = shapes.selectedShape!;
@@ -93,7 +93,7 @@ class PointInformation extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               CustomizedElevatedIconButton(
-                icon: BootstrapIcons.plus,
+                icon: BootstrapIcons.node_plus,
                 isActive: insertPointActive,
                 onPressed: onAddPointActivate,
               ),
@@ -103,7 +103,7 @@ class PointInformation extends StatelessWidget {
                 onPressed: onRemoveShape,
               ),
               CustomizedElevatedIconButton(
-                icon: BootstrapIcons.dash,
+                icon: BootstrapIcons.node_minus,
                 isActive: false,
                 onPressed: onRemovePoint,
               ),

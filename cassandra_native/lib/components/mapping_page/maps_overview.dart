@@ -23,10 +23,15 @@ class _MapsOverviewState extends State<MapsOverview> {
 
   @override
   void initState() {
-    sortedMapNames = widget.server.maps.available.map((item) => item.toString()).toList();
-    sortedMapNames.sort((a, b) => a.compareTo(b));
+    _sortMaps();
     super.initState();
   }
+
+  void _sortMaps() {
+    sortedMapNames = widget.server.maps.available.map((item) => item.toString()).toList();
+    sortedMapNames.sort((a, b) => a.compareTo(b));
+  }
+
   void onNewMapSelected() {
     setState(() {});
   }
@@ -53,6 +58,9 @@ class _MapsOverviewState extends State<MapsOverview> {
                     if (widget.server.maps.selected == map) {
                       widget.server.maps.resetSelection();
                     }
+                    widget.server.maps.available.remove(map);
+                    _sortMaps();
+                    setState(() {});
                   },
                   child: MapItem(
                     mapName: map,

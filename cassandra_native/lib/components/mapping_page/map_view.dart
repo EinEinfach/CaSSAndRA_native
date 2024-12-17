@@ -236,12 +236,16 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
         suggestionText: widget.server.maps.selected,
       ),
     );
-    if (mapName != null) {
+    if (mapName == null) {
+      return;
+    } else if (!widget.server.maps.available.contains(mapName)) {
       final mapData = shapes.toGeoJson(mapName);
       widget.server.serverInterface.commandSaveMap(mapData);
       lasso.reset();
       shapes.reset();
       setState(() {});
+    } else {
+      _openErrorDialog('Map could not be stored. The given name is already exist');
     }
   }
 
@@ -403,8 +407,8 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
 
   void _onLongPressEnd() {
     if (_moved) {
-      lasso.unselectAll();
-      shapes.unselectAll();
+      //lasso.unselectAll();
+      //shapes.unselectAll();
       shapes.finalizeMap();
       shapes.toCartesian(widget.server.maps);
       shapesHistory.addNewProgress(shapes);
@@ -526,10 +530,10 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                 top: lasso.selectedPointIndex != null
                     ? lasso.selectedPointCoords!.dy * zoomPan.scale +
                         zoomPan.offset.dy -
-                        120
+                        160
                     : shapes.selectedPointCoords!.dy * zoomPan.scale +
                         zoomPan.offset.dy -
-                        120,
+                        160,
                 child: PointInformation(
                   shapes: shapes,
                   lasso: lasso,

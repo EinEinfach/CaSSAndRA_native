@@ -10,9 +10,11 @@ import 'package:cassandra_native/models/server.dart';
 
 class RemoteControlContent extends StatefulWidget {
   final Server server;
+  final bool closeButton;
   const RemoteControlContent({
     super.key,
     required this.server,
+    required this.closeButton,
   });
 
   @override
@@ -108,16 +110,18 @@ class _RemoteControlContentState extends State<RemoteControlContent> {
     return SafeArea(
       child: Column(
         children: [
-          Align(
-            alignment: Alignment.topLeft,
-            child: IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ),
+          widget.closeButton
+              ? Align(
+                  alignment: Alignment.topLeft,
+                  child: IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                )
+              : SizedBox.shrink(),
           Expanded(
             child: SizedBox.shrink(),
           ),
@@ -127,8 +131,8 @@ class _RemoteControlContentState extends State<RemoteControlContent> {
               onJoystickMoved: _onJoystickMove,
             ),
           ),
-          Expanded(
-            child: SizedBox.shrink(),
+          SizedBox(
+            height: 30,
           ),
           ProgressSlider(
             server: widget.server,

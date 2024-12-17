@@ -19,6 +19,7 @@ class RemoteControlDrawer extends StatelessWidget {
           backgroundColor: Theme.of(context).colorScheme.surface,
           child: RemoteControlContent(
             server: server,
+            closeButton: true,
           ),
         ),
       ),

@@ -33,7 +33,7 @@ class _JoystickState extends State<Joystick> {
   double _angularSpeed = 0.0;
   final double _maxSpeed = 0.5;
   final int _updateInterval = 200;
-  
+
   Timer? _timer;
   DateTime? _lastSent;
 
@@ -50,17 +50,18 @@ class _JoystickState extends State<Joystick> {
     super.dispose();
   }
 
-  void _startTimer(){
-    _timer = Timer.periodic(const Duration(milliseconds: 10), (timer){
-      if (position != Offset.zero){
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(milliseconds: 10), (timer) {
+      if (position != Offset.zero) {
         _updatePosition();
       }
     });
   }
 
-  void _updatePosition(){
+  void _updatePosition() {
     final now = DateTime.now();
-    if (now.difference(_lastSent!).inMilliseconds > _updateInterval || position == Offset.zero) {
+    if (now.difference(_lastSent!).inMilliseconds > _updateInterval ||
+        position == Offset.zero) {
       _lastSent = DateTime.now();
       widget.onJoystickMoved(position, _maxSpeed, radius);
     }
@@ -68,7 +69,6 @@ class _JoystickState extends State<Joystick> {
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
       children: [
         Row(
@@ -76,7 +76,7 @@ class _JoystickState extends State<Joystick> {
           children: [
             Expanded(
               child: Card(
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).colorScheme.secondary,
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Column(
@@ -96,7 +96,7 @@ class _JoystickState extends State<Joystick> {
             ),
             Expanded(
               child: Card(
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).colorScheme.secondary,
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Column(
@@ -117,6 +117,60 @@ class _JoystickState extends State<Joystick> {
           ],
         ),
         const SizedBox(height: 20),
+        // GestureDetector(
+        //   onPanStart: (details) {
+        //     offsetTapPosition = details.localPosition;
+        //   },
+        //   onPanUpdate: (details) {
+        //     setState(() {
+        //       Offset newPosition =
+        //           details.localPosition - Offset(radius, radius);
+        //       if (newPosition.distance <= radius) {
+        //         position = newPosition;
+        //       } else {
+        //         position = Offset.fromDirection(
+        //           newPosition.direction,
+        //           radius,
+        //         );
+        //       }
+        //       _linearSpeed = -1 * _maxSpeed * position.dy / radius;
+        //       _angularSpeed = -1 * _maxSpeed * position.dx / radius;
+        //       _updatePosition();
+        //     });
+        //   },
+        //   onPanEnd: (details) {
+        //     setState(() {
+        //       position = Offset.zero;
+        //       _linearSpeed = 0;
+        //       _angularSpeed = 0;
+        //       _updatePosition();
+        //     });
+        //   },
+        //   child: Container(
+        //     width: 2 * radius,
+        //     height: 2 * radius,
+        //     decoration: BoxDecoration(
+        //       shape: BoxShape.circle,
+        //       color: Theme.of(context).colorScheme.primary,
+        //     ),
+        //     child: Center(
+        //       child: Transform.translate(
+        //         offset: position,
+        //         child: Container(
+        //           width: 2 * redCircleRadius,
+        //           height: 2 * redCircleRadius,
+        //           decoration: BoxDecoration(
+        //             shape: BoxShape.circle,
+        //             color: Theme.of(context)
+        //                 .colorScheme
+        //                 .secondary
+        //                 .withOpacity(0.8),
+        //           ),
+        //         ),
+        //       ),
+        //     ),
+        //   ),
+        // ),
         RawGestureDetector(
           gestures: {
             AllowMultipleGestureRecognizer:

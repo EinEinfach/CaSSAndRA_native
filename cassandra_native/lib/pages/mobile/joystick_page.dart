@@ -15,6 +15,7 @@ class JoystickPage extends StatelessWidget {
     return Scaffold(
       body: RemoteControlContent(
         server: server,
+        closeButton: true,
       ),
     );
   }
