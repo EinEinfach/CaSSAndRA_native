@@ -45,6 +45,8 @@ Switch to Cassandra Native and press the plus button at the bottom right. An inp
 
 A successful connection is indicated by a neutral color on the dashboard.
 
+![dashboard](https://raw.githubusercontent.com/EinEinfach/CaSSAndRA_native/master/docs/dashboard.png)
+
 ## Donation
 
 If you enjoyed CaSSAndRA native project — or just feeling generous, consider buying me a beer. Cheers!
