@@ -1,9 +1,9 @@
-import 'package:cassandra_native/components/common/nav_button.dart';
+import 'package:cassandra_native/components/common/buttons/nav_button.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cassandra_native/comm/mqtt_manager.dart';
 import 'package:cassandra_native/data/app_data.dart';
-import 'package:cassandra_native/components/common/nav_drawer.dart';
+import 'package:cassandra_native/components/common/drawers/nav_drawer.dart';
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/components/settings_page/accordion_tile.dart';
 import 'package:cassandra_native/components/settings_page/content_app_tile.dart';
@@ -27,7 +27,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void dispose() {
     MqttManager.instance
-        .unregisterCallback(widget.server.id, onMessageReceived);
+        .unregisterCallback(widget.server.id, _onMessageReceived);
     super.dispose();
   }
 
@@ -43,14 +43,14 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _connectToServer() async {
     if (MqttManager.instance.isNotConnected(widget.server.id)) {
       await MqttManager.instance
-          .create(widget.server.serverInterface, onMessageReceived);
+          .create(widget.server.serverInterface, _onMessageReceived);
     } else {
       MqttManager.instance
-          .registerCallback(widget.server.id, onMessageReceived);
+          .registerCallback(widget.server.id, _onMessageReceived);
     }
   }
 
-  void onMessageReceived(String clientId, String topic, String message) {
+  void _onMessageReceived(String clientId, String topic, String message) {
     widget.server.onMessageReceived(clientId, topic, message);
     if (topic.contains('/settings')) {
       setState(() {});

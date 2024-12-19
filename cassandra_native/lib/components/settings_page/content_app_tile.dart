@@ -2,7 +2,7 @@ import 'package:cassandra_native/utils/server_storage.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cassandra_native/models/server.dart';
-import 'package:cassandra_native/components/common/customized_elevated_button.dart';
+import 'package:cassandra_native/components/common/buttons/customized_elevated_button.dart';
 
 // globals
 import 'package:cassandra_native/data/user_data.dart' as user;

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 
-import 'package:cassandra_native/components/common/customized_dialog_ok_cancel.dart';
+import 'package:cassandra_native/components/common/dialogs/customized_dialog_ok_cancel.dart';
 import 'package:cassandra_native/components/common/remote_control/joystick.dart';
 import 'package:cassandra_native/components/common/progress_slider.dart';
-import 'package:cassandra_native/components/common/customized_elevated_icon_button.dart';
+import 'package:cassandra_native/components/common/buttons/customized_elevated_icon_button.dart';
 import 'package:cassandra_native/models/server.dart';
 
 class RemoteControlContent extends StatefulWidget {

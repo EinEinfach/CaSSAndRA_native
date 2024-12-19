@@ -11,15 +11,15 @@ import 'package:cassandra_native/pages/desktop/home_page_desktop.dart';
 import 'package:cassandra_native/data/app_data.dart';
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/models/mow_parameters.dart';
-import 'package:cassandra_native/components/common/nav_drawer.dart';
-import 'package:cassandra_native/components/common/nav_button.dart';
+import 'package:cassandra_native/components/common/drawers/nav_drawer.dart';
+import 'package:cassandra_native/components/common/buttons/nav_button.dart';
 import 'package:cassandra_native/components/common/remote_control/remote_control_drawer.dart';
 import 'package:cassandra_native/components/home_page/map_view.dart';
 import 'package:cassandra_native/components/home_page/select_tasks.dart';
 import 'package:cassandra_native/components/home_page/status_window.dart';
-import 'package:cassandra_native/components/common/command_button.dart';
+import 'package:cassandra_native/components/common/buttons/command_button.dart';
 import 'package:cassandra_native/components/logic/ui_logic.dart';
-import 'package:cassandra_native/components/common/new_mow_parameters.dart';
+import 'package:cassandra_native/components/common/dialogs/new_mow_parameters.dart';
 import 'package:cassandra_native/utils/mow_parameters_storage.dart';
 
 // globals
@@ -49,7 +49,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     MqttManager.instance
-        .unregisterCallback(widget.server.id, onMessageReceived);
+        .unregisterCallback(widget.server.id, _onMessageReceived);
     super.dispose();
   }
 
@@ -81,10 +81,10 @@ class _HomePageState extends State<HomePage> {
   Future<void> _connectToServer() async {
     if (MqttManager.instance.isNotConnected(widget.server.id)) {
       await MqttManager.instance
-          .create(widget.server.serverInterface, onMessageReceived);
+          .create(widget.server.serverInterface, _onMessageReceived);
     } else {
       MqttManager.instance
-          .registerCallback(widget.server.id, onMessageReceived);
+          .registerCallback(widget.server.id, _onMessageReceived);
     }
   }
 
@@ -122,7 +122,7 @@ class _HomePageState extends State<HomePage> {
     widget.server.serverInterface.commandDock();
   }
 
-  void onMessageReceived(String clientId, String topic, String message) {
+  void _onMessageReceived(String clientId, String topic, String message) {
     widget.server.onMessageReceived(clientId, topic, message);
     if (topic.contains('/robot')) {
       widget.server.robot.scalePosition(screenSize, widget.server.currentMap);

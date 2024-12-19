@@ -4,8 +4,9 @@ import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/pages/home_page.dart';
 import 'package:cassandra_native/pages/servers_page.dart';
 import 'package:cassandra_native/pages/settings_page.dart';
+import 'package:cassandra_native/pages/tasks_page.dart';
 import 'package:cassandra_native/pages/mapping_page.dart';
-import 'package:cassandra_native/components/common/drawer_tile.dart';
+import 'package:cassandra_native/components/common/drawers/drawer_tile.dart';
 import 'package:cassandra_native/data/app_data.dart';
 
 class NavDrawer extends StatelessWidget {
@@ -121,7 +122,12 @@ class NavDrawer extends StatelessWidget {
                           Icons.timelapse,
                           color: Theme.of(context).colorScheme.primary,
                         ),
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.pop(context);
+                          navigateTo(
+                            TasksPage(server: server),
+                          );
+                        },
                       ),
                       DrawerTile(
                         title: "Mapping",
@@ -261,7 +267,12 @@ class NavDrawer extends StatelessWidget {
                           Icons.timelapse,
                           color: Theme.of(context).colorScheme.primary,
                         ),
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.pop(context);
+                          navigateTo(
+                            TasksPage(server: server),
+                          );
+                        },
                       ),
                       DrawerTile(
                         title: "Mapping",

@@ -1,4 +1,4 @@
-import 'package:cassandra_native/components/common/customized_dialog_ok.dart';
+import 'package:cassandra_native/components/common/dialogs/customized_dialog_ok.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -16,11 +16,11 @@ import 'package:cassandra_native/components/mapping_page/map_painter.dart';
 import 'package:cassandra_native/components/mapping_page/maps_overview.dart';
 import 'package:cassandra_native/components/mapping_page/point_information.dart';
 //import 'package:cassandra_native/components/mapping_page/select_map.dart';
-import 'package:cassandra_native/components/common/customized_elevated_icon_button.dart';
+import 'package:cassandra_native/components/common/buttons/customized_elevated_icon_button.dart';
 import 'package:cassandra_native/components/home_page/status_bar.dart';
-import 'package:cassandra_native/components/common/command_button.dart';
-import 'package:cassandra_native/components/common/customized_dialog_ok_cancel.dart';
-import 'package:cassandra_native/components/common/customized_dialog_input.dart';
+import 'package:cassandra_native/components/common/buttons/command_button.dart';
+import 'package:cassandra_native/components/common/dialogs/customized_dialog_ok_cancel.dart';
+import 'package:cassandra_native/components/common/dialogs/customized_dialog_input.dart';
 import 'package:cassandra_native/utils/custom_shape_calcs.dart';
 
 class MapView extends StatefulWidget {

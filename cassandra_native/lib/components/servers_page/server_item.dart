@@ -5,7 +5,7 @@ import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/pages/home_page.dart';
 import 'package:cassandra_native/components/servers_page/rtsp_stream.dart';
-import 'package:cassandra_native/components/common/customized_elevated_icon_button.dart';
+import 'package:cassandra_native/components/common/buttons/customized_elevated_icon_button.dart';
 
 class ServerItem extends StatelessWidget {
   final Server server;

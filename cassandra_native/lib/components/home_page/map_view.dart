@@ -10,7 +10,7 @@ import 'package:cassandra_native/components/logic/lasso_logic.dart';
 import 'package:cassandra_native/components/logic/animation_logic.dart';
 import 'package:cassandra_native/components/logic/ui_logic.dart';
 import 'package:cassandra_native/components/home_page/map_painter.dart';
-import 'package:cassandra_native/components/common/customized_elevated_icon_button.dart';
+import 'package:cassandra_native/components/common/buttons/customized_elevated_icon_button.dart';
 import 'package:cassandra_native/components/home_page/status_bar.dart';
 import 'package:cassandra_native/utils/custom_shape_calcs.dart';
 

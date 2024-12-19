@@ -7,12 +7,10 @@ import 'package:cassandra_native/cassandra_native.dart';
 import 'package:cassandra_native/comm/mqtt_manager.dart';
 
 import 'package:cassandra_native/models/server.dart';
-// import 'package:cassandra_native/components/common/joystick_drawer.dart';
 import 'package:cassandra_native/components/common/remote_control/joystick_v_2.dart';
-import 'package:cassandra_native/components/common/nav_button.dart';
-import 'package:cassandra_native/components/common/nav_drawer.dart';
+import 'package:cassandra_native/components/common/buttons/nav_button.dart';
+import 'package:cassandra_native/components/common/drawers/nav_drawer.dart';
 import 'package:cassandra_native/components/mapping_page/map_view.dart';
-//import 'package:cassandra_native/components/mapping_page/select_map.dart';
 
 class MappingPage extends StatefulWidget {
   final Server server;
@@ -37,7 +35,7 @@ class _MappingPageState extends State<MappingPage> {
   @override
   void dispose() {
     MqttManager.instance
-        .unregisterCallback(widget.server.id, onMessageReceived);
+        .unregisterCallback(widget.server.id, _onMessageReceived);
     super.dispose();
   }
 
@@ -63,10 +61,10 @@ class _MappingPageState extends State<MappingPage> {
   Future<void> _connectToServer() async {
     if (MqttManager.instance.isNotConnected(widget.server.id)) {
       await MqttManager.instance
-          .create(widget.server.serverInterface, onMessageReceived);
+          .create(widget.server.serverInterface, _onMessageReceived);
     } else {
       MqttManager.instance
-          .registerCallback(widget.server.id, onMessageReceived);
+          .registerCallback(widget.server.id, _onMessageReceived);
     }
   }
 
@@ -79,7 +77,7 @@ class _MappingPageState extends State<MappingPage> {
         .commandMove(double.parse(linearSpeed), double.parse(angularSpeed));
   }
 
-  void onMessageReceived(String clientId, String topic, String message) {
+  void _onMessageReceived(String clientId, String topic, String message) {
     widget.server.onMessageReceived(clientId, topic, message);
     if (topic.contains('/robot')) {
       widget.server.robot.mapsScalePosition(screenSize, widget.server.maps);

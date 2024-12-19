@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 
-import 'package:cassandra_native/components/common/customized_elevated_button.dart';
+import 'package:cassandra_native/components/common/buttons/customized_elevated_button.dart';
 import 'package:cassandra_native/models/server.dart';
 
 class SelectMap extends StatefulWidget {

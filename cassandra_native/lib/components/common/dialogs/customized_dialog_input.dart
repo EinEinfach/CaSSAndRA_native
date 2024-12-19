@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:cassandra_native/components/common/customized_elevated_button.dart';
+import 'package:cassandra_native/components/common/buttons/customized_elevated_button.dart';
 
 class CustomizedDialogInput extends StatefulWidget {
   final String title;

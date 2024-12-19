@@ -17,15 +17,15 @@ import 'package:cassandra_native/pages/mobile/servers_page_mobile.dart';
 import 'package:cassandra_native/pages/tablet/servers_page_tablet.dart';
 import 'package:cassandra_native/pages/desktop/servers_page_desktop.dart';
 
-import 'package:cassandra_native/components/common/customized_elevated_button.dart';
-import 'package:cassandra_native/components/common/customized_dialog_ok_cancel.dart';
+import 'package:cassandra_native/components/common/buttons/customized_elevated_button.dart';
+import 'package:cassandra_native/components/common/dialogs/customized_dialog_ok_cancel.dart';
 
 import 'package:cassandra_native/components/servers_page/new_server.dart';
 import 'package:cassandra_native/components/servers_page/server_item.dart';
 import 'package:cassandra_native/components/servers_page/server_item_v_2.dart';
 import 'package:cassandra_native/components/common/dismiss_item.dart';
 import 'package:cassandra_native/components/servers_page/info_item.dart';
-import 'package:cassandra_native/components/common/command_button.dart';
+import 'package:cassandra_native/components/common/buttons/command_button.dart';
 
 import 'package:cassandra_native/models/server.dart';
 
@@ -48,7 +48,7 @@ class _ServersPageState extends State<ServersPage> {
   void dispose() {
     super.dispose();
     for (var server in user.registredServers.servers) {
-      MqttManager.instance.unregisterCallback(server.id, onMessageReceived);
+      MqttManager.instance.unregisterCallback(server.id, _onMessageReceived);
     }
   }
 
@@ -111,21 +111,21 @@ class _ServersPageState extends State<ServersPage> {
       if (MqttManager.instance.isNotConnected(server.id)) {
         _connectToServer(server);
       } else {
-        MqttManager.instance.registerCallback(server.id, onMessageReceived);
+        MqttManager.instance.registerCallback(server.id, _onMessageReceived);
       }
     }
   }
 
   Future<void> _connectToServer(Server server) async {
     await MqttManager.instance
-        .create(server.serverInterface, onMessageReceived);
+        .create(server.serverInterface, _onMessageReceived);
   }
 
   Future<void> _loadStoredMowParameters() async {
     user.currentMowParameters = await MowParametersStorage.loadMowParameters();
   }
 
-  void onMessageReceived(String clientId, String topic, String message) {
+  void _onMessageReceived(String clientId, String topic, String message) {
     var server =
         user.registredServers.servers.firstWhere((s) => s.id == clientId);
     server.onMessageReceived(clientId, topic, message);

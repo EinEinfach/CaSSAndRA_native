@@ -1,9 +1,9 @@
-import 'package:cassandra_native/components/common/nav_button.dart';
+import 'package:cassandra_native/components/common/buttons/nav_button.dart';
 import 'package:flutter/material.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/components/common/remote_control/remote_control_drawer.dart';
-import 'package:cassandra_native/components/common/nav_drawer.dart';
+import 'package:cassandra_native/components/common/drawers/nav_drawer.dart';
 import 'package:cassandra_native/components/home_page/map_view.dart';
 import 'package:cassandra_native/models/server.dart';
 

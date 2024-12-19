@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 
-import 'package:cassandra_native/components/common/customized_elevated_button.dart';
+import 'package:cassandra_native/components/common/buttons/customized_elevated_button.dart';
 
-class CustomizedDialogOk extends StatelessWidget {
+class CustomizedDialogOkCancel extends StatelessWidget {
   final String title;
   final String content;
+  final void Function() onCancelPressed;
   final void Function() onOkPressed;
 
-  const CustomizedDialogOk({
+  const CustomizedDialogOkCancel({
     super.key,
     required this.title,
     required this.content,
+    required this.onCancelPressed,
     required this.onOkPressed,
   });
 
@@ -27,6 +29,10 @@ class CustomizedDialogOk extends StatelessWidget {
       ),
       content: Text(content),
       actions: [
+        CustomizedElevatedButton(
+          text: 'cancel',
+          onPressed: onCancelPressed,
+        ),
         CustomizedElevatedButton(
           text: 'ok',
           onPressed: onOkPressed,

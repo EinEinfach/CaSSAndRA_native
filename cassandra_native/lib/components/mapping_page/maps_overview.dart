@@ -3,7 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/components/common/dismiss_item.dart';
-import 'package:cassandra_native/components/common/customized_elevated_button.dart';
+import 'package:cassandra_native/components/common/buttons/customized_elevated_button.dart';
 import 'package:cassandra_native/components/mapping_page/map_item.dart';
 
 class MapsOverview extends StatefulWidget {

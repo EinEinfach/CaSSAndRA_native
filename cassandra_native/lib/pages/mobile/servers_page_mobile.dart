@@ -1,4 +1,4 @@
-import 'package:cassandra_native/components/common/command_button_small.dart';
+import 'package:cassandra_native/components/common/buttons/command_button_small.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cassandra_native/models/server.dart';
