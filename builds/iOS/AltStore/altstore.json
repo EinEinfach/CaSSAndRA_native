@@ -30,6 +30,14 @@
       ],
       "versions": [
         {
+          "version": "0.10.0",
+          "date": "2024-12-19T09:00:00-08:00",
+          "size": 44600000,
+          "downloadURL": "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/cassandra_native.ipa",
+          "localizedDescription": "- Impovements and bugfixing",
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "0.9.0",
           "date": "2024-12-13T09:00:00-08:00",
           "size": 44600000,
