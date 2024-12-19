@@ -53,9 +53,17 @@ class _RtspStreamState extends State<RtspStream> {
         Provider.of<CassandraNative>(context).appLifecycleState);
     _appLifecycleState =
         Provider.of<CassandraNative>(context).appLifecycleState;
+    double finalAspectRatio = 16 / 9;
+    if (widget.aspectRatio < 16 / 9) {
+      finalAspectRatio = 16 / 9;
+    } else if (widget.aspectRatio < 20 / 9) {
+      finalAspectRatio = widget.aspectRatio;
+    } else {
+      finalAspectRatio = 20 / 9;
+    }
 
     return Video(
-      aspectRatio: widget.aspectRatio,
+      aspectRatio: finalAspectRatio,
       fill: Theme.of(context).colorScheme.secondary,
       controller: controller,
       controls: null,
