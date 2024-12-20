@@ -47,6 +47,41 @@ A successful connection is indicated by a neutral color on the dashboard.
 
 ![dashboard](https://raw.githubusercontent.com/EinEinfach/CaSSAndRA_native/master/docs/dashboard.png)
 
+## Overview
+
+To navigate to the overview page of a specific instance, click on the robot image in the card view or on the robot name in the list view.
+
+![overview](https://raw.githubusercontent.com/EinEinfach/CaSSAndRA_native/master/docs/overview.png)
+
+At the top of the screen, from left to right, you can see:
+- Navigation menu button (On click a drawer will be opened and you can go back by pressing exit or switch to each other page of selected server instance)
+- A satellite symbol (neutral color indicates fix, orange indicates float, red indicates invalid), the numbers to the right indicate the satellite count and the time since the last correction message
+- A battery symbol (neutral color indicates a charge level above 30%, orange indicates a charge level between 20% and 30%, and red indicates a charge level below 20%). The numbers to the right represent the battery’s voltage and current
+- A joystick symbol opens remote control panel 
+
+At the top of the map overview, from left to right, you can see:
+- Autoscale button (reset current zoom level and pan offset to the defaults)
+- Focus on mower button (current zoom level is focused on mower)
+
+At the right side of the map overview, from top to down, you can see:
+- Mow parameters settings button
+- Selection tool buton:
+    When the selection tool is active, any area within the perimeter can be selected for mowing. The individual points of the selection can be moved or deleted
+	- To select a point, long press on it. Once the selection’s color changes, you can move the point to the desired position
+	- A double-click deletes the point
+	- To move the entire selection, long press in the center of the selection until its background color changes. Once the background color changes, you can move the whole selection. Similarly, the selection can be deleted with a double-click.
+- Go to button: When the Go To button is active, any target within the perimeter can be selected as the destination coordinate. Similar to the selection tool, the point can be moved or deleted
+- Tasks button: opens a dropdown menu where you can select your saved tasks
+
+At the bottomof the screen, from left to right, you can see:
+- Status window: on small screens it could be expanded by clicking on that)
+- Home button: triggers go home action
+- Play button: A short press starts the selected action (e.g., mow everything, mow selection, etc.). A long press resumes the last task
+
+General: A double-click always triggers a delete action, even during mowing.
+- If there are obstacles on the map, they can be deleted with a double-click.
+- If there are no obstacles or selections on the map, a double-click deletes the current route and sends a stop command to the robot.
+
 ## Donation
 
 If you enjoyed CaSSAndRA native project — or just feeling generous, consider buying me a beer. Cheers!
