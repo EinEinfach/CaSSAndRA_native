@@ -47,6 +47,28 @@ A successful connection is indicated by a neutral color on the dashboard.
 
 ![dashboard](https://raw.githubusercontent.com/EinEinfach/CaSSAndRA_native/master/docs/dashboard.png)
 
+## Dashboard
+
+The following functions are available to you on the dashboard:
+- At the top right of the screen, you can switch between the card view and list view. Next to it, there is an Info button. Pressing the Info button opens a dialog with some useful information and an option to toggle between light and dark mode.
+
+### Card view
+
+This view is preferred when there aren’t too many server instances to manage.
+
+The robot image will be replaced by the FPV stream if an FPV stream URL is defined in the settings for this serever instance.
+
+A short click on the robot image or FPV stream redirects you to that server instance. A long press on the FPV stream switches to FPV fullscreen mode.
+
+![fpv_view](https://raw.githubusercontent.com/EinEinfach/CaSSAndRA_native/master/docs/fpv_view.png)
+
+### List view
+
+If you have many server instances, you can get a better overview by switching to the list view.
+
+A short click on the robot logo opens remote control. If you have defined a FPV URL for selected server instance you can switch to FPV fullscreen video mode by long pressing of robot logo.
+
+
 ## Overview
 
 To navigate to the overview page of a specific instance, click on the robot image in the card view or on the robot name in the list view.
