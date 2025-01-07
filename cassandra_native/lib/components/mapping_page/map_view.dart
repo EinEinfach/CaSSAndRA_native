@@ -155,6 +155,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
           borderRadius: BorderRadius.circular(12),
         ),
         backgroundColor: Theme.of(context).colorScheme.secondary,
+        scrollable: true,
         title: const Text(
           'Available maps',
           style: TextStyle(fontSize: 14),
@@ -162,9 +163,6 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
         content: MapsOverview(
           server: widget.server,
         ),
-        // content: SelectMap(
-        //   server: widget.server,
-        // ),
       ),
     );
   }
