@@ -49,7 +49,7 @@ class _InfoItemState extends State<InfoItem> {
                     ),
                     recognizer: TapGestureRecognizer()
                       ..onTap = () {
-                        _launchURL('https://github.com/EinEinfach/CaSSAndRA');
+                        _launchURL('https://github.com/EinEinfach/CaSSAndRA_native');
                       },
                   ),
                 ],

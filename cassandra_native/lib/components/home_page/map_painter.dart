@@ -36,7 +36,7 @@ class MapPainter extends CustomPainter {
     required this.colors,
   });
 
-  Path drawPolygon(Path path, List<Offset> points) {
+  Path _drawPolygon(Path path, List<Offset> points) {
     if (points.isNotEmpty) {
       path.moveTo(points[0].dx, points[0].dy);
       for (var point in points.skip(0)) {
@@ -47,7 +47,7 @@ class MapPainter extends CustomPainter {
     return path;
   }
 
-  Path drawPolygonFromGeoJson(Path path, List<Offset> points) {
+  Path _drawPolygonFromGeoJson(Path path, List<Offset> points) {
     if (points.isNotEmpty) {
       path.moveTo(points[0].dx, points[0].dy);
       for (int i = 1; i < points.length - 1; i++) {
@@ -58,7 +58,7 @@ class MapPainter extends CustomPainter {
     return path;
   }
 
-  Path drawLine(Path path, List<Offset> points) {
+  Path _drawLine(Path path, List<Offset> points) {
     if (points.isNotEmpty) {
       path.moveTo(points[0].dx, points[0].dy);
       for (var point in points.skip(1)) {
@@ -68,7 +68,7 @@ class MapPainter extends CustomPainter {
     return path;
   }
 
-  Path drawDashedLine(
+  Path _drawDashedLine(
       Path path, List<Offset> points, double dashWidth, double dashSpace) {
     if (points.length >= 2) {
       double distance = (points[1] - points[0]).distance;
@@ -79,7 +79,7 @@ class MapPainter extends CustomPainter {
         final currentEnd =
             points[0] + direction * (currentDistance + dashWidth);
         if ((currentDistance + dashWidth) <= distance) {
-          path = drawLine(path, [currentStart, currentEnd]);
+          path = _drawLine(path, [currentStart, currentEnd]);
         }
         currentDistance += dashWidth + dashSpace;
       }
@@ -120,7 +120,7 @@ class MapPainter extends CustomPainter {
     Path pathPerimeter = Path();
     strokeNoColor10.color = colors.inversePrimary;
     pathPerimeter =
-        drawPolygonFromGeoJson(pathPerimeter, currentMap.scaledPerimeter);
+        _drawPolygonFromGeoJson(pathPerimeter, currentMap.scaledPerimeter);
     canvas.drawPath(pathPerimeter, strokeNoColor10);
 
     // draw exclusions
@@ -128,7 +128,7 @@ class MapPainter extends CustomPainter {
     strokeNoColor10.color = colors.inversePrimary;
     fillNoColor.color = colors.secondary;
     for (var exclusion in currentMap.scaledExclusions) {
-      pathExclusions = drawPolygonFromGeoJson(pathExclusions, exclusion);
+      pathExclusions = _drawPolygonFromGeoJson(pathExclusions, exclusion);
     }
     canvas.drawPath(pathExclusions, fillNoColor);
     canvas.drawPath(pathExclusions, strokeNoColor10);
@@ -156,7 +156,7 @@ class MapPainter extends CustomPainter {
               ? 0
               : previewCounter;
           for (var subtask in currentMap.tasks.scaledPreviews[task]!) {
-            pathTaskPreview = drawLine(pathTaskPreview, subtask);
+            pathTaskPreview = _drawLine(pathTaskPreview, subtask);
             canvas.drawPath(pathTaskPreview, strokeNoColor05);
           }
         }
@@ -170,14 +170,14 @@ class MapPainter extends CustomPainter {
       //finished
       Path pathMowPathFinished = Path();
       strokeNoColor05.color = Colors.grey.shade300;
-      pathMowPathFinished = drawLine(pathMowPathFinished,
+      pathMowPathFinished = _drawLine(pathMowPathFinished,
           currentMap.scaledMowPath.sublist(0, robot.mowPointIdx + 1));
       canvas.drawPath(pathMowPathFinished, strokeNoColor05);
 
       // unfinished
       Path pathMowPath = Path();
       strokeNoColor05.color = Colors.green;
-      pathMowPath = drawLine(
+      pathMowPath = _drawLine(
           pathMowPath, currentMap.scaledMowPath.sublist(robot.mowPointIdx));
       canvas.drawPath(pathMowPath, strokeNoColor05);
 
@@ -185,7 +185,7 @@ class MapPainter extends CustomPainter {
       if (robot.mowPointIdx > 0) {
         var pathMowPathCurrent = Path();
         strokeNoColor05.color = Colors.black;
-        pathMowPathCurrent = drawDashedLine(
+        pathMowPathCurrent = _drawDashedLine(
           pathMowPathCurrent,
           [
             currentMap.scaledMowPath[robot.mowPointIdx - 1],
@@ -204,7 +204,7 @@ class MapPainter extends CustomPainter {
       strokeNoColor10.color = colors.errorContainer;
       fillNoColor.color = colors.errorContainer.withOpacity(0.6);
       for (var obstacle in currentMap.scaledObstacles) {
-        pathObstacles = drawPolygon(pathObstacles, obstacle);
+        pathObstacles = _drawPolygon(pathObstacles, obstacle);
       }
       canvas.drawPath(pathObstacles, fillNoColor);
       canvas.drawPath(pathObstacles, strokeNoColor10);
@@ -214,13 +214,13 @@ class MapPainter extends CustomPainter {
 
     Path pathDock = Path();
     strokeNoColor05.color = colors.onSurface;
-    pathDock = drawLine(pathDock, currentMap.scaledDockPath);
+    pathDock = _drawLine(pathDock, currentMap.scaledDockPath);
     canvas.drawPath(pathDock, strokeNoColor05);
 
     // draw searchWire
     Path pathSearchWire = Path();
     strokeNoColor05.color = colors.onSurface;
-    pathSearchWire = drawLine(pathSearchWire, currentMap.scaledSearchWire);
+    pathSearchWire = _drawLine(pathSearchWire, currentMap.scaledSearchWire);
     canvas.drawPath(pathSearchWire, strokeNoColor05);
 
     // draw lassoSelection
@@ -229,7 +229,7 @@ class MapPainter extends CustomPainter {
           ? colors.error
           : colors.onSurface.withOpacity(0.4);
       Path pathLassoSelection = Path();
-      pathLassoSelection = drawPolygon(pathLassoSelection, lasso.selection);
+      pathLassoSelection = _drawPolygon(pathLassoSelection, lasso.selection);
       canvas.drawPath(pathLassoSelection, strokeNoColor05);
       if (lasso.selected) {
         fillNoColor.color = colors.onSurface.withOpacity(0.4);

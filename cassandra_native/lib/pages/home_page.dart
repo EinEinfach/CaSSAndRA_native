@@ -15,7 +15,7 @@ import 'package:cassandra_native/components/common/drawers/nav_drawer.dart';
 import 'package:cassandra_native/components/common/buttons/nav_button.dart';
 import 'package:cassandra_native/components/common/remote_control/remote_control_drawer.dart';
 import 'package:cassandra_native/components/home_page/map_view.dart';
-import 'package:cassandra_native/components/home_page/select_tasks.dart';
+import 'package:cassandra_native/components/common/select_tasks.dart';
 import 'package:cassandra_native/components/home_page/status_window.dart';
 import 'package:cassandra_native/components/common/buttons/command_button.dart';
 import 'package:cassandra_native/components/logic/ui_logic.dart';

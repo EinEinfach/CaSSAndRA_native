@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/cassandra_native.dart';
 import 'package:cassandra_native/comm/mqtt_manager.dart';
 
 import 'package:cassandra_native/models/server.dart';
+import 'package:cassandra_native/models/mow_parameters.dart';
+import 'package:cassandra_native/components/tasks_page/map_view.dart';
 import 'package:cassandra_native/components/common/buttons/nav_button.dart';
 import 'package:cassandra_native/components/common/drawers/nav_drawer.dart';
+import 'package:cassandra_native/components/common/select_tasks.dart';
+import 'package:cassandra_native/components/common/dialogs/new_mow_parameters.dart';
+import 'package:cassandra_native/utils/mow_parameters_storage.dart';
+
+// globals
+import 'package:cassandra_native/data/user_data.dart' as user;
 
 class TasksPage extends StatefulWidget {
   final Server server;
@@ -24,10 +31,15 @@ class _TasksPageState extends State<TasksPage> {
   //app lifecycle
   AppLifecycleState _appLifecycleState = AppLifecycleState.resumed;
 
+  late Size screenSize;
+
   @override
   void initState() {
     super.initState();
     _connectToServer();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      screenSize = MediaQuery.of(context).size;
+    });
   }
 
   @override
@@ -57,6 +69,56 @@ class _TasksPageState extends State<TasksPage> {
 
   void _onMessageReceived(String clientId, String topic, String message) {
     widget.server.onMessageReceived(clientId, topic, message);
+    if (topic.contains('/coords')) {
+      if (message.contains('current map')) {
+        widget.server.currentMap.scaleShapes(screenSize);
+      }
+    }
+    setState(() {});
+  }
+  
+  void openTasksOverlay() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        title: const Text(
+          'Tasks',
+          style: TextStyle(fontSize: 14),
+        ),
+        content: SelectTasks(
+          server: widget.server,
+        ),
+      ),
+    );
+  }
+  
+  void setMowParameters(MowParameters mowParameters) {
+    user.currentMowParameters = mowParameters;
+    MowParametersStorage.saveMowParameters(mowParameters);
+  }
+  
+  void openMowParametersOverlay() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        title: const Text(
+          'Mow parameters',
+          style: TextStyle(fontSize: 14),
+        ),
+        content: NewMowParameters(
+          onSetMowParameters: setMowParameters,
+          mowParameters: user.currentMowParameters,
+        ),
+      ),
+    );
   }
 
   @override
@@ -75,7 +137,13 @@ class _TasksPageState extends State<TasksPage> {
         builder: (context) {
           return SafeArea(
             child: Stack(children: [
+              MapView(
+                server: widget.server,
+                openMowParametersOverlay: openMowParametersOverlay,
+                onOpenTasksOverlay: openTasksOverlay,
+              ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   NavButton(
                     icon: Icons.menu,

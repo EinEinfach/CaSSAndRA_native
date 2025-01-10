@@ -1,4 +1,3 @@
-import 'package:cassandra_native/components/common/dialogs/customized_dialog_ok.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -18,6 +17,7 @@ import 'package:cassandra_native/components/mapping_page/point_information.dart'
 //import 'package:cassandra_native/components/mapping_page/select_map.dart';
 import 'package:cassandra_native/components/common/buttons/customized_elevated_icon_button.dart';
 import 'package:cassandra_native/components/home_page/status_bar.dart';
+import 'package:cassandra_native/components/common/dialogs/customized_dialog_ok.dart';
 import 'package:cassandra_native/components/common/buttons/command_button.dart';
 import 'package:cassandra_native/components/common/dialogs/customized_dialog_ok_cancel.dart';
 import 'package:cassandra_native/components/common/dialogs/customized_dialog_input.dart';
@@ -75,6 +75,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    widget.server.maps.resetSelection();
     selectedMap = widget.server.maps.selected;
     shapesHistory.addNewProgress(shapes);
     mapAnimation = MapAnimationLogic(robot: widget.server.robot);
