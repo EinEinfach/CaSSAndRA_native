@@ -8,6 +8,9 @@ class Tasks {
   Map<String, List<List<Offset>>> previews = {};
   Map<String, List<List<Offset>>> shiftedPreviews = {};
   Map<String, List<List<Offset>>> scaledPreviews = {};
+  Map<String, List<List<Offset>>> selections = {};
+  Map<String, List<List<Offset>>> shiftedSelections = {};
+  Map<String, List<List<Offset>>> scaledSelections = {};
 
   void jsonToClassData(String message) {
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
@@ -20,5 +23,15 @@ class Tasks {
         debugPrint('Invalid tasks json data: $e');
       }
     }
+  }
+
+  void resetCooords () {
+    selected = [];
+    previews = {};
+    shiftedPreviews = {};
+    scaledPreviews = {};
+    selections = {};
+    shiftedSelections = {};
+    scaledSelections = {};
   }
 }

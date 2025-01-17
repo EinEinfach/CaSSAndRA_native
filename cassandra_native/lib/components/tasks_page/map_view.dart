@@ -1,8 +1,15 @@
+import 'package:cassandra_native/components/tasks_page/task_information.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/models/server.dart';
+import 'package:cassandra_native/components/logic/tasks_logic.dart';
 import 'package:cassandra_native/components/common/buttons/customized_elevated_icon_button.dart';
+import 'package:cassandra_native/components/common/buttons/command_button.dart';
+import 'package:cassandra_native/components/common/dialogs/customized_dialog_ok_cancel.dart';
+import 'package:cassandra_native/components/common/dialogs/customized_dialog_input.dart';
+import 'package:cassandra_native/components/common/dialogs/customized_dialog_ok.dart';
 import 'package:cassandra_native/components/logic/lasso_logic.dart';
 import 'package:cassandra_native/components/logic/map_logic.dart';
 import 'package:cassandra_native/components/tasks_page/map_painter.dart';
@@ -31,6 +38,8 @@ class _MapViewState extends State<MapView> {
 
   //selcection
   LassoLogic lasso = LassoLogic();
+  Task currentTask = Task();
+  TaskHistory taskHistory = TaskHistory();
 
   //ui
   Offset screenSizeDelta = Offset.zero;
@@ -47,7 +56,46 @@ class _MapViewState extends State<MapView> {
   void initState() {
     super.initState();
     _resetLassoSelection();
-    _resetTasksSelection();
+    // _resetTasksSelection();
+  }
+
+  void _openErrorDialog(String content) {
+    showDialog(
+      context: context,
+      builder: (context) => CustomizedDialogOk(
+        title: 'Error',
+        content: content,
+        onOkPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+    );
+  }
+
+  void _onSelectTaskPressed() {
+    if (currentTask.active) {
+      showDialog(
+        context: context,
+        builder: (context) => CustomizedDialogOkCancel(
+            title: 'Warning',
+            content:
+                'You are still in edit mode. All changes will be lost. Press ok to proceed or cancel to return to edit mode.',
+            onCancelPressed: () {
+              Navigator.pop(context);
+            },
+            onOkPressed: () {
+              widget.server.serverInterface.commandSelectTasks([]);
+              widget.server.currentMap.tasks.resetCooords();
+              lasso.reset();
+              currentTask.reset();
+              taskHistory.reset();
+              Navigator.pop(context);
+              widget.onOpenTasksOverlay();
+            }),
+      );
+    } else {
+      widget.onOpenTasksOverlay();
+    }
   }
 
   void _resetLassoSelection() {
@@ -57,7 +105,7 @@ class _MapViewState extends State<MapView> {
 
   void _resetTasksSelection() {
     widget.server.serverInterface.commandSelectTasks([]);
-    widget.server.currentMap.tasks.selected = [];
+    widget.server.currentMap.tasks.resetCooords();
   }
 
   void _onScaleStart(ScaleStartDetails details) {
@@ -72,13 +120,45 @@ class _MapViewState extends State<MapView> {
     }
   }
 
+  void _onActivateEditMode() {
+    if (!currentTask.active) {
+      //shapes.fromMap(widget.server.maps);
+      currentTask.active = true;
+      currentTask.fromMap(widget.server.currentMap.tasks);
+    }
+  }
+
   void _onActivateLasso() {
-    _resetLassoSelection();
     if (!lasso.active) {
+      _resetLassoSelection();
       lasso.active = true;
-      //_onActivateEditMode();
+      _onActivateEditMode();
     } else {
-      lasso.active = false;
+      _resetLassoSelection();
+    }
+  }
+
+  Future<void> _handleSaveTask() async {
+    final taskName = await showDialog(
+      context: context,
+      builder: (context) => CustomizedDialogInput(
+        title: 'Save changes',
+        content:
+            'You are about to exit edit mode. Do you want to save the changes?',
+        suggestionText: '', //widget.server.maps.selected,
+      ),
+    );
+    if (taskName == null) {
+      return;
+    } else if (taskName.isNotEmpty) {
+      widget.server.serverInterface.commandSelectTasks([]);
+      widget.server.currentMap.tasks.resetCooords();
+      _resetLassoSelection();
+      currentTask.reset();
+      taskHistory.reset();
+    } else {
+      _openErrorDialog(
+          'Task could not be stored. No save routine implemented.');
     }
   }
 
@@ -127,8 +207,10 @@ class _MapViewState extends State<MapView> {
     _moved = false;
     if (lasso.selection.isNotEmpty) {
       lasso.selectPoint(details, zoomPan);
-      setState(() {});
+    } else if (currentTask.active && !lasso.active) {
+      currentTask.selectPoint(details, zoomPan);
     }
+    setState(() {});
   }
 
   void _onLongPressMoveUpdate(LongPressMoveUpdateDetails details) {
@@ -149,6 +231,7 @@ class _MapViewState extends State<MapView> {
 
   void _onTap() {
     lasso.unselectAll();
+    currentTask.unselectAll();
     setState(() {});
   }
 
@@ -176,6 +259,7 @@ class _MapViewState extends State<MapView> {
         widget.server.currentMap.scaleShapes(screenSize);
         widget.server.currentMap.scaleTaskPreview();
         lasso.scale(widget.server.currentMap);
+        currentTask.scale(screenSize, widget.server.currentMap);
       }
     }
 
@@ -215,9 +299,60 @@ class _MapViewState extends State<MapView> {
                         scale: zoomPan.scale,
                         currentServer: widget.server,
                         lasso: lasso,
+                        currentTask: currentTask,
                         colors: Theme.of(context).colorScheme,
                       ),
                     ),
+                  ),
+                ),
+              ),
+/************************************Task information****************************************************************/
+              if (currentTask.centroids.isNotEmpty && currentTask.active)
+                ...currentTask.centroids.entries.expand((entry) {
+                  int currentSubtaskNr = 0;
+                  return entry.value.map((position) {
+                    currentSubtaskNr++;
+                    return Positioned(
+                      left: position.dx * zoomPan.scale + zoomPan.offset.dx,
+                      top: position.dy * zoomPan.scale + zoomPan.offset.dy,
+                      child: TaskInformation(
+                        taskName: entry.key,
+                        subtaskNr: currentSubtaskNr,
+                      ),
+                    );
+                  }).toList();
+                }),
+/************************************Command Buttons*****************************************************************/
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          CommandButton(
+                            icon: BootstrapIcons.plus,
+                            onPressed: () {}, //_onAddShape,
+                            onLongPressed: () {},
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          CommandButton(
+                            icon: BootstrapIcons.dash,
+                            onPressed: () {},
+                            onLongPressed: () {},
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 4,
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -234,8 +369,13 @@ class _MapViewState extends State<MapView> {
                     ),
                     CustomizedElevatedIconButton(
                       icon: Icons.edit,
-                      isActive: false,
+                      isActive: currentTask.active,
                       onPressed: () {
+                        if (!currentTask.active) {
+                          _onActivateEditMode();
+                        } else {
+                          _handleSaveTask();
+                        }
                         setState(() {});
                       },
                     ),
@@ -251,7 +391,7 @@ class _MapViewState extends State<MapView> {
                       icon: Icons.list,
                       isActive: false,
                       onPressed: () {
-                        widget.onOpenTasksOverlay();
+                        _onSelectTaskPressed();
                         setState(() {});
                       },
                     ),

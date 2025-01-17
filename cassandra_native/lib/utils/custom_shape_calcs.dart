@@ -138,3 +138,16 @@ Offset getClosestPointOnSegment(Offset a, Offset b, Offset p) {
   t = t.clamp(0.0, 1.0); // Ensure the projection is within the segment
   return Offset(a.dx + t * ab.dx, a.dy + t * ab.dy);
 }
+
+Offset calculateCentroid(List<Offset> polygon) {
+  double xSum = 0;
+  double ySum = 0;
+  int pointCount = polygon.length;
+
+  for (var point in polygon) {
+    xSum += point.dx;
+    ySum += point.dy;
+  }
+
+  return Offset(xSum / pointCount, ySum / pointCount);
+}

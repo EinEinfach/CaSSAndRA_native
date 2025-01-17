@@ -56,6 +56,8 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    widget.server.currentMap.tasks.resetCooords();
+    widget.server.serverInterface.commandSelectTasks([]);
     _connectToServer();
     newRobotPosition = widget.server.robot.scaledPosition;
     _handlePlayButton();

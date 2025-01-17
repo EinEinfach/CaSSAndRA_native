@@ -234,19 +234,33 @@ class Landscape {
   }
 
   void _taskPreviewJsonToClassData(Map decodedMessage) {
-    final List<List<Offset>> task = [];
+    final List<List<Offset>> previews = [];
+    final List<List<Offset>> selections = [];
     try {
       for (var feature in decodedMessage["features"]) {
-        if (feature["properties"]["name"] != 'task') {
-          final List<Offset> subtask = [];
+        final List<Offset> coords = [];
+        if (feature["properties"]["name"] != 'task' &&
+            feature["geometry"]["coordinates"].isNotEmpty) {
           for (var coord in feature['geometry']['coordinates'][0]) {
-            subtask.add(Offset(coord[0], coord[1]));
+            coords.add(Offset(coord[0], coord[1]));
           }
-          task.add(subtask);
         }
+        if (feature["properties"]["name"] != 'task' &&
+            feature['geometry']['type'] == 'LineString') {
+          previews.add(coords);
+        }
+        if (feature["properties"]["name"] != 'task' &&
+            feature['geometry']['type'] == 'Polygon') {
+          selections.add(coords);
+        }
+        //previews.add(preview);
       }
-      tasks.previews[decodedMessage["features"][0]["properties"]["id"]] = task;
+      tasks.previews[decodedMessage["features"][0]["properties"]["id"]] =
+          previews;
+      tasks.selections[decodedMessage["features"][0]["properties"]["id"]] =
+          selections;
       _shiftTaskPreview();
+      _shiftTaskSelection();
     } catch (e) {
       if (kDebugMode) {
         debugPrint('JSON to class data for task preivew failed: $e');
@@ -392,6 +406,31 @@ class Landscape {
               .toList())
           .toList();
       tasks.scaledPreviews[taskName] = tasks.scaledPreviews[taskName]!
+          .map((shape) =>
+              shape.map((p) => Offset(p.dx + offsetX, p.dy + offsetY)).toList())
+          .toList();
+    }
+  }
+
+  void _shiftTaskSelection() {
+    for (var taskName in tasks.selections.keys) {
+      tasks.shiftedSelections[taskName] = tasks.selections[taskName]!
+          .map((shape) =>
+              shape.map((p) => Offset(p.dx - minX, -(p.dy - minY))).toList())
+          .toList();
+    }
+
+    scaleTaskSelection();
+  }
+
+  void scaleTaskSelection() {
+    for (var taskName in tasks.shiftedSelections.keys) {
+      tasks.scaledSelections[taskName] = tasks.shiftedSelections[taskName]!
+          .map((shape) => shape
+              .map((p) => Offset(p.dx * mapScale, p.dy * mapScale))
+              .toList())
+          .toList();
+      tasks.scaledSelections[taskName] = tasks.scaledSelections[taskName]!
           .map((shape) =>
               shape.map((p) => Offset(p.dx + offsetX, p.dy + offsetY)).toList())
           .toList();

@@ -55,7 +55,7 @@ class _CustomizedDialogInputState extends State<CustomizedDialogInput> {
                 controller: _mapNameController,
                 decoration: InputDecoration(
                   label: Text(
-                    'map name',
+                    'name',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),

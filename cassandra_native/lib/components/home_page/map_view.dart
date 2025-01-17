@@ -73,7 +73,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     _loadImage(categoryImages[widget.server.category]!.elementAt(1));
     _resetGotoPoint();
     _resetLassoSelection();
-    _resetTasksSelection();
+    // _resetTasksSelection();
     _currentPosition = widget.server.robot.scaledPosition;
     mapAnimation.oldPosition = widget.server.robot.scaledPosition;
     _currentAngle = widget.server.robot.angle;

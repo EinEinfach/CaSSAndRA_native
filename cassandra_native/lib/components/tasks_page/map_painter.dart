@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:cassandra_native/components/logic/lasso_logic.dart';
+import 'package:cassandra_native/components/logic/tasks_logic.dart';
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/models/landscape.dart';
 import 'package:cassandra_native/theme/theme.dart';
@@ -12,6 +13,7 @@ class MapPainter extends CustomPainter {
   final double scale;
   final Server currentServer;
   final LassoLogic lasso;
+  final Task currentTask;
   final ColorScheme colors;
 
   MapPainter({
@@ -19,6 +21,7 @@ class MapPainter extends CustomPainter {
     required this.scale,
     required this.currentServer,
     required this.lasso,
+    required this.currentTask,
     required this.colors,
   });
 
@@ -98,23 +101,87 @@ class MapPainter extends CustomPainter {
     }
     canvas.drawPath(pathExclusions, fillNoColor);
     canvas.drawPath(pathExclusions, strokeNoColor10);
-    
-    if (currentMap.tasks.selected.isNotEmpty) {
-      final PreviewColorPalette previewColorPalette = PreviewColorPalette();
+
+    // draw tasks
+    if (currentMap.tasks.selected.isNotEmpty && !currentTask.active) {
+      PreviewColorPalette previewColorPalette = PreviewColorPalette();
       int previewCounter = 0;
-      for (var task in currentMap.tasks.selected) {
+      for (var taskName in currentMap.tasks.selected) {
+        // draw routes
         Path pathTaskPreview = Path();
-        if (currentMap.tasks.scaledPreviews.containsKey(task)) {
+        if (currentMap.tasks.scaledPreviews.containsKey(taskName)) {
           strokeNoColor05.color = previewColorPalette.colors[previewCounter];
           previewCounter++;
           previewCounter = previewCounter == previewColorPalette.colors.length
               ? 0
               : previewCounter;
-          for (var subtask in currentMap.tasks.scaledPreviews[task]!) {
-            pathTaskPreview = _drawLine(pathTaskPreview, subtask);
+          for (var task in currentMap.tasks.scaledPreviews[taskName]!) {
+            pathTaskPreview = _drawLine(pathTaskPreview, task);
             canvas.drawPath(pathTaskPreview, strokeNoColor05);
           }
         }
+      }
+    }
+
+    // draw tasks to edit
+    if (currentTask.active) {
+      PreviewColorPalette previewColorPalette = PreviewColorPalette();
+      int previewCounter = 0;
+      fillNoColor.color = colors.onSurface.withOpacity(0.5);
+      for (var taskName in currentTask.selections.keys) {
+        // draw selections
+        Path pathTaskPreview = Path();
+        Path pathTaskSelection = Path();
+        strokeNoColor05.color =
+            previewColorPalette.colors[previewCounter].withOpacity(0.4);
+        previewCounter++;
+        previewCounter = previewCounter == previewColorPalette.colors.length
+            ? 0
+            : previewCounter;
+        for (var preview in currentTask.previews[taskName]!) {
+          pathTaskPreview = _drawLine(pathTaskPreview, preview);
+          canvas.drawPath(pathTaskPreview, strokeNoColor05);
+        }
+        for (var selection in currentTask.selections[taskName]!) {
+          strokeNoColor05.color = taskName == currentTask.selectedTask
+              ? colors.error
+              : colors.onSurface.withOpacity(0.4);
+          pathTaskSelection =
+              _drawPolygonFromGeoJson(pathTaskSelection, selection);
+          canvas.drawPath(pathTaskSelection, strokeNoColor05);
+          for (var point in selection) {
+            canvas.drawCircle(point, 2 / scale, fillNoColor);
+          }
+        }
+      }
+    }
+
+    // draw selected task point
+    if (currentTask.active &&
+        currentTask.selectedTask != null &&
+        currentTask.selectedSubtask != null &&
+        currentTask.selectedPointIndex != null) {
+      final selectedPoint = currentTask.selections[currentTask.selectedTask!]![
+          currentTask.selectedSubtask!][currentTask.selectedPointIndex!];
+      strokeRoundCapsNoColor10.color = colors.error;
+      canvas.drawLine(
+          Offset(selectedPoint.dx - 6 / scale, selectedPoint.dy),
+          Offset(selectedPoint.dx + 6 / scale, selectedPoint.dy),
+          strokeRoundCapsNoColor10);
+      canvas.drawLine(
+          Offset(selectedPoint.dx, selectedPoint.dy - 6 / scale),
+          Offset(selectedPoint.dx, selectedPoint.dy + 6 / scale),
+          strokeRoundCapsNoColor10);
+    }
+
+    // fill selected task
+    if (currentTask.active && currentTask.selectedTask != null && currentTask.selectedPointIndex == null) {
+      fillNoColor.color = colors.onSurface.withOpacity(0.4);
+      for (var selection
+          in currentTask.selections[currentTask.selectedTask!]!) {
+        Path pathTaskSelection = Path();
+        pathTaskSelection = _drawPolygonFromGeoJson(pathTaskSelection, selection);
+        canvas.drawPath(pathTaskSelection, fillNoColor);
       }
     }
 
