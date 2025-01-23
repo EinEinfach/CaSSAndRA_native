@@ -1,4 +1,4 @@
-import 'package:cassandra_native/components/tasks_page/task_information.dart';
+import 'package:cassandra_native/models/mow_parameters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
@@ -10,9 +10,12 @@ import 'package:cassandra_native/components/common/buttons/command_button.dart';
 import 'package:cassandra_native/components/common/dialogs/customized_dialog_ok_cancel.dart';
 import 'package:cassandra_native/components/common/dialogs/customized_dialog_input.dart';
 import 'package:cassandra_native/components/common/dialogs/customized_dialog_ok.dart';
+import 'package:cassandra_native/components/common/dialogs/new_mow_parameters.dart';
+import 'package:cassandra_native/components/home_page/status_bar.dart';
 import 'package:cassandra_native/components/logic/lasso_logic.dart';
 import 'package:cassandra_native/components/logic/map_logic.dart';
 import 'package:cassandra_native/components/tasks_page/map_painter.dart';
+import 'package:cassandra_native/components/tasks_page/task_information.dart';
 import 'package:cassandra_native/utils/custom_shape_calcs.dart';
 
 class MapView extends StatefulWidget {
@@ -56,7 +59,7 @@ class _MapViewState extends State<MapView> {
   void initState() {
     super.initState();
     _resetLassoSelection();
-    // _resetTasksSelection();
+    _resetTasksSelection();
   }
 
   void _openErrorDialog(String content) {
@@ -68,6 +71,31 @@ class _MapViewState extends State<MapView> {
         onOkPressed: () {
           Navigator.pop(context);
         },
+      ),
+    );
+  }
+
+  void _setTaskMowParameters(MowParameters mowParameters) {
+    // currentTask.setMowParameters(mowParameters);
+    // Navigator.pop(context);
+  }
+
+  void _openTaskMowParametersOverlay(String taskName, int subtaskNr) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        title: const Text(
+          'Task mow parameters',
+          style: TextStyle(fontSize: 14),
+        ),
+        content: NewMowParameters(
+          onSetMowParameters: _setTaskMowParameters,
+          mowParameters: currentTask.mowParameters[taskName]![subtaskNr],
+        ),
       ),
     );
   }
@@ -162,6 +190,26 @@ class _MapViewState extends State<MapView> {
     }
   }
 
+  void _removePoint() {
+    lasso.removePoint();
+    currentTask.removePoint();
+    currentTask.toCartesian(widget.server.currentMap);
+    taskHistory.addNewProgress(currentTask);
+  }
+
+  void _removeTask() {
+    currentTask.removeSubtask();
+    currentTask.toCartesian(widget.server.currentMap);
+    taskHistory.addNewProgress(currentTask);
+  }
+
+  void _removeTaskByButton(String taskName, int subtaskNr) {
+    currentTask.selectedTask = taskName;
+    currentTask.selectedSubtask = subtaskNr;
+    _removeTask();
+    setState(() {});
+  }
+
   void _onScaleUpdate(ScaleUpdateDetails details) {
     //selection or zoom and pan
     //selection
@@ -218,14 +266,17 @@ class _MapViewState extends State<MapView> {
     if (lasso.selection.isNotEmpty) {
       lasso.move(details, zoomPan);
       widget.server.currentMap.lassoSelectionToJsonData(lasso.selection);
+    } else if (currentTask.active && !lasso.active) {
+      currentTask.move(details, zoomPan);
     }
     setState(() {});
   }
 
   void _onLongPressEnd() {
-    // if (_moved) {
-    //   lasso.unselectAll();
-    // }
+    if (_moved) {
+      currentTask.toCartesian(widget.server.currentMap);
+      taskHistory.addNewProgress(currentTask);
+    }
     setState(() {});
   }
 
@@ -236,10 +287,15 @@ class _MapViewState extends State<MapView> {
   }
 
   void _onDoubleTap() {
-    if (lasso.selectedPointIndex != null) {
-      lasso.removePoint();
+    if (lasso.selectedPointIndex != null ||
+        currentTask.selectedPointIndex != null) {
+      _removePoint();
     } else if (lasso.selected || lasso.selection.isNotEmpty) {
       _resetLassoSelection();
+    } else if (currentTask.selectedTask != null &&
+        currentTask.selectedSubtask != null &&
+        currentTask.selectedPointIndex == null) {
+      _removeTask();
     }
     setState(() {});
   }
@@ -309,15 +365,17 @@ class _MapViewState extends State<MapView> {
 /************************************Task information****************************************************************/
               if (currentTask.centroids.isNotEmpty && currentTask.active)
                 ...currentTask.centroids.entries.expand((entry) {
-                  int currentSubtaskNr = 0;
+                  int currentSubtaskNrUi = 0;
                   return entry.value.map((position) {
-                    currentSubtaskNr++;
+                    currentSubtaskNrUi++;
                     return Positioned(
                       left: position.dx * zoomPan.scale + zoomPan.offset.dx,
                       top: position.dy * zoomPan.scale + zoomPan.offset.dy,
                       child: TaskInformation(
                         taskName: entry.key,
-                        subtaskNr: currentSubtaskNr,
+                        subtaskNrUi: currentSubtaskNrUi,
+                        onRemoveTaskPressed: _removeTaskByButton,
+                        onEditTaskMowParametersPressed: _openTaskMowParametersOverlay,
                       ),
                     );
                   }).toList();
@@ -373,6 +431,7 @@ class _MapViewState extends State<MapView> {
                       onPressed: () {
                         if (!currentTask.active) {
                           _onActivateEditMode();
+                          taskHistory.addNewProgress(currentTask);
                         } else {
                           _handleSaveTask();
                         }
@@ -397,6 +456,59 @@ class _MapViewState extends State<MapView> {
                     ),
                   ],
                 ),
+              ),
+/*****************************************Butons on top*********************************************/
+              Column(
+                children: [
+                  StatusBar(robot: widget.server.robot),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CustomizedElevatedIconButton(
+                                icon: Icons.undo,
+                                isActive: false,
+                                onPressed: () {
+                                  currentTask =
+                                      taskHistory.prevProgress().copy();
+                                  currentTask.scale(
+                                      screenSize, widget.server.currentMap);
+                                  widget.server.robot.mapsScalePosition(
+                                      screenSize, widget.server.maps);
+                                  currentTask.unselectAll();
+                                  setState(() {});
+                                }),
+                            CustomizedElevatedIconButton(
+                              icon: Icons.zoom_in_map,
+                              isActive: false,
+                              onPressed: () {
+                                lasso.active = false;
+                                zoomPan.offset = Offset.zero;
+                                zoomPan.scale = 1.0;
+                                setState(() {});
+                              },
+                            ),
+                            CustomizedElevatedIconButton(
+                              icon: Icons.redo,
+                              isActive: false,
+                              onPressed: () {
+                                currentTask = taskHistory.nextProgress().copy();
+                                currentTask.scale(
+                                    screenSize, widget.server.currentMap);
+                                widget.server.robot.mapsScalePosition(
+                                    screenSize, widget.server.maps);
+                                currentTask.unselectAll();
+                                setState(() {});
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           );

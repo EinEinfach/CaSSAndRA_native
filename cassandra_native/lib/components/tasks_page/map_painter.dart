@@ -103,14 +103,16 @@ class MapPainter extends CustomPainter {
     canvas.drawPath(pathExclusions, strokeNoColor10);
 
     // draw tasks
-    if (currentMap.tasks.selected.isNotEmpty && !currentTask.active) {
+    if (currentMap.tasks.selected.isNotEmpty) {
       PreviewColorPalette previewColorPalette = PreviewColorPalette();
       int previewCounter = 0;
       for (var taskName in currentMap.tasks.selected) {
         // draw routes
         Path pathTaskPreview = Path();
         if (currentMap.tasks.scaledPreviews.containsKey(taskName)) {
-          strokeNoColor05.color = previewColorPalette.colors[previewCounter];
+          strokeNoColor05.color = currentTask.active
+              ? colors.onSurface.withOpacity(0.1)
+              : previewColorPalette.colors[previewCounter];
           previewCounter++;
           previewCounter = previewCounter == previewColorPalette.colors.length
               ? 0
@@ -133,7 +135,7 @@ class MapPainter extends CustomPainter {
         Path pathTaskPreview = Path();
         Path pathTaskSelection = Path();
         strokeNoColor05.color =
-            previewColorPalette.colors[previewCounter].withOpacity(0.4);
+            previewColorPalette.colors[previewCounter].withOpacity(0.6);
         previewCounter++;
         previewCounter = previewCounter == previewColorPalette.colors.length
             ? 0
@@ -175,14 +177,16 @@ class MapPainter extends CustomPainter {
     }
 
     // fill selected task
-    if (currentTask.active && currentTask.selectedTask != null && currentTask.selectedPointIndex == null) {
+    if (currentTask.active &&
+        currentTask.selectedTask != null &&
+        currentTask.selectedPointIndex == null) {
       fillNoColor.color = colors.onSurface.withOpacity(0.4);
-      for (var selection
-          in currentTask.selections[currentTask.selectedTask!]!) {
-        Path pathTaskSelection = Path();
-        pathTaskSelection = _drawPolygonFromGeoJson(pathTaskSelection, selection);
-        canvas.drawPath(pathTaskSelection, fillNoColor);
-      }
+      Path pathTaskSelection = Path();
+      pathTaskSelection = _drawPolygonFromGeoJson(
+          pathTaskSelection,
+          currentTask.selections[currentTask.selectedTask!]![
+              currentTask.selectedSubtask!]);
+      canvas.drawPath(pathTaskSelection, fillNoColor);
     }
 
     // draw lassoSelection

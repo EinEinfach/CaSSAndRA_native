@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
+import 'package:cassandra_native/models/mow_parameters.dart';
+
 class Tasks {
   List<dynamic> available = [];
   List<dynamic> selected = [];
@@ -11,6 +13,7 @@ class Tasks {
   Map<String, List<List<Offset>>> selections = {};
   Map<String, List<List<Offset>>> shiftedSelections = {};
   Map<String, List<List<Offset>>> scaledSelections = {};
+  Map<String, List<MowParameters>> mowParameters = {};
 
   void jsonToClassData(String message) {
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;

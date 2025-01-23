@@ -1,3 +1,4 @@
+import 'package:cassandra_native/models/mow_parameters.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -236,6 +237,7 @@ class Landscape {
   void _taskPreviewJsonToClassData(Map decodedMessage) {
     final List<List<Offset>> previews = [];
     final List<List<Offset>> selections = [];
+    final List<MowParameters> mowParameters = [];
     try {
       for (var feature in decodedMessage["features"]) {
         final List<Offset> coords = [];
@@ -252,6 +254,7 @@ class Landscape {
         if (feature["properties"]["name"] != 'task' &&
             feature['geometry']['type'] == 'Polygon') {
           selections.add(coords);
+          mowParameters.add(MowParameters.fromJson(feature["properties"]));
         }
         //previews.add(preview);
       }
@@ -259,6 +262,8 @@ class Landscape {
           previews;
       tasks.selections[decodedMessage["features"][0]["properties"]["id"]] =
           selections;
+      tasks.mowParameters[decodedMessage["features"][0]["properties"]["id"]] =
+          mowParameters;
       _shiftTaskPreview();
       _shiftTaskSelection();
     } catch (e) {

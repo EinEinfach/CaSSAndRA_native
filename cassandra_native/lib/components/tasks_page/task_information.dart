@@ -5,19 +5,24 @@ import 'package:cassandra_native/components/common/buttons/customized_elevated_i
 
 class TaskInformation extends StatelessWidget {
   final String taskName;
-  final int subtaskNr;
+  final int subtaskNrUi;
+  final void Function(String, int) onRemoveTaskPressed;
+  final void Function(String, int) onEditTaskMowParametersPressed;
   const TaskInformation({
     super.key,
     required this.taskName,
-    required this.subtaskNr,
+    required this.subtaskNrUi,
+    required this.onRemoveTaskPressed,
+    required this.onEditTaskMowParametersPressed,
   });
 
   @override
   Widget build(BuildContext context) {
+    int subtaskNr = subtaskNrUi - 1;
     return Column(
       children: [
         Text(
-          '$taskName ($subtaskNr)',
+          '$taskName ($subtaskNrUi)',
           style: Theme.of(context).textTheme.bodySmall,
         ),
         Row(
@@ -25,12 +30,12 @@ class TaskInformation extends StatelessWidget {
             CustomizedElevatedIconButton(
               icon: Icons.settings,
               isActive: false,
-              onPressed: () {},
+              onPressed: () => onEditTaskMowParametersPressed(taskName, subtaskNr), 
             ),
             CustomizedElevatedIconButton(
               icon: BootstrapIcons.trash,
               isActive: false,
-              onPressed: () {},
+              onPressed: () => onRemoveTaskPressed(taskName, subtaskNr),
             )
           ],
         ),
