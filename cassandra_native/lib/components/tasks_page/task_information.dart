@@ -8,12 +8,15 @@ class TaskInformation extends StatelessWidget {
   final int subtaskNrUi;
   final void Function(String, int) onRemoveTaskPressed;
   final void Function(String, int) onEditTaskMowParametersPressed;
+  final void Function(String, int, LongPressMoveUpdateDetails) moveTaskInformation;
+
   const TaskInformation({
     super.key,
     required this.taskName,
     required this.subtaskNrUi,
     required this.onRemoveTaskPressed,
     required this.onEditTaskMowParametersPressed,
+    required this.moveTaskInformation,
   });
 
   @override
@@ -27,10 +30,17 @@ class TaskInformation extends StatelessWidget {
         ),
         Row(
           children: [
+            GestureDetector(
+              onLongPressMoveUpdate: (details) => moveTaskInformation(taskName, subtaskNr, details),
+                child: Icon(
+              Icons.drag_indicator,
+              color: Theme.of(context).colorScheme.primary,
+            )),
             CustomizedElevatedIconButton(
               icon: Icons.settings,
               isActive: false,
-              onPressed: () => onEditTaskMowParametersPressed(taskName, subtaskNr), 
+              onPressed: () =>
+                  onEditTaskMowParametersPressed(taskName, subtaskNr),
             ),
             CustomizedElevatedIconButton(
               icon: BootstrapIcons.trash,

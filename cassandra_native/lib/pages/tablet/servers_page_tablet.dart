@@ -50,10 +50,7 @@ class ServersPageTablet extends StatelessWidget {
         ],
       ),
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: mainContent,
-        ),
+        child: mainContent,
       ),
     );
   }

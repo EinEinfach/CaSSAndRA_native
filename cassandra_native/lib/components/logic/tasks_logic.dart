@@ -49,12 +49,14 @@ class Task {
     Map<String, List<List<Offset>>>? previewsCartesian,
     Map<String, List<List<Offset>>>? selectionsCartesian,
     Map<String, List<Offset>>? centroids,
+    Map<String, List<Offset>>? centroidsUserOffset,
     Map<String, List<MowParameters>>? mowParameters,
   })  : previews = previews ?? {},
         selections = selections ?? {},
         previewsCartesian = previewsCartesian ?? {},
         selectionsCartesian = selectionsCartesian ?? {},
         centroids = centroids ?? {},
+        centroidsUserOffset = centroidsUserOffset ?? {},
         mowParameters = mowParameters ?? {};
 
   bool active;
@@ -63,6 +65,7 @@ class Task {
   Map<String, List<List<Offset>>> previewsCartesian;
   Map<String, List<List<Offset>>> selectionsCartesian;
   Map<String, List<Offset>> centroids;
+  Map<String, List<Offset>> centroidsUserOffset;
   Map<String, List<MowParameters>> mowParameters;
   String? selectedTask;
   int? selectedSubtask;
@@ -77,6 +80,8 @@ class Task {
       previewsCartesian: _deepCopy(previewsCartesian),
       selectionsCartesian: _deepCopy(selectionsCartesian),
       centroids: centroids
+          .map((key, value) => MapEntry(key, List<Offset>.from(value))),
+      centroidsUserOffset: centroidsUserOffset
           .map((key, value) => MapEntry(key, List<Offset>.from(value))),
       mowParameters: _deepCopyMowParameters(mowParameters),
     );
@@ -221,8 +226,8 @@ class Task {
         selections[selectedTask!]![selectedSubtask!].removeAt(0);
         selections[selectedTask!]![selectedSubtask!]
             .removeAt(selections[selectedTask!]![selectedSubtask!].length - 1);
-        selections[selectedTask!]![selectedSubtask!].add(
-            selections[selectedTask!]![selectedSubtask!].first);
+        selections[selectedTask!]![selectedSubtask!]
+            .add(selections[selectedTask!]![selectedSubtask!].first);
       } else {
         selections[selectedTask!]![selectedSubtask!]
             .removeAt(selectedPointIndex!);
@@ -232,7 +237,9 @@ class Task {
   }
 
   void removeSubtask() {
-    if (selectedTask != null && selectedSubtask != null && selectedPointIndex == null) {
+    if (selectedTask != null &&
+        selectedSubtask != null &&
+        selectedPointIndex == null) {
       previews[selectedTask!]!.removeAt(selectedSubtask!);
       selections[selectedTask!]!.removeAt(selectedSubtask!);
       centroids[selectedTask!]!.removeAt(selectedSubtask!);
@@ -283,8 +290,11 @@ class Task {
       selections[selectedTask!]![selectedSubtask!] = taskSelectionCopy;
     } else {
       selections[selectedTask!]![selectedSubtask!] = taskSelection;
-      centroids[selectedTask!]![selectedSubtask!] =
-          calculateCentroid(selections[selectedTask!]![selectedSubtask!]);
+      // centroids[selectedTask!]![selectedSubtask!] =
+      //     calculateCentroid(selections[selectedTask!]![selectedSubtask!]) +
+      //         (centroidsUserOffset.containsKey(selectedTask!)
+      //             ? centroidsUserOffset[selectedTask!]![selectedSubtask!]
+      //             : Offset.zero);
     }
   }
 
@@ -300,19 +310,37 @@ class Task {
         previews[selectedTask!]![selectedSubtask!]
             .map((point) => point + delta)
             .toList();
-    centroids[selectedTask!]![selectedSubtask!] =
-        calculateCentroid(selections[selectedTask!]![selectedSubtask!]);
+    centroids[selectedTask!]![selectedSubtask!] = centroids[selectedTask!]![selectedSubtask!] + delta;
+    // centroids[selectedTask!]![selectedSubtask!] =
+    //     calculateCentroid(selections[selectedTask!]![selectedSubtask!]) +
+    //         (centroidsUserOffset.containsKey(selectedTask!)
+    //             ? centroidsUserOffset[selectedTask!]![selectedSubtask!]
+    //             : Offset.zero);
     lastPosition = scaledAndMovedCoords;
   }
 
   Map<String, List<Offset>> _getCentroids() {
     for (var taskName in selections.keys) {
       List<Offset> currentCentroids = [];
-      for (var selection in selections[taskName]!) {
-        currentCentroids.add(calculateCentroid(selection));
+      List<Offset> currentCentroidsUserOffset = [];
+      for (int i = 0; i < selections[taskName]!.length; i++) {
+        currentCentroids.add(calculateCentroid(selections[taskName]![i]));
+        currentCentroidsUserOffset.add(Offset.zero);
       }
       centroids[taskName] = currentCentroids;
+      centroidsUserOffset[taskName] = currentCentroidsUserOffset;
     }
     return centroids;
+  }
+
+  void moveTaskInformation(String taskName, int subTaskNr, LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
+    final Offset scaledAndMovedCoords =
+        (details.globalPosition - zoomPan.offset) / zoomPan.scale;
+    // for (int i = 0; i < selections[taskName]!.length; i++) {
+    //   centroidsUserOffset[taskName]![i] = i == subTaskNr
+    //       ? scaledAndMovedCoords
+    //       : centroidsUserOffset[taskName]![i];
+    // }
+    centroids[taskName]![subTaskNr] = scaledAndMovedCoords + Offset(-5, -35);
   }
 }

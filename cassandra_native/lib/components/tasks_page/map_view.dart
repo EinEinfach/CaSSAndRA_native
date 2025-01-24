@@ -100,6 +100,11 @@ class _MapViewState extends State<MapView> {
     );
   }
 
+  void _moveTaskInformation(String taskName, int subtaskNr, LongPressMoveUpdateDetails details) {
+    currentTask.moveTaskInformation(taskName, subtaskNr, details, zoomPan);
+    setState(() {});
+  }
+
   void _onSelectTaskPressed() {
     if (currentTask.active) {
       showDialog(
@@ -376,6 +381,7 @@ class _MapViewState extends State<MapView> {
                         subtaskNrUi: currentSubtaskNrUi,
                         onRemoveTaskPressed: _removeTaskByButton,
                         onEditTaskMowParametersPressed: _openTaskMowParametersOverlay,
+                        moveTaskInformation: _moveTaskInformation,
                       ),
                     );
                   }).toList();
@@ -389,20 +395,12 @@ class _MapViewState extends State<MapView> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           CommandButton(
                             icon: BootstrapIcons.plus,
                             onPressed: () {}, //_onAddShape,
-                            onLongPressed: () {},
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          CommandButton(
-                            icon: BootstrapIcons.dash,
-                            onPressed: () {},
                             onLongPressed: () {},
                           ),
                         ],

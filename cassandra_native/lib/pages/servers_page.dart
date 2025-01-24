@@ -281,7 +281,8 @@ class _ServersPageState extends State<ServersPage> {
       context: context,
       builder: (context) => CustomizedDialogOkCancel(
         title: 'Info',
-        content: 'Shutdown server instance?\n\nIf selected server configured in UART mode the robot will be also shutdown',
+        content:
+            'Shutdown server instance?\n\nIf selected server configured in UART mode the robot will be also shutdown',
         onCancelPressed: () => Navigator.pop(context),
         onOkPressed: () {
           Navigator.pop(context);
@@ -319,7 +320,8 @@ class _ServersPageState extends State<ServersPage> {
                 onRemoveServer: () => _onRemoveServerPressed(context, server),
                 openEditServer: () => _onEditServerPressed(context, server),
                 onRestartServer: () => _onRestartServerPressed(context, server),
-                onShutdownServer: () => _onShutdownServerPressed(context, server),
+                onShutdownServer: () =>
+                    _onShutdownServerPressed(context, server),
                 selectServer: onSelectServer,
               ).animate().fadeIn().scale();
             },
@@ -356,14 +358,35 @@ class _ServersPageState extends State<ServersPage> {
     mainContent = Stack(
       children: [
         Container(
+          padding: const EdgeInsets.all(4),
           child: mainContent,
         ),
         Align(
-          alignment: const Alignment(0.9, 0.9),
-          child: CommandButton(
-            icon: BootstrapIcons.plus,
-            onPressed: openAddServerOverlay,
-            onLongPressed: () {},
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    SizedBox(
+                      width: 4,
+                    ),
+                    CommandButton(
+                      icon: BootstrapIcons.plus,
+                      onPressed: openAddServerOverlay,
+                      onLongPressed: () {},
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 4,
+                ),
+              ],
+            ),
           ),
         ),
       ],
