@@ -56,6 +56,10 @@ class Shapes {
     List<Offset>? dockPathCartesian,
     List<Offset>? searchWire,
     List<Offset>? searchWireCartesian,
+    // this.perimeterCentroid,
+    // this.exclusionsCentroids,
+    this.dockPathCentroid,
+    this.searchWireCentroid,
     this.selected = false,
     this.selectedShape,
     this.lastPosition,
@@ -83,9 +87,14 @@ class Shapes {
   List<Offset> dockPathCartesian;
   List<Offset> searchWire;
   List<Offset> searchWireCartesian;
+  // Offset? perimeterCentroid;
+  // List<Offset>? exclusionsCentroids;
+  Offset? dockPathCentroid;
+  Offset? searchWireCentroid;
   bool selected;
   String? selectedShape;
   Offset? lastPosition;
+  Offset? pointInformationPosition;
 
   Shapes copy() {
     List<List<Offset>> tmpExclusions = [];
@@ -111,6 +120,10 @@ class Shapes {
       dockPathCartesian: List.of(dockPathCartesian),
       searchWire: List.of(searchWire),
       searchWireCartesian: List.of(searchWireCartesian),
+      // perimeterCentroid: perimeterCentroid,
+      // exclusionsCentroids: List.of(exclusionsCentroids ?? []),
+      dockPathCentroid: dockPathCentroid,
+      searchWireCentroid: searchWireCentroid,
       selected: selected,
       selectedShape: selectedShape,
       lastPosition: lastPosition,
@@ -133,9 +146,14 @@ class Shapes {
     selectedExclusionIndex = null;
     selectedPointCoords = null;
     selectedPointCoordsStart = null;
+    // perimeterCentroid = null;
+    // exclusionsCentroids = null;
+    dockPathCentroid = null;
+    searchWireCentroid = null;
     selected = false;
     selectedShape = null;
     lastPosition = null;
+    pointInformationPosition = null;
   }
 
   void fromMap(Maps selectedMap) {
@@ -152,6 +170,8 @@ class Shapes {
       dockPathCartesian = List.of(selectedMap.dockPath);
       searchWire = List.of(selectedMap.scaledSearchWire);
       searchWireCartesian = List.of(selectedMap.searchWire);
+
+      _getCentroids();
     }
   }
 
@@ -261,6 +281,7 @@ class Shapes {
     selectedPointCoordsStart = null;
     selected = false;
     selectedShape = null;
+    pointInformationPosition = null;
   }
 
   int removePoint() {
@@ -279,7 +300,6 @@ class Shapes {
       if (selectedShape == 'searchWire' && searchWire.length > 2) {
         searchWire.removeAt(selectedPointIndex!);
       }
-      unselectAll();
     }
     return response;
   }
@@ -290,6 +310,7 @@ class Shapes {
     } else if (selectedShape == 'exclusion' && selectedExclusionIndex != null) {
       selectedShape = null;
       exclusions.removeAt(selectedExclusionIndex!);
+      // exclusionsCentroids!.removeAt(selectedExclusionIndex!);
       unselectAll();
     } else if (selectedShape == 'dockPath') {
       dockPath = [];
@@ -448,11 +469,14 @@ class Shapes {
       perimeter = perimeter.map((point) => point + delta).toList();
       selectionPoints = selectionPoints.map((point) => point + delta).toList();
       lastPosition = scaledAndMovedCoords;
+      // perimeterCentroid = perimeterCentroid! + delta;
     } else if (selectedShape == 'exclusion' && selectedExclusionIndex != null) {
       exclusions[selectedExclusionIndex!] = exclusions[selectedExclusionIndex!]
           .map((point) => point + delta)
           .toList();
       lastPosition = scaledAndMovedCoords;
+      // exclusionsCentroids![selectedExclusionIndex!] =
+      //     exclusionsCentroids![selectedExclusionIndex!] + delta;
     }
   }
 
@@ -516,6 +540,7 @@ class Shapes {
       } else {
         exclusions = _unionShapes([shape], exclusions);
       }
+      _getCentroids();
       return 0;
     } else {
       return -1;
@@ -532,9 +557,10 @@ class Shapes {
         final newShapes = _unionShapes([shape], [perimeter]);
         perimeter = newShapes.last;
         if (newShapes.length > 1) {
-          exclusions.addAll(newShapes.sublist(0, newShapes.length -1));
+          exclusions.addAll(newShapes.sublist(0, newShapes.length - 1));
         }
       }
+      _getCentroids();
       return 0;
     } else {
       return -1;
@@ -544,12 +570,14 @@ class Shapes {
   void addDockPath(List<Offset> shape) {
     if (perimeter.isNotEmpty) {
       dockPath.addAll(shape);
+      dockPathCentroid = dockPath[0];
     }
   }
 
   void addSearchWire(List<Offset> shape) {
     if (perimeter.isNotEmpty) {
       searchWire.addAll(shape);
+      searchWireCentroid = searchWire[0];
     }
   }
 
@@ -679,5 +707,51 @@ class Shapes {
     } else if (searchWire.isEmpty && selectedShape == 'searchWire') {
       selectedShape = null;
     }
+  }
+
+  void _getCentroids() {
+    // if (perimeter.isNotEmpty) {
+    //   perimeterCentroid = calculateCentroid(perimeter);
+    // }
+    // if (exclusions.isNotEmpty) {
+    //   exclusionsCentroids = [];
+    //   for (var exclusion in exclusions) {
+    //     exclusionsCentroids!.add(calculateCentroid(exclusion));
+    //   }
+    // }
+    if (dockPath.isNotEmpty) {
+      dockPathCentroid = dockPath[0];
+    }
+    if (searchWire.isNotEmpty) {
+      searchWireCentroid = searchWire[0];
+    }
+  }
+
+  void selectShapeOrPointInformation(LongPressStartDetails details, ZoomPanLogic zoomPan) {
+    final scaledAndMovedCoords =
+        (details.localPosition - zoomPan.offset) / zoomPan.scale;
+    lastPosition = scaledAndMovedCoords;
+  }
+
+  void moveShapeInformation(String shapeName, int? exclusionNr,
+      LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
+    final Offset scaledAndMovedCoords =
+        (details.localPosition - zoomPan.offset) / zoomPan.scale;
+    final delta = scaledAndMovedCoords - lastPosition!;
+    if (shapeName == 'dockPath') {
+      dockPathCentroid = dockPathCentroid! + delta;
+    } else if (shapeName == 'searchWire') {
+      searchWireCentroid = searchWireCentroid! + delta;
+    }
+    lastPosition = scaledAndMovedCoords;
+  }
+
+  void movePointInformation(Offset position, LongPressMoveUpdateDetails details,
+      ZoomPanLogic zoomPan) {
+    final Offset scaledAndMovedCoords =
+        (details.localPosition - zoomPan.offset) / zoomPan.scale;
+    final Offset delta = scaledAndMovedCoords - lastPosition!;
+    pointInformationPosition = position + delta;
+    lastPosition = scaledAndMovedCoords;
   }
 }

@@ -70,7 +70,9 @@ class Task {
   String? selectedTask;
   int? selectedSubtask;
   int? selectedPointIndex;
+  Offset? selectedPointCoordsStart;
   Offset? lastPosition;
+  Offset? pointInformationPosition;
 
   Task copy() {
     return Task(
@@ -115,7 +117,10 @@ class Task {
     selectedTask = null;
     selectedSubtask = null;
     selectedPointIndex = null;
+    selectedPointCoordsStart = null;
+    centroidsUserOffset = {};
     lastPosition = null;
+    pointInformationPosition = null;
   }
 
   void fromMap(Tasks tasks) {
@@ -143,6 +148,7 @@ class Task {
             selectedTask = taskName;
             selectedSubtask = subTaskNr;
             selectedPointIndex = i;
+            selectedPointCoordsStart = selection[i];
           }
         }
         subTaskNr++;
@@ -217,6 +223,8 @@ class Task {
     selectedTask = null;
     selectedSubtask = null;
     selectedPointIndex = null;
+    selectedPointCoordsStart = null;
+    pointInformationPosition = null;
   }
 
   void removePoint() {
@@ -310,7 +318,8 @@ class Task {
         previews[selectedTask!]![selectedSubtask!]
             .map((point) => point + delta)
             .toList();
-    centroids[selectedTask!]![selectedSubtask!] = centroids[selectedTask!]![selectedSubtask!] + delta;
+    centroids[selectedTask!]![selectedSubtask!] =
+        centroids[selectedTask!]![selectedSubtask!] + delta;
     // centroids[selectedTask!]![selectedSubtask!] =
     //     calculateCentroid(selections[selectedTask!]![selectedSubtask!]) +
     //         (centroidsUserOffset.containsKey(selectedTask!)
@@ -333,14 +342,32 @@ class Task {
     return centroids;
   }
 
-  void moveTaskInformation(String taskName, int subTaskNr, LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
+  void selectTaskOrPointInformation(LongPressStartDetails details, ZoomPanLogic zoomPan) {
+    final scaledAndMovedCoords =
+        (details.localPosition - zoomPan.offset) / zoomPan.scale;
+    lastPosition = scaledAndMovedCoords;
+  }
+
+  void moveTaskInformation(String taskName, int subTaskNr,
+      LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
     final Offset scaledAndMovedCoords =
-        (details.globalPosition - zoomPan.offset) / zoomPan.scale;
-    // for (int i = 0; i < selections[taskName]!.length; i++) {
-    //   centroidsUserOffset[taskName]![i] = i == subTaskNr
-    //       ? scaledAndMovedCoords
-    //       : centroidsUserOffset[taskName]![i];
-    // }
-    centroids[taskName]![subTaskNr] = scaledAndMovedCoords + Offset(-5, -35);
+        (details.localPosition - zoomPan.offset) / zoomPan.scale;
+    final Offset delta = scaledAndMovedCoords - lastPosition!;
+    centroids[taskName]![subTaskNr] = centroids[taskName]![subTaskNr] + delta;
+    lastPosition = scaledAndMovedCoords;
+    // final Offset scaledAndMovedCoords =
+    //     (details.globalPosition - zoomPan.offset) / zoomPan.scale;
+    // centroids[taskName]![subTaskNr] = scaledAndMovedCoords + Offset(-15, -80);
+  }
+
+  void movePointInformation(LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
+    final Offset scaledAndMovedCoords =
+        (details.localPosition - zoomPan.offset) / zoomPan.scale;
+    final Offset delta = scaledAndMovedCoords - lastPosition!;
+    pointInformationPosition = pointInformationPosition! + delta;
+    lastPosition = scaledAndMovedCoords;
+    // final Offset scaledAndMovedCoords =
+    //     (details.globalPosition - zoomPan.offset) / zoomPan.scale;
+    // pointInformationPosition = scaledAndMovedCoords + Offset(-15, -80);
   }
 }

@@ -8,6 +8,7 @@ class TaskInformation extends StatelessWidget {
   final int subtaskNrUi;
   final void Function(String, int) onRemoveTaskPressed;
   final void Function(String, int) onEditTaskMowParametersPressed;
+  final void Function(LongPressStartDetails) selectTaskOrPointInformation;
   final void Function(String, int, LongPressMoveUpdateDetails) moveTaskInformation;
 
   const TaskInformation({
@@ -16,6 +17,7 @@ class TaskInformation extends StatelessWidget {
     required this.subtaskNrUi,
     required this.onRemoveTaskPressed,
     required this.onEditTaskMowParametersPressed,
+    required this.selectTaskOrPointInformation,
     required this.moveTaskInformation,
   });
 
@@ -31,6 +33,7 @@ class TaskInformation extends StatelessWidget {
         Row(
           children: [
             GestureDetector(
+              onLongPressStart: (details) => selectTaskOrPointInformation(details),
               onLongPressMoveUpdate: (details) => moveTaskInformation(taskName, subtaskNr, details),
                 child: Icon(
               Icons.drag_indicator,

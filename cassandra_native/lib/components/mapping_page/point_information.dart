@@ -14,6 +14,8 @@ class PointInformation extends StatelessWidget {
   final VoidCallback onRemovePoint;
   final VoidCallback onAddPointActivate;
   final VoidCallback onRemoveShape;
+  final void Function(LongPressStartDetails) selectShapeOrPointInformation;
+  final void Function(LongPressMoveUpdateDetails) movePointInformation;
   const PointInformation({
     super.key,
     required this.shapes,
@@ -23,6 +25,8 @@ class PointInformation extends StatelessWidget {
     required this.onRemovePoint,
     required this.onAddPointActivate,
     required this.onRemoveShape,
+    required this.selectShapeOrPointInformation,
+    required this.movePointInformation,
   });
 
   @override
@@ -57,7 +61,7 @@ class PointInformation extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.all(5),
-      width: 180,
+      width: 200,
       decoration: BoxDecoration(
         color: Colors.transparent,
         // color: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
@@ -78,30 +82,29 @@ class PointInformation extends StatelessWidget {
           SizedBox(
             height: 4,
           ),
-          // Text(
-          //   'distance: ${distance.toStringAsFixed(2)}',
-          //   style: Theme.of(context).textTheme.bodySmall,
-          // ),
-          // Text(
-          //   '${shapes.selectedShape} idx: ${shapes.selectedPointIndex}',
-          //   style: Theme.of(context).textTheme.bodySmall,
-          // ),
-          SizedBox(
-            height: 4,
-          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              GestureDetector(
+                onLongPressStart: (details) =>
+                    selectShapeOrPointInformation(details),
+                onLongPressMoveUpdate: (details) =>
+                    movePointInformation(details),
+                child: Icon(
+                  Icons.drag_indicator,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
               CustomizedElevatedIconButton(
                 icon: BootstrapIcons.node_plus,
                 isActive: insertPointActive,
                 onPressed: onAddPointActivate,
               ),
-              CustomizedElevatedIconButton(
-                icon: BootstrapIcons.trash,
-                isActive: false,
-                onPressed: onRemoveShape,
-              ),
+              // CustomizedElevatedIconButton(
+              //   icon: BootstrapIcons.trash,
+              //   isActive: false,
+              //   onPressed: onRemoveShape,
+              // ),
               CustomizedElevatedIconButton(
                 icon: BootstrapIcons.node_minus,
                 isActive: false,

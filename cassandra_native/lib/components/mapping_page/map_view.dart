@@ -14,7 +14,7 @@ import 'package:cassandra_native/components/logic/animation_logic.dart';
 import 'package:cassandra_native/components/mapping_page/map_painter.dart';
 import 'package:cassandra_native/components/mapping_page/maps_overview.dart';
 import 'package:cassandra_native/components/mapping_page/point_information.dart';
-//import 'package:cassandra_native/components/mapping_page/select_map.dart';
+import 'package:cassandra_native/components/mapping_page/shape_information.dart';
 import 'package:cassandra_native/components/common/buttons/customized_elevated_icon_button.dart';
 import 'package:cassandra_native/components/home_page/status_bar.dart';
 import 'package:cassandra_native/components/common/dialogs/customized_dialog_ok.dart';
@@ -168,6 +168,42 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     );
   }
 
+  void _selectShapeOrPointInformation(LongPressStartDetails details) {
+    shapes.selectShapeOrPointInformation(details, zoomPan);
+    setState(() {});
+  }
+
+  void _movePointInformation(LongPressMoveUpdateDetails details) {
+    if (shapes.pointInformationPosition != null) {
+      shapes.movePointInformation(
+          shapes.pointInformationPosition!, details, zoomPan);
+    } else if (lasso.selectedPointIndex != null) {
+      shapes.movePointInformation(lasso.selectedPointCoords!, details, zoomPan);
+    } else if (shapes.selectedPointIndex != null) {
+      shapes.movePointInformation(
+          shapes.selectedPointCoords!, details, zoomPan);
+    }
+    setState(() {});
+  }
+
+  void _moveShapeInformation(
+      String shapeName, int? selectedExclusionIndex, LongPressMoveUpdateDetails details) {
+        shapes.moveShapeInformation(shapeName, selectedExclusionIndex, details, zoomPan);
+    setState(() {});
+  }
+
+  Offset _checkPointInformationPosition() {
+    if (shapes.pointInformationPosition != null) {
+      return shapes.pointInformationPosition!;
+    } else if (lasso.selectedPointIndex != null) {
+      return lasso.selection[lasso.selectedPointIndex!];
+    } else if (shapes.selectedPointIndex != null) {
+      return shapes.selectedPointCoords!;
+    } else {
+      return Offset.zero;
+    }
+  }
+
   void _onSelectMapPressed() {
     if (shapes.active) {
       showDialog(
@@ -198,13 +234,13 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     if (widget.server.maps.selected == '') {
       widget.server.maps.resetSelection();
     }
+    shapes.unselectAll();
     widget.server.maps.scaleShapes(screenSize);
     shapes.scale(screenSize, widget.server.maps);
     widget.server.robot.mapsScalePosition(screenSize, widget.server.maps);
     _onNewCoordinatesReceived(widget.server.robot.mapsScaledPosition,
         widget.server.robot.angle, false);
     _addPointActive = false;
-    shapes.unselectAll();
     // lasso.onScreenSizeChanged(widget.server.currentMap);
   }
 
@@ -244,15 +280,18 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
       shapes.reset();
       setState(() {});
     } else {
-      _openErrorDialog('Map could not be stored. The given name is already exist');
+      _openErrorDialog(
+          'Map could not be stored. The given name is already exist');
     }
   }
 
   void _removePoint() {
     lasso.removePoint();
-    if(shapes.removePoint() == -1) {
-      _openErrorDialog('The point could not be deleted. The new shape has self intersections.');
+    if (shapes.removePoint() == -1) {
+      _openErrorDialog(
+          'The point could not be deleted. The new shape has self intersections.');
     }
+    shapes.unselectAll();
     shapes.finalizeMap();
     shapes.toCartesian(widget.server.maps);
     shapesHistory.addNewProgress(shapes);
@@ -266,6 +305,12 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     shapes.toCartesian(widget.server.maps);
     shapesHistory.addNewProgress(shapes);
     setState(() {});
+  }
+
+  void _removeShapeByButton(String selectedShape, int? selectedExclusionIndex) {
+    shapes.selectedShape = selectedShape;
+    shapes.selectedExclusionIndex = selectedExclusionIndex;
+    _removeShape();
   }
 
   void _onAddPointActivate() {
@@ -286,7 +331,8 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   void _onAddShape() {
     if (lasso.selectedShape == 'polygon') {
       if (shapes.addPerimeter(lasso.selection) == -1) {
-        _openErrorDialog('The new shape could not be added. Resolve self intersections and try it again.');
+        _openErrorDialog(
+            'The new shape could not be added. Resolve self intersections and try it again.');
         return;
       }
     } else if (lasso.selectedShape == 'dockPath') {
@@ -304,8 +350,9 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
 
   void _onAddExclusion() {
     if (lasso.selectedShape == 'polygon') {
-      if(shapes.addExclusion(lasso.selection) == -1) {
-        _openErrorDialog('The new shape could not be added. Resolve self intersections and try it again.');
+      if (shapes.addExclusion(lasso.selection) == -1) {
+        _openErrorDialog(
+            'The new shape could not be added. Resolve self intersections and try it again.');
         return;
       }
     }
@@ -406,8 +453,8 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
 
   void _onLongPressEnd() {
     if (_moved) {
-      //lasso.unselectAll();
-      //shapes.unselectAll();
+      lasso.unselectAll();
+      shapes.unselectAll();
       shapes.finalizeMap();
       shapes.toCartesian(widget.server.maps);
       shapesHistory.addNewProgress(shapes);
@@ -519,20 +566,12 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
             if (shapes.selectedPointIndex != null ||
                 lasso.selectedPointIndex != null)
               Positioned(
-                left: lasso.selectedPointIndex != null
-                    ? lasso.selectedPointCoords!.dx * zoomPan.scale +
-                        zoomPan.offset.dx -
-                        75
-                    : shapes.selectedPointCoords!.dx * zoomPan.scale +
-                        zoomPan.offset.dx -
-                        75,
-                top: lasso.selectedPointIndex != null
-                    ? lasso.selectedPointCoords!.dy * zoomPan.scale +
-                        zoomPan.offset.dy -
-                        160
-                    : shapes.selectedPointCoords!.dy * zoomPan.scale +
-                        zoomPan.offset.dy -
-                        160,
+                left: _checkPointInformationPosition().dx * zoomPan.scale +
+                    zoomPan.offset.dx, // -
+                //75,
+                top: _checkPointInformationPosition().dy * zoomPan.scale +
+                    zoomPan.offset.dy, //-
+                //160,
                 child: PointInformation(
                   shapes: shapes,
                   lasso: lasso,
@@ -541,6 +580,90 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                   onRemovePoint: _removePoint,
                   onAddPointActivate: _onAddPointActivate,
                   onRemoveShape: _removeShape,
+                  selectShapeOrPointInformation: _selectShapeOrPointInformation,
+                  movePointInformation: _movePointInformation,
+                ),
+              ),
+/***********************************************************************************Shape Informations (perimeter)***********************************************************************************/
+//             if (shapes.active &&
+//                 !lasso.active &&
+//                 lasso.selection.isEmpty &&
+//                 shapes.perimeter.isNotEmpty &&
+//                 shapes.selectedPointIndex == null)
+//               Positioned(
+//                 left: shapes.perimeterCentroid!.dx * zoomPan.scale +
+//                     zoomPan.offset.dx,
+//                 top: shapes.perimeterCentroid!.dy * zoomPan.scale +
+//                     zoomPan.offset.dy,
+//                 child: ShapeInformation(
+//                   shapeName: 'perimeter',
+//                   shapes: shapes,
+//                   addPointActive: _addPointActive,
+//                   onAddPointPressed: (String name, int? index) {},
+//                   onRemoveShapePressed: _removeShapeByButton,
+//                   moveShapeInformation: _moveShapeInformation,
+//                 ),
+//               ),
+// /***********************************************************************************Shape Informations (exclusions)***********************************************************************************/
+//             if (shapes.active &&
+//                 !lasso.active &&
+//                 lasso.selection.isEmpty &&
+//                 shapes.exclusions.isNotEmpty &&
+//                 shapes.selectedPointIndex == null)
+//               for (int i = 0; i < shapes.exclusions.length; i++)
+//                 Positioned(
+//                   left: shapes.exclusionsCentroids![i].dx * zoomPan.scale +
+//                       zoomPan.offset.dx,
+//                   top: shapes.exclusionsCentroids![i].dy * zoomPan.scale +
+//                       zoomPan.offset.dy,
+//                   child: ShapeInformation(
+//                     shapeName: 'exclusion',
+//                     exclusionNr: i,
+//                     shapes: shapes,
+//                     addPointActive: _addPointActive,
+//                     onAddPointPressed: (String name, int? index) {},
+//                     onRemoveShapePressed: _removeShapeByButton,
+//                     moveShapeInformation: _moveShapeInformation,
+//                   ),
+//                 ),
+/***********************************************************************************Shape Informations (dockPath)***********************************************************************************/
+            if (shapes.active &&
+                !lasso.active &&
+                lasso.selection.isEmpty &&
+                shapes.dockPath.isNotEmpty &&
+                shapes.selectedPointIndex == null)
+              Positioned(
+                left: shapes.dockPathCentroid!.dx * zoomPan.scale + zoomPan.offset.dx,
+                top: shapes.dockPathCentroid!.dy * zoomPan.scale + zoomPan.offset.dy,
+                child: ShapeInformation(
+                  shapeName: 'dockPath',
+                  shapes: shapes,
+                  addPointActive: _addPointActive,
+                  onAddPointPressed: (String name, int? index) {},
+                  onRemoveShapePressed: _removeShapeByButton,
+                  selectShapeOrPointInformation: _selectShapeOrPointInformation,
+                  moveShapeInformation: _moveShapeInformation,
+                ),
+              ),
+/***********************************************************************************Shape Informations (searchWire)***********************************************************************************/
+            if (shapes.active &&
+                !lasso.active &&
+                lasso.selection.isEmpty &&
+                shapes.searchWire.isNotEmpty &&
+                shapes.selectedPointIndex == null)
+              Positioned(
+                left:
+                    shapes.searchWireCentroid!.dx * zoomPan.scale + zoomPan.offset.dx,
+                top:
+                    shapes.searchWireCentroid!.dy * zoomPan.scale + zoomPan.offset.dy,
+                child: ShapeInformation(
+                  shapeName: 'searchWire',
+                  shapes: shapes,
+                  addPointActive: _addPointActive,
+                  onAddPointPressed: (String name, int? index) {},
+                  onRemoveShapePressed: _removeShapeByButton,
+                  selectShapeOrPointInformation: _selectShapeOrPointInformation,
+                  moveShapeInformation: _moveShapeInformation,
                 ),
               ),
 /*************************************************************************************Command Buttons***********************************************************************************************/

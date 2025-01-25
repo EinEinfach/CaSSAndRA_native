@@ -1,9 +1,9 @@
-import 'package:cassandra_native/models/mow_parameters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/models/server.dart';
+import 'package:cassandra_native/models/mow_parameters.dart';
 import 'package:cassandra_native/components/logic/tasks_logic.dart';
 import 'package:cassandra_native/components/common/buttons/customized_elevated_icon_button.dart';
 import 'package:cassandra_native/components/common/buttons/command_button.dart';
@@ -16,6 +16,7 @@ import 'package:cassandra_native/components/logic/lasso_logic.dart';
 import 'package:cassandra_native/components/logic/map_logic.dart';
 import 'package:cassandra_native/components/tasks_page/map_painter.dart';
 import 'package:cassandra_native/components/tasks_page/task_information.dart';
+import 'package:cassandra_native/components/tasks_page/point_information.dart';
 import 'package:cassandra_native/utils/custom_shape_calcs.dart';
 
 class MapView extends StatefulWidget {
@@ -88,8 +89,8 @@ class _MapViewState extends State<MapView> {
           borderRadius: BorderRadius.circular(12),
         ),
         backgroundColor: Theme.of(context).colorScheme.secondary,
-        title: const Text(
-          'Task mow parameters',
+        title: Text(
+          '$taskName ($subtaskNr)',
           style: TextStyle(fontSize: 14),
         ),
         content: NewMowParameters(
@@ -100,9 +101,33 @@ class _MapViewState extends State<MapView> {
     );
   }
 
-  void _moveTaskInformation(String taskName, int subtaskNr, LongPressMoveUpdateDetails details) {
+  void _selectTaskOrPointInformation(LongPressStartDetails details) {
+    currentTask.selectTaskOrPointInformation(details, zoomPan);
+    setState(() {});
+  }
+
+  void _moveTaskInformation(
+      String taskName, int subtaskNr, LongPressMoveUpdateDetails details) {
     currentTask.moveTaskInformation(taskName, subtaskNr, details, zoomPan);
     setState(() {});
+  }
+
+  void _movePointInformation(LongPressMoveUpdateDetails details) {
+    currentTask.movePointInformation(details, zoomPan);
+    setState(() {});
+  }
+
+  Offset _checkPointInformationPosition() {
+    if (currentTask.pointInformationPosition != null) {
+      return currentTask.pointInformationPosition!;
+    } else if (lasso.selectedPointIndex != null) {
+      return lasso.selection[lasso.selectedPointIndex!];
+    } else if (currentTask.selectedPointIndex != null) {
+      return currentTask.selections[currentTask.selectedTask!]![
+          currentTask.selectedSubtask!][currentTask.selectedPointIndex!];
+    } else {
+      return Offset.zero;
+    }
   }
 
   void _onSelectTaskPressed() {
@@ -200,6 +225,7 @@ class _MapViewState extends State<MapView> {
     currentTask.removePoint();
     currentTask.toCartesian(widget.server.currentMap);
     taskHistory.addNewProgress(currentTask);
+    setState(() {});
   }
 
   void _removeTask() {
@@ -367,8 +393,32 @@ class _MapViewState extends State<MapView> {
                   ),
                 ),
               ),
+/************************************Point information****************************************************************/
+              if (lasso.selectedPointIndex != null ||
+                  currentTask.selectedPointIndex != null)
+                Positioned(
+                  left: _checkPointInformationPosition().dx * zoomPan.scale +
+                      zoomPan.offset.dx, // -
+                      //75,
+                  top: _checkPointInformationPosition().dy * zoomPan.scale +
+                      zoomPan.offset.dy, // -
+                      //160,
+                  child: PointInformation(
+                    task: currentTask,
+                    lasso: lasso,
+                    currentMap: widget.server.currentMap,
+                    insertPointActive: false,
+                    onRemovePoint: _removePoint,
+                    onAddPointActivate: () {},
+                    selectTaskOrPointInformation: _selectTaskOrPointInformation,
+                    movePointInformation: _movePointInformation,
+                  ),
+                ),
 /************************************Task information****************************************************************/
-              if (currentTask.centroids.isNotEmpty && currentTask.active)
+              if (currentTask.centroids.isNotEmpty &&
+                  currentTask.active &&
+                  lasso.selectedPointIndex == null &&
+                  currentTask.selectedPointIndex == null)
                 ...currentTask.centroids.entries.expand((entry) {
                   int currentSubtaskNrUi = 0;
                   return entry.value.map((position) {
@@ -380,7 +430,9 @@ class _MapViewState extends State<MapView> {
                         taskName: entry.key,
                         subtaskNrUi: currentSubtaskNrUi,
                         onRemoveTaskPressed: _removeTaskByButton,
-                        onEditTaskMowParametersPressed: _openTaskMowParametersOverlay,
+                        onEditTaskMowParametersPressed:
+                            _openTaskMowParametersOverlay,
+                        selectTaskOrPointInformation: _selectTaskOrPointInformation,
                         moveTaskInformation: _moveTaskInformation,
                       ),
                     );
