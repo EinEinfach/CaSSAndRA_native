@@ -14,6 +14,7 @@ class Tasks {
   Map<String, List<List<Offset>>> shiftedSelections = {};
   Map<String, List<List<Offset>>> scaledSelections = {};
   Map<String, List<MowParameters>> mowParameters = {};
+  Map<String, dynamic> udpatedCoords = {};
 
   void jsonToClassData(String message) {
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;

@@ -281,7 +281,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
       setState(() {});
     } else {
       _openErrorDialog(
-          'Map could not be stored. The given name is already exist');
+          'Map could not be stored. The given name is already in use.');
     }
   }
 

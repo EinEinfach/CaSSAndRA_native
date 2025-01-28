@@ -240,7 +240,6 @@ class Task {
         selections[selectedTask!]![selectedSubtask!]
             .removeAt(selectedPointIndex!);
       }
-      unselectAll();
     }
   }
 
@@ -278,6 +277,67 @@ class Task {
               .toList())
           .toList();
     }
+  }
+
+  Map<String, dynamic> toGeoJson(String name) {
+    List<dynamic> features = [];
+    Map<String, dynamic> taskJson = {};
+    int subtaskNr = 0;
+    final nameFeature = {
+      'type': 'Feature',
+      'properties': {
+        'taskName': name,
+      },
+    };
+    features.add(nameFeature);
+    for (var taskName in selections.keys) {
+      for (var i = 0; i < selections[taskName]!.length; i++) {
+        final taskFeature = selections[taskName]![i].isNotEmpty
+            ? {
+                'type': 'Feature',
+                'properties': {
+                  'subtaskNr': subtaskNr,
+                  'mowParameters': mowParameters[taskName]![i].toJson(),
+                },
+                'geometry': [
+                  {
+                    'type': 'Polygon',
+                    'coordinates': [
+                      selectionsCartesian[taskName]![i]
+                          .map((point) => [point.dx, point.dy])
+                          .toList()
+                    ],
+                  },
+                  {
+                    'type': 'LineString',
+                    'coordinates': [
+                      previewsCartesian[taskName]![i]
+                          .map((point) => [point.dx, point.dy])
+                          .toList()
+                    ],
+                  }
+                ],
+              }
+            : [
+                {'type': 'Polygon', 'coordinates': []},
+                {
+                  'type': 'LineString',
+                  'coordinates': [
+                    previewsCartesian[taskName]![i]
+                        .map((point) => [point.dx, point.dy])
+                        .toList()
+                  ]
+                },
+              ];
+        features.add(taskFeature);
+        subtaskNr++;
+      }
+    }
+    taskJson = {
+      'type': 'FeatureCollection',
+      'features': features,
+    };
+    return taskJson;
   }
 
   void _moveSelectedPoint(
@@ -342,7 +402,8 @@ class Task {
     return centroids;
   }
 
-  void selectTaskOrPointInformation(LongPressStartDetails details, ZoomPanLogic zoomPan) {
+  void selectTaskOrPointInformation(
+      LongPressStartDetails details, ZoomPanLogic zoomPan) {
     final scaledAndMovedCoords =
         (details.localPosition - zoomPan.offset) / zoomPan.scale;
     lastPosition = scaledAndMovedCoords;
@@ -360,7 +421,8 @@ class Task {
     // centroids[taskName]![subTaskNr] = scaledAndMovedCoords + Offset(-15, -80);
   }
 
-  void movePointInformation(LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
+  void movePointInformation(
+      LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
     final Offset scaledAndMovedCoords =
         (details.localPosition - zoomPan.offset) / zoomPan.scale;
     final Offset delta = scaledAndMovedCoords - lastPosition!;
@@ -369,5 +431,70 @@ class Task {
     // final Offset scaledAndMovedCoords =
     //     (details.globalPosition - zoomPan.offset) / zoomPan.scale;
     // pointInformationPosition = scaledAndMovedCoords + Offset(-15, -80);
+  }
+
+  Map<String, dynamic> subtaskToGeoJson(String taskName, int subtaskNr,
+      List<Offset> selection, MowParameters mowParameters) {
+    List<dynamic> features = [];
+    Map<String, dynamic> taskJson = {};
+    final nameFeature = {
+      'type': 'Feature',
+      'properties': {
+        'taskName': taskName,
+        'mowParameters': mowParameters.toJson(),
+      },
+    };
+    features.add(nameFeature);
+    final taskFeature = selection.isNotEmpty
+        ? {
+            'type': 'Feature',
+            'properties': {
+              'subtaskNr': subtaskNr,
+              'mowParameters': mowParameters.toJson(),
+            },
+            'geometry': {
+              'type': 'Polygon',
+              'coordinates': [
+                selection.map((point) => [point.dx, point.dy]).toList()
+              ],
+            }
+          }
+        : {'type': 'Polygon', 'coordinates': []};
+    features.add(taskFeature);
+    taskJson = {
+      'type': 'FeatureCollection',
+      'features': features,
+    };
+    return taskJson;
+  }
+
+  void addSubtask(List<Offset> selection, MowParameters taskMowParameters,
+      Landscape currentMap) {
+    late List<Offset> currentSelection;
+    if (selection.isNotEmpty) {
+      currentSelection = List.of(selection);
+      currentSelection.add(selection.first);
+    } else {
+      currentSelection = currentMap.scaledPerimeter;
+    }
+    if (!selections.containsKey('')) {
+      previews[''] = [];
+      selections[''] = [];
+      mowParameters[''] = [];
+      centroids[''] = [];
+    }
+    previews['']!.add([]);
+    selections['']!.add(currentSelection);
+    centroids['']!.add(calculateCentroid(currentSelection));
+    mowParameters['']!.add(taskMowParameters);
+  }
+
+  void updatePreview(Map<String, dynamic> updatedCoords) {
+    List<Offset> coords = [];
+    for (var coord in updatedCoords['preview']['coordinates'][0]) {
+      coords.add(Offset(coord[0], coord[1]));
+    }
+    previewsCartesian[updatedCoords['taskName']]![updatedCoords['subtaskNr']] =
+        coords;
   }
 }

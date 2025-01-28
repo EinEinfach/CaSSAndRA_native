@@ -293,6 +293,16 @@ class ServerInterface {
     _sendCommand(cmdRenameMapJson);
   }
 
+  void commandSaveTask(Map<String, dynamic> taskData) {
+    final Map<String, dynamic> cmdSaveTask =
+        _addTopicAndCommandToValue('tasks', 'save', taskData);
+    final String cmdSaveTaskJson = jsonEncode(cmdSaveTask);
+    if (kDebugMode) {
+      debugPrint(cmdSaveTaskJson);
+    }
+    _sendCommand(cmdSaveTaskJson);
+  }
+
   void commandToggleMowMotor() {
     final Map<String, dynamic> cmdToggleMowMotor =
         _addTopicAndCommandToValue('robot', 'toggleMowMotor', []);
@@ -321,5 +331,15 @@ class ServerInterface {
       debugPrint(cmdSetMowProgressJson);
     }
     _sendCommand(cmdSetMowProgressJson);
+  }
+
+  void commandCalculateSubtask(Map<String, dynamic> subtaskData) {
+    final Map<String, dynamic> cmdCalculateSubtask =
+        _addTopicAndCommandToValue('tasks', 'calculate', subtaskData);
+    final String cmdCalculateSubtaskJson = jsonEncode(cmdCalculateSubtask);
+    if (kDebugMode) {
+      debugPrint(cmdCalculateSubtaskJson);
+    }
+    _sendCommand(cmdCalculateSubtaskJson);
   }
 }

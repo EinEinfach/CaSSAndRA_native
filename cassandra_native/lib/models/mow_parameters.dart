@@ -34,7 +34,7 @@ class MowParameters {
         'distanceToBorder': distanceToBorder,
         'borderLaps': borderLaps,
         'mowArea': mowArea,
-        'mowExclusionBoder': mowExclusionBorder,
+        'mowExclusionBorder': mowExclusionBorder,
         'mowBorderCcw': mowBorderCcw,
       };
 

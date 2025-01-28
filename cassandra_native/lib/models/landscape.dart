@@ -87,6 +87,9 @@ class Landscape {
       } else if (decodedMessage["features"][0]["properties"]["name"] ==
           'task') {
         _taskPreviewJsonToClassData(decodedMessage);
+      } else if (decodedMessage["features"][0]["properties"]["name"] ==
+          'taskPreview') {
+        _taskUpdatedCoordsToClassData(decodedMessage);
       }
     } catch (e) {
       if (kDebugMode) {
@@ -269,6 +272,18 @@ class Landscape {
     } catch (e) {
       if (kDebugMode) {
         debugPrint('JSON to class data for task preivew failed: $e');
+      }
+    }
+  }
+
+  void _taskUpdatedCoordsToClassData(Map decodedMessage) {
+    try {
+      tasks.udpatedCoords['taskName'] = decodedMessage['features'][0]['properties']['taskName'];
+      tasks.udpatedCoords['subtaskNr'] = decodedMessage['features'][1]['properties']['subtaskNr'];
+      tasks.udpatedCoords['preview'] = decodedMessage['features'][1]['geometry'];
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('JSON to class data for task updated coords failed: $e');
       }
     }
   }

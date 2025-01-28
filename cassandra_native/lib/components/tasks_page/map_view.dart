@@ -3,7 +3,6 @@ import 'package:flutter/gestures.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/models/server.dart';
-import 'package:cassandra_native/models/mow_parameters.dart';
 import 'package:cassandra_native/components/logic/tasks_logic.dart';
 import 'package:cassandra_native/components/common/buttons/customized_elevated_icon_button.dart';
 import 'package:cassandra_native/components/common/buttons/command_button.dart';
@@ -18,6 +17,9 @@ import 'package:cassandra_native/components/tasks_page/map_painter.dart';
 import 'package:cassandra_native/components/tasks_page/task_information.dart';
 import 'package:cassandra_native/components/tasks_page/point_information.dart';
 import 'package:cassandra_native/utils/custom_shape_calcs.dart';
+
+// globals
+import 'package:cassandra_native/data/user_data.dart' as user;
 
 class MapView extends StatefulWidget {
   final Server server;
@@ -76,11 +78,6 @@ class _MapViewState extends State<MapView> {
     );
   }
 
-  void _setTaskMowParameters(MowParameters mowParameters) {
-    // currentTask.setMowParameters(mowParameters);
-    // Navigator.pop(context);
-  }
-
   void _openTaskMowParametersOverlay(String taskName, int subtaskNr) {
     showDialog(
       context: context,
@@ -94,7 +91,15 @@ class _MapViewState extends State<MapView> {
           style: TextStyle(fontSize: 14),
         ),
         content: NewMowParameters(
-          onSetMowParameters: _setTaskMowParameters,
+          onSetMowParameters: (mowParameters) {
+            currentTask.mowParameters[taskName]![subtaskNr] = mowParameters;
+            final subTaskData = currentTask.subtaskToGeoJson(
+                taskName,
+                subtaskNr,
+                currentTask.selectionsCartesian[taskName]![subtaskNr],
+                currentTask.mowParameters[taskName]![subtaskNr]);
+            widget.server.serverInterface.commandCalculateSubtask(subTaskData);
+          },
           mowParameters: currentTask.mowParameters[taskName]![subtaskNr],
         ),
       ),
@@ -203,20 +208,24 @@ class _MapViewState extends State<MapView> {
         title: 'Save changes',
         content:
             'You are about to exit edit mode. Do you want to save the changes?',
-        suggestionText: '', //widget.server.maps.selected,
+        suggestionText: widget.server.currentMap.tasks.selected.isNotEmpty
+            ? widget.server.currentMap.tasks.selected[0]
+            : '',
       ),
     );
     if (taskName == null) {
       return;
-    } else if (taskName.isNotEmpty) {
+    } else if (!widget.server.currentMap.tasks.available.contains(taskName)) {
+      final geoJson = currentTask.toGeoJson(taskName);
       widget.server.serverInterface.commandSelectTasks([]);
+      widget.server.serverInterface.commandSaveTask(geoJson);
       widget.server.currentMap.tasks.resetCooords();
       _resetLassoSelection();
       currentTask.reset();
       taskHistory.reset();
     } else {
       _openErrorDialog(
-          'Task could not be stored. No save routine implemented.');
+          'Task could not be stored. The given name is already in use.');
     }
   }
 
@@ -224,7 +233,16 @@ class _MapViewState extends State<MapView> {
     lasso.removePoint();
     currentTask.removePoint();
     currentTask.toCartesian(widget.server.currentMap);
-    taskHistory.addNewProgress(currentTask);
+    final subtaskData = currentTask.subtaskToGeoJson(
+        currentTask.selectedTask!,
+        currentTask.selectedSubtask!,
+        currentTask.selectionsCartesian[currentTask.selectedTask!]![
+            currentTask.selectedSubtask!],
+        currentTask.mowParameters[currentTask.selectedTask!]![
+            currentTask.selectedSubtask!]);
+    currentTask.unselectAll();
+    widget.server.serverInterface.commandCalculateSubtask(subtaskData);
+    //taskHistory.addNewProgress(currentTask);
     setState(() {});
   }
 
@@ -239,6 +257,32 @@ class _MapViewState extends State<MapView> {
     currentTask.selectedSubtask = subtaskNr;
     _removeTask();
     setState(() {});
+  }
+
+  void _addTask() {
+    currentTask.addSubtask(
+        lasso.selection, user.currentMowParameters, widget.server.currentMap);
+    _resetLassoSelection();
+    currentTask.toCartesian(widget.server.currentMap);
+    final currentTaskName = '';
+    final amountOfSubtasks = currentTask.selections['']!.length;
+    final subTaskData = currentTask.subtaskToGeoJson(
+        currentTaskName,
+        amountOfSubtasks - 1,
+        currentTask.selectionsCartesian[currentTaskName]![amountOfSubtasks - 1],
+        currentTask.mowParameters[currentTaskName]![amountOfSubtasks - 1]);
+    widget.server.serverInterface.commandCalculateSubtask(subTaskData);
+    setState(() {});
+  }
+
+  void _checkForNewPreview() {
+    if (widget.server.currentMap.tasks.udpatedCoords.isNotEmpty) {
+      currentTask.updatePreview(widget.server.currentMap.tasks.udpatedCoords);
+      widget.server.currentMap.tasks.udpatedCoords = {};
+      currentTask.scale(screenSize, widget.server.currentMap);
+      taskHistory.addNewProgress(currentTask);
+      setState(() {});
+    }
   }
 
   void _onScaleUpdate(ScaleUpdateDetails details) {
@@ -306,7 +350,15 @@ class _MapViewState extends State<MapView> {
   void _onLongPressEnd() {
     if (_moved) {
       currentTask.toCartesian(widget.server.currentMap);
-      taskHistory.addNewProgress(currentTask);
+      final subtaskData = currentTask.subtaskToGeoJson(
+          currentTask.selectedTask!,
+          currentTask.selectedSubtask!,
+          currentTask.selectionsCartesian[currentTask.selectedTask!]![
+              currentTask.selectedSubtask!],
+          currentTask.mowParameters[currentTask.selectedTask!]![
+              currentTask.selectedSubtask!]);
+      widget.server.serverInterface.commandCalculateSubtask(subtaskData);
+      // taskHistory.addNewProgress(currentTask);
     }
     setState(() {});
   }
@@ -349,6 +401,9 @@ class _MapViewState extends State<MapView> {
         currentTask.scale(screenSize, widget.server.currentMap);
       }
     }
+
+    // Is there a new preview from the server?
+    _checkForNewPreview();
 
     // Listener is needed for zooming with mouse wheel on desktop apps
     return Listener(
@@ -399,10 +454,10 @@ class _MapViewState extends State<MapView> {
                 Positioned(
                   left: _checkPointInformationPosition().dx * zoomPan.scale +
                       zoomPan.offset.dx, // -
-                      //75,
+                  //75,
                   top: _checkPointInformationPosition().dy * zoomPan.scale +
                       zoomPan.offset.dy, // -
-                      //160,
+                  //160,
                   child: PointInformation(
                     task: currentTask,
                     lasso: lasso,
@@ -432,7 +487,8 @@ class _MapViewState extends State<MapView> {
                         onRemoveTaskPressed: _removeTaskByButton,
                         onEditTaskMowParametersPressed:
                             _openTaskMowParametersOverlay,
-                        selectTaskOrPointInformation: _selectTaskOrPointInformation,
+                        selectTaskOrPointInformation:
+                            _selectTaskOrPointInformation,
                         moveTaskInformation: _moveTaskInformation,
                       ),
                     );
@@ -452,7 +508,7 @@ class _MapViewState extends State<MapView> {
                         children: [
                           CommandButton(
                             icon: BootstrapIcons.plus,
-                            onPressed: () {}, //_onAddShape,
+                            onPressed: _addTask,
                             onLongPressed: () {},
                           ),
                         ],
