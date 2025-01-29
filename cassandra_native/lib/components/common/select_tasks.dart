@@ -6,7 +6,12 @@ import 'package:cassandra_native/models/server.dart';
 
 class SelectTasks extends StatefulWidget {
   final Server server;
-  const SelectTasks({super.key, required this.server});
+  final void Function(List<String> selectedTasks) onSelectionChange;
+  const SelectTasks({
+    super.key,
+    required this.server,
+    required this.onSelectionChange,
+  });
 
   @override
   State<SelectTasks> createState() => _SelectTasksState();
@@ -22,8 +27,7 @@ class _SelectTasksState extends State<SelectTasks> {
     for (var item in widget.server.currentMap.tasks.available) {
       if (widget.server.currentMap.tasks.selected.contains(item)) {
         items.add(DropdownItem(label: item, value: item, selected: true));
-      }
-      else {
+      } else {
         items.add(DropdownItem(label: item, value: item));
       }
     }
@@ -43,7 +47,7 @@ class _SelectTasksState extends State<SelectTasks> {
                 items: items,
                 controller: controller,
                 enabled: true,
-                searchEnabled: false, 
+                searchEnabled: false,
                 // searchDecoration: SearchFieldDecoration(
                 //   border: OutlineInputBorder(
                 //     borderRadius: BorderRadius.circular(8),
@@ -84,11 +88,7 @@ class _SelectTasksState extends State<SelectTasks> {
                   //selectedIcon: null,
                 ),
                 onSelectionChange: (selectedItems) {
-                  widget.server.serverInterface
-                      .commandSelectTasks(selectedItems);
-                  widget.server.serverInterface.commandResetRoute();
-                  widget.server.currentMap.resetPreviewCoords();
-                  widget.server.currentMap.resetMowPathCoords();
+                  widget.onSelectionChange(selectedItems);
                 },
               ),
               const SizedBox(height: 5),

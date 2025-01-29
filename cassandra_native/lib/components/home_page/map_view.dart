@@ -287,17 +287,44 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   }
 
   void _onLassoActivatePressed() {
-    lasso.active = !lasso.active;
-    if (lasso.active) {
+    final List<String> jobStates = ['mow', 'transit', 'resume'];
+    if (!jobStates.contains(widget.server.robot.status)) {
+      lasso.active = !lasso.active;
+      if (lasso.active) {
+        mapRobotLogic.focusOnMowerActive = false;
+        _resetGotoPoint();
+        _resetLassoSelection();
+        lasso.active = true;
+        _resetTasksSelection();
+        lasso.selection = [];
+        lasso.selectionPoints = [];
+      }
+      setState(() {});
+    }
+  }
+
+  void _onAddPointActivatePressed() {
+    final List<String> jobStates = ['mow', 'transit', 'resume'];
+    if (!jobStates.contains(widget.server.robot.status)) {
+      mapRobotLogic.focusOnMowerActive = false;
+      //_resetGotoPoint();
+      _resetLassoSelection();
+      _resetTasksSelection();
+      gotoPoint.active = !gotoPoint.active;
+      gotoPoint.coords = null;
+      setState(() {});
+    }
+  }
+
+  void _onSelectTaskPressed() {
+    final List<String> jobStates = ['mow', 'transit', 'resume'];
+    if (!jobStates.contains(widget.server.robot.status)) {
       mapRobotLogic.focusOnMowerActive = false;
       _resetGotoPoint();
       _resetLassoSelection();
-      lasso.active = true;
-      _resetTasksSelection();
-      lasso.selection = [];
-      lasso.selectionPoints = [];
+      widget.onOpenTasksOverlay();
+      setState(() {});
     }
-    setState(() {});
   }
 
   void _startBusyTimer() {
@@ -414,26 +441,12 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                   CustomizedElevatedIconButton(
                     icon: Icons.add_location,
                     isActive: gotoPoint.active,
-                    onPressed: () {
-                      mapRobotLogic.focusOnMowerActive = false;
-                      //_resetGotoPoint();
-                      _resetLassoSelection();
-                      _resetTasksSelection();
-                      gotoPoint.active = !gotoPoint.active;
-                      gotoPoint.coords = null;
-                      setState(() {});
-                    },
+                    onPressed: _onAddPointActivatePressed,
                   ),
                   CustomizedElevatedIconButton(
                     icon: Icons.list,
                     isActive: false,
-                    onPressed: () {
-                      mapRobotLogic.focusOnMowerActive = false;
-                      _resetGotoPoint();
-                      _resetLassoSelection();
-                      widget.onOpenTasksOverlay();
-                      setState(() {});
-                    },
+                    onPressed: _onSelectTaskPressed,
                   ),
                 ],
               ),

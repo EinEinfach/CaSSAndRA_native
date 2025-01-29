@@ -118,7 +118,16 @@ class _MapViewState extends State<MapView> {
   }
 
   void _movePointInformation(LongPressMoveUpdateDetails details) {
-    currentTask.movePointInformation(details, zoomPan);
+    if (currentTask.pointInformationPosition != null) {
+      currentTask.movePointInformation(
+          currentTask.pointInformationPosition!, details, zoomPan);
+    } else {
+      currentTask.movePointInformation(
+          currentTask.selections[currentTask.selectedTask!]![
+              currentTask.selectedSubtask!][currentTask.selectedPointIndex!],
+          details,
+          zoomPan);
+    }
     setState(() {});
   }
 

@@ -421,12 +421,11 @@ class Task {
     // centroids[taskName]![subTaskNr] = scaledAndMovedCoords + Offset(-15, -80);
   }
 
-  void movePointInformation(
-      LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
+  void movePointInformation(Offset position, LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
     final Offset scaledAndMovedCoords =
         (details.localPosition - zoomPan.offset) / zoomPan.scale;
     final Offset delta = scaledAndMovedCoords - lastPosition!;
-    pointInformationPosition = pointInformationPosition! + delta;
+    pointInformationPosition = position + delta;
     lastPosition = scaledAndMovedCoords;
     // final Offset scaledAndMovedCoords =
     //     (details.globalPosition - zoomPan.offset) / zoomPan.scale;

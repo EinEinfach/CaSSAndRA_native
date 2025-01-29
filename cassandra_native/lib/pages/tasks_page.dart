@@ -93,9 +93,15 @@ class _TasksPageState extends State<TasksPage> {
         ),
         content: SelectTasks(
           server: widget.server,
+          onSelectionChange: _onSelectedTasksChanged,
         ),
       ),
     );
+  }
+
+  void _onSelectedTasksChanged(List<String> selectedItems) {
+    widget.server.serverInterface.commandSelectTasks(selectedItems);
+    setState(() {});
   }
   
   void setMowParameters(MowParameters mowParameters) {

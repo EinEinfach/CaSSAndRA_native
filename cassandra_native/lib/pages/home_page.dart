@@ -158,9 +158,21 @@ class _HomePageState extends State<HomePage> {
         ),
         content: SelectTasks(
           server: widget.server,
+          onSelectionChange: _onSelectedTasksChanged,
         ),
       ),
     );
+  }
+
+  void _onSelectedTasksChanged(List<String> selectedItems) {
+    final List<String> jobStates = ['mow', 'transit', 'resume'];
+    if (!jobStates.contains(widget.server.robot.status)) {
+      widget.server.serverInterface.commandSelectTasks(selectedItems);
+      widget.server.serverInterface.commandResetRoute();
+      widget.server.currentMap.resetPreviewCoords();
+      widget.server.currentMap.resetMowPathCoords();
+    setState(() {});
+    }
   }
 
   void setMowParameters(MowParameters mowParameters) {
