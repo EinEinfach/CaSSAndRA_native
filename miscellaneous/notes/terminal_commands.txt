@@ -11,3 +11,6 @@ Generate iOS ipa
 
 Generate Android apk
 1. Run this command in terminal: flutter build apk --split-per-abi 
+
+Generate macOS app:
+1. Run this command in terminal: flutter build macos
