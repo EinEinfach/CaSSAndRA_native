@@ -149,23 +149,25 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   }
 
   void _openMapsOverlay() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+    if (widget.server.maps.available.isNotEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          scrollable: true,
+          title: const Text(
+            'Available maps',
+            style: TextStyle(fontSize: 14),
+          ),
+          content: MapsOverview(
+            server: widget.server,
+          ),
         ),
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        scrollable: true,
-        title: const Text(
-          'Available maps',
-          style: TextStyle(fontSize: 14),
-        ),
-        content: MapsOverview(
-          server: widget.server,
-        ),
-      ),
-    );
+      );
+    }
   }
 
   void _selectShapeOrPointInformation(LongPressStartDetails details) {
@@ -186,9 +188,10 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     setState(() {});
   }
 
-  void _moveShapeInformation(
-      String shapeName, int? selectedExclusionIndex, LongPressMoveUpdateDetails details) {
-        shapes.moveShapeInformation(shapeName, selectedExclusionIndex, details, zoomPan);
+  void _moveShapeInformation(String shapeName, int? selectedExclusionIndex,
+      LongPressMoveUpdateDetails details) {
+    shapes.moveShapeInformation(
+        shapeName, selectedExclusionIndex, details, zoomPan);
     setState(() {});
   }
 
@@ -633,8 +636,10 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                 shapes.dockPath.isNotEmpty &&
                 shapes.selectedPointIndex == null)
               Positioned(
-                left: shapes.dockPathCentroid!.dx * zoomPan.scale + zoomPan.offset.dx,
-                top: shapes.dockPathCentroid!.dy * zoomPan.scale + zoomPan.offset.dy,
+                left: shapes.dockPathCentroid!.dx * zoomPan.scale +
+                    zoomPan.offset.dx,
+                top: shapes.dockPathCentroid!.dy * zoomPan.scale +
+                    zoomPan.offset.dy,
                 child: ShapeInformation(
                   shapeName: 'dockPath',
                   shapes: shapes,
@@ -652,10 +657,10 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                 shapes.searchWire.isNotEmpty &&
                 shapes.selectedPointIndex == null)
               Positioned(
-                left:
-                    shapes.searchWireCentroid!.dx * zoomPan.scale + zoomPan.offset.dx,
-                top:
-                    shapes.searchWireCentroid!.dy * zoomPan.scale + zoomPan.offset.dy,
+                left: shapes.searchWireCentroid!.dx * zoomPan.scale +
+                    zoomPan.offset.dx,
+                top: shapes.searchWireCentroid!.dy * zoomPan.scale +
+                    zoomPan.offset.dy,
                 child: ShapeInformation(
                   shapeName: 'searchWire',
                   shapes: shapes,

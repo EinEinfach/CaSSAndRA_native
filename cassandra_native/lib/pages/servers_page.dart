@@ -355,41 +355,43 @@ class _ServersPageState extends State<ServersPage> {
       );
     }
 
-    mainContent = Stack(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(4),
-          child: mainContent,
-        ),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    SizedBox(
-                      width: 4,
-                    ),
-                    CommandButton(
-                      icon: BootstrapIcons.plus,
-                      onPressed: openAddServerOverlay,
-                      onLongPressed: () {},
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 4,
-                ),
-              ],
+    mainContent = SafeArea(
+      child: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(4),
+            child: mainContent,
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      SizedBox(
+                        width: 4,
+                      ),
+                      CommandButton(
+                        icon: BootstrapIcons.plus,
+                        onPressed: openAddServerOverlay,
+                        onLongPressed: () {},
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 4,
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
 
     listViewIcon = user.storedUiState.serversListViewOrientation == 'horizontal'

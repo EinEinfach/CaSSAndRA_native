@@ -100,15 +100,18 @@ class _HomePageState extends State<HomePage> {
         widget.server.serverInterface
             .commandSetMowParameters(user.currentMowParameters.toJson());
         widget.server.serverInterface.commandMow('selection');
+        //widget.server.serverInterface.commandSelectTasks([]);
       } else if (widget.server.currentMap.gotoPoint != null) {
         widget.server.serverInterface
             .commandGoto(widget.server.currentMap.gotoPoint!);
       } else if (widget.server.currentMap.tasks.selected.isNotEmpty) {
         widget.server.serverInterface.commandMow('task');
+        //widget.server.serverInterface.commandSelectTasks([]);
       } else {
         widget.server.serverInterface
             .commandSetMowParameters(user.currentMowParameters.toJson());
         widget.server.serverInterface.commandMow('all');
+        //widget.server.serverInterface.commandSelectTasks([]);
       }
     } else {
       mapUi.onRobotStatusCheck(widget.server.robot);

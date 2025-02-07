@@ -1,48 +1,49 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/components/common/dismiss_item.dart';
 import 'package:cassandra_native/components/common/buttons/customized_elevated_button.dart';
-import 'package:cassandra_native/components/mapping_page/map_item.dart';
+import 'package:cassandra_native/components/tasks_page/task_item.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
-class MapsOverview extends StatefulWidget {
+class TasksOverview extends StatefulWidget {
   final Server server;
 
-  const MapsOverview({
+  const TasksOverview({
     super.key,
     required this.server,
   });
 
   @override
-  State<MapsOverview> createState() => _MapsOverviewState();
+  State<TasksOverview> createState() => _TasksOverviewState();
 }
 
-class _MapsOverviewState extends State<MapsOverview> {
-  List<String> sortedMapNames = [];
+class _TasksOverviewState extends State<TasksOverview> {
+  List<String> sortedTaskNames = [];
 
   @override
   void initState() {
-    _sortMaps();
+    _sortTasks();
     super.initState();
   }
 
-  void _sortMaps() {
-    sortedMapNames =
-        widget.server.maps.available.map((item) => item.toString()).toList();
-    sortedMapNames.sort((a, b) => a.compareTo(b));
+  void _sortTasks() {
+    sortedTaskNames = widget.server.currentMap.tasks.available
+        .map((item) => item.toString())
+        .toList();
+    sortedTaskNames.sort((a, b) => a.compareTo(b));
   }
 
-  void onNewMapSelected() {
+  void onNewTaskSelected() {
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     int dialogHeight = 50;
-    if (sortedMapNames.length > 1 && sortedMapNames.length < 6) {
-      dialogHeight = sortedMapNames.length * 45;
-    } else if (sortedMapNames.length >= 6) {
+    if (sortedTaskNames.length > 1 && sortedTaskNames.length < 6) {
+      dialogHeight = sortedTaskNames.length * 45;
+    } else if (sortedTaskNames.length >= 6) {
       dialogHeight = 6 * 45;
     }
     return Column(
@@ -53,25 +54,17 @@ class _MapsOverviewState extends State<MapsOverview> {
           height: dialogHeight.toDouble(),
           child: ListView.builder(
             scrollDirection: Axis.vertical,
-            itemCount: sortedMapNames.length,
+            itemCount: sortedTaskNames.length,
             itemBuilder: (context, index) {
-              final map = sortedMapNames[index];
+              final task = sortedTaskNames[index];
               return Dismissible(
-                key: Key(map),
+                key: Key(task),
                 background: const DismissItem(),
-                onDismissed: (direction) {
-                  widget.server.serverInterface.commandRemoveMap([map]);
-                  if (widget.server.maps.selected == map) {
-                    widget.server.maps.resetSelection();
-                  }
-                  widget.server.maps.available.remove(map);
-                  _sortMaps();
-                  setState(() {});
-                },
-                child: MapItem(
-                  mapName: map,
+                onDismissed: (direction) {},
+                child: TaskItem(
+                  taskName: task,
                   server: widget.server,
-                  onNewMapSelected: onNewMapSelected,
+                  onNewTaskSelected: onNewTaskSelected,
                 ).animate().fadeIn().scale(),
               );
             },
@@ -86,8 +79,8 @@ class _MapsOverviewState extends State<MapsOverview> {
             CustomizedElevatedButton(
               text: 'upload',
               onPressed: () {
-                if (widget.server.maps.selected.isNotEmpty) {
-                  widget.server.serverInterface.commandLoadMap([widget.server.maps.selected]);
+                if (widget.server.currentMap.tasks.selected.isNotEmpty) {
+                  widget.server.serverInterface.commandLoadTasks(widget.server.currentMap.tasks.selected);
                 }
               },
             ),
@@ -101,7 +94,7 @@ class _MapsOverviewState extends State<MapsOverview> {
               },
             ),
           ],
-        ),
+        )
       ],
     );
   }

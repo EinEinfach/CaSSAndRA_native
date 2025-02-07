@@ -5,8 +5,8 @@ import 'dart:convert';
 import 'package:cassandra_native/models/mow_parameters.dart';
 
 class Tasks {
-  List<dynamic> available = [];
-  List<dynamic> selected = [];
+  List<String> available = [];
+  List<String> selected = [];
   Map<String, List<List<Offset>>> previews = {};
   Map<String, List<List<Offset>>> shiftedPreviews = {};
   Map<String, List<List<Offset>>> scaledPreviews = {};
@@ -19,9 +19,9 @@ class Tasks {
   void jsonToClassData(String message) {
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
     try {
-      available = decodedMessage['available'];
+      available = (decodedMessage['available'] as List<dynamic>).map((item) => item as String).toList();
       available.sort();
-      selected = decodedMessage['selected'];
+      selected = (decodedMessage['selected'] as List<dynamic>).map((item) => item as String).toList();
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Invalid tasks json data: $e');

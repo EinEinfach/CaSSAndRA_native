@@ -144,7 +144,7 @@ class MapPainter extends CustomPainter {
     // canvas.drawPath(pathPreview, previewBrush);
 
     // draw tasks preview
-    if (currentMap.tasks.selected.isNotEmpty) {
+    if (currentMap.tasks.selected.isNotEmpty && robot.status != 'mow') {
       final PreviewColorPalette previewColorPalette = PreviewColorPalette();
       int previewCounter = 0;
       for (var task in currentMap.tasks.selected) {

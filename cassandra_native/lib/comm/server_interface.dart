@@ -224,9 +224,9 @@ class ServerInterface {
   }
 
   void commandResetRoute() {
-    final Map<String, dynamic> cmdResetRoute=
+    final Map<String, dynamic> cmdResetRoute =
         _addTopicAndCommandToValue('map', 'resetRoute', []);
-    final String cmdResetRouteJson= jsonEncode(cmdResetRoute);
+    final String cmdResetRouteJson = jsonEncode(cmdResetRoute);
     if (kDebugMode) {
       debugPrint(cmdResetRouteJson);
     }
@@ -241,6 +241,16 @@ class ServerInterface {
       debugPrint(cmdSelectTasksJson);
     }
     _sendCommand(cmdSelectTasksJson);
+  }
+
+  void commandLoadTasks(List<String> tasks) {
+    final Map<String, dynamic> cmdLoadTasks =
+        _addTopicAndCommandToValue('tasks', 'load', tasks);
+    final String cmdLoadTasksJson = jsonEncode(cmdLoadTasks);
+    if (kDebugMode) {
+      debugPrint(cmdLoadTasksJson);
+    }
+    _sendCommand(cmdLoadTasksJson);
   }
 
   void commandSelectMap(List<String> map) {

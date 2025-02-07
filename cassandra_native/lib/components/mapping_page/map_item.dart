@@ -97,13 +97,6 @@ class _MapItemState extends State<MapItem> {
                   width: 8,
                 ),
                 CustomizedElevatedIconButton(
-                  icon: BootstrapIcons.cloud_arrow_down,
-                  isActive: false,
-                  onPressed: () {
-                    widget.server.serverInterface.commandLoadMap([_mapName]);
-                  },
-                ),
-                CustomizedElevatedIconButton(
                   icon: BootstrapIcons.copy,
                   isActive: false,
                   onPressed: () {},

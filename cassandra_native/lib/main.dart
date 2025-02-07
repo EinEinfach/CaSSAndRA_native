@@ -15,26 +15,11 @@ import 'package:cassandra_native/pages/servers_page.dart';
 // globals
 import 'package:cassandra_native/data/user_data.dart' as user;
 
-Future<void> _initPackageInfo() async {
-  packageInfo = await PackageInfo.fromPlatform();
-  appVersion = packageInfo.version;
-}
-
-Future<void> _loadStoredUiState() async {
-  user.storedUiState = await UiStateStorage.loadUiState();
-}
-
-Future setWindowSize() async {
-  await DesktopWindow.setMinWindowSize(
-    const Size(400, 600),
-  );
-}
-
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   MediaKit.ensureInitialized();
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    setWindowSize();
+    _setWindowSize();
   }
   _initPackageInfo();
   _loadStoredUiState();
@@ -53,6 +38,21 @@ void main() {
       ],
       child: const MyApp(),
     ),
+  );
+}
+
+Future<void> _initPackageInfo() async {
+  packageInfo = await PackageInfo.fromPlatform();
+  appVersion = packageInfo.version;
+}
+
+Future<void> _loadStoredUiState() async {
+  user.storedUiState = await UiStateStorage.loadUiState();
+}
+
+Future _setWindowSize() async {
+  await DesktopWindow.setMinWindowSize(
+    const Size(400, 600),
   );
 }
 

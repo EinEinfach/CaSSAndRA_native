@@ -1,3 +1,4 @@
+import 'package:cassandra_native/components/tasks_page/tasks_overview.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -9,7 +10,7 @@ import 'package:cassandra_native/models/mow_parameters.dart';
 import 'package:cassandra_native/components/tasks_page/map_view.dart';
 import 'package:cassandra_native/components/common/buttons/nav_button.dart';
 import 'package:cassandra_native/components/common/drawers/nav_drawer.dart';
-import 'package:cassandra_native/components/common/select_tasks.dart';
+// import 'package:cassandra_native/components/common/select_tasks.dart';
 import 'package:cassandra_native/components/common/dialogs/new_mow_parameters.dart';
 import 'package:cassandra_native/utils/mow_parameters_storage.dart';
 
@@ -78,37 +79,42 @@ class _TasksPageState extends State<TasksPage> {
     }
     setState(() {});
   }
-  
+
   void openTasksOverlay() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+    if (widget.server.currentMap.tasks.available.isNotEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          title: const Text(
+            'Tasks',
+            style: TextStyle(fontSize: 14),
+          ),
+          content: TasksOverview(
+            server: widget.server,
+          ),
+          // content: SelectTasks(
+          //   server: widget.server,
+          //   onSelectionChange: _onSelectedTasksChanged,
+          // ),
         ),
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        title: const Text(
-          'Tasks',
-          style: TextStyle(fontSize: 14),
-        ),
-        content: SelectTasks(
-          server: widget.server,
-          onSelectionChange: _onSelectedTasksChanged,
-        ),
-      ),
-    );
+      );
+    }
   }
 
   void _onSelectedTasksChanged(List<String> selectedItems) {
     widget.server.serverInterface.commandSelectTasks(selectedItems);
     setState(() {});
   }
-  
+
   void setMowParameters(MowParameters mowParameters) {
     user.currentMowParameters = mowParameters;
     MowParametersStorage.saveMowParameters(mowParameters);
   }
-  
+
   void openMowParametersOverlay() {
     showDialog(
       context: context,
