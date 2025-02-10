@@ -16,6 +16,7 @@ import 'package:cassandra_native/components/logic/map_logic.dart';
 import 'package:cassandra_native/components/tasks_page/map_painter.dart';
 import 'package:cassandra_native/components/tasks_page/task_information.dart';
 import 'package:cassandra_native/components/tasks_page/point_information.dart';
+import 'package:cassandra_native/components/tasks_page/tasks_overview.dart';
 import 'package:cassandra_native/utils/custom_shape_calcs.dart';
 
 // globals
@@ -24,13 +25,13 @@ import 'package:cassandra_native/data/user_data.dart' as user;
 class MapView extends StatefulWidget {
   final Server server;
   final void Function() openMowParametersOverlay;
-  final void Function() onOpenTasksOverlay;
+  // final void Function() onOpenTasksOverlay;
 
   const MapView({
     super.key,
     required this.server,
     required this.openMowParametersOverlay,
-    required this.onOpenTasksOverlay,
+    // required this.onOpenTasksOverlay,
   });
 
   @override
@@ -106,6 +107,37 @@ class _MapViewState extends State<MapView> {
     );
   }
 
+  void _openTasksOverlay() {
+    if (widget.server.currentMap.tasks.available.isNotEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          title: const Text(
+            'Tasks',
+            style: TextStyle(fontSize: 14),
+          ),
+          content: TasksOverview(
+            server: widget.server,
+            onCopyTaskPressed: _onCopyTaskPressed,
+          ),
+          // content: SelectTasks(
+          //   server: widget.server,
+          //   onSelectionChange: _onSelectedTasksChanged,
+          // ),
+        ),
+      );
+    }
+  }
+
+  void _onCopyTaskPressed() {
+    Navigator.pop(context);
+    _openTasksOverlay();
+  }
+
   void _selectTaskOrPointInformation(LongPressStartDetails details) {
     currentTask.selectTaskOrPointInformation(details, zoomPan);
     setState(() {});
@@ -162,11 +194,13 @@ class _MapViewState extends State<MapView> {
               currentTask.reset();
               taskHistory.reset();
               Navigator.pop(context);
-              widget.onOpenTasksOverlay();
+              _openTasksOverlay();
+              //widget.onOpenTasksOverlay();
             }),
       );
     } else {
-      widget.onOpenTasksOverlay();
+      _openTasksOverlay();
+      // widget.onOpenTasksOverlay();
     }
   }
 

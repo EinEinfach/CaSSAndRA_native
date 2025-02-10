@@ -8,10 +8,12 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 class TasksOverview extends StatefulWidget {
   final Server server;
+  final VoidCallback onCopyTaskPressed;
 
   const TasksOverview({
     super.key,
     required this.server,
+    required this.onCopyTaskPressed,
   });
 
   @override
@@ -60,11 +62,22 @@ class _TasksOverviewState extends State<TasksOverview> {
               return Dismissible(
                 key: Key(task),
                 background: const DismissItem(),
-                onDismissed: (direction) {},
+                onDismissed: (direction) {
+                  widget.server.serverInterface.commandRemoveTask([task]);
+                  if (widget.server.currentMap.tasks.selected.contains(task)) {
+                    widget.server.serverInterface.commandSelectTasks([]);
+                  }
+                },
                 child: TaskItem(
                   taskName: task,
                   server: widget.server,
                   onNewTaskSelected: onNewTaskSelected,
+                  onCopyTaskPressed: () {
+                    widget.server.serverInterface.commandCopyTask([task]);
+                    final newName = '${task}_copy';
+                    widget.server.currentMap.tasks.available.add(newName);
+                    widget.onCopyTaskPressed();
+                  },
                 ).animate().fadeIn().scale(),
               );
             },
@@ -80,7 +93,8 @@ class _TasksOverviewState extends State<TasksOverview> {
               text: 'upload',
               onPressed: () {
                 if (widget.server.currentMap.tasks.selected.isNotEmpty) {
-                  widget.server.serverInterface.commandLoadTasks(widget.server.currentMap.tasks.selected);
+                  widget.server.serverInterface.commandLoadTasks(
+                      widget.server.currentMap.tasks.selected);
                 }
               },
             ),

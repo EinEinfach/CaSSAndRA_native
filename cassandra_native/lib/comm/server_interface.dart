@@ -253,6 +253,46 @@ class ServerInterface {
     _sendCommand(cmdLoadTasksJson);
   }
 
+  void commandSaveTask(Map<String, dynamic> taskData) {
+    final Map<String, dynamic> cmdSaveTask =
+        _addTopicAndCommandToValue('tasks', 'save', taskData);
+    final String cmdSaveTaskJson = jsonEncode(cmdSaveTask);
+    if (kDebugMode) {
+      debugPrint(cmdSaveTaskJson);
+    }
+    _sendCommand(cmdSaveTaskJson);
+  }
+
+  void commandRemoveTask(List<String> task) {
+    final Map<String, dynamic> cmdRemoveTask =
+        _addTopicAndCommandToValue('tasks', 'remove', task);
+    final String cmdRemoveTaskJson = jsonEncode(cmdRemoveTask);
+    if (kDebugMode) {
+      debugPrint(cmdRemoveTaskJson);
+    }
+    _sendCommand(cmdRemoveTaskJson);
+  }
+
+  void commandRenameTask(List<String> task) {
+    final Map<String, dynamic> cmdRenameTask =
+        _addTopicAndCommandToValue('tasks', 'rename', task);
+    final String cmdRenameTaskJson = jsonEncode(cmdRenameTask);
+    if (kDebugMode) {
+      debugPrint(cmdRenameTaskJson);
+    }
+    _sendCommand(cmdRenameTaskJson);
+  }
+
+  void commandCopyTask(List<String> task) {
+    final Map<String, dynamic> cmdCopyTask =
+        _addTopicAndCommandToValue('tasks', 'copy', task);
+    final String cmdCopyTaskJson = jsonEncode(cmdCopyTask);
+    if (kDebugMode) {
+      debugPrint(cmdCopyTaskJson);
+    }
+    _sendCommand(cmdCopyTaskJson);
+  }
+
   void commandSelectMap(List<String> map) {
     final Map<String, dynamic> cmdSelectMap =
         _addTopicAndCommandToValue('maps', 'select', map);
@@ -301,16 +341,6 @@ class ServerInterface {
       debugPrint(cmdRenameMapJson);
     }
     _sendCommand(cmdRenameMapJson);
-  }
-
-  void commandSaveTask(Map<String, dynamic> taskData) {
-    final Map<String, dynamic> cmdSaveTask =
-        _addTopicAndCommandToValue('tasks', 'save', taskData);
-    final String cmdSaveTaskJson = jsonEncode(cmdSaveTask);
-    if (kDebugMode) {
-      debugPrint(cmdSaveTaskJson);
-    }
-    _sendCommand(cmdSaveTaskJson);
   }
 
   void commandToggleMowMotor() {

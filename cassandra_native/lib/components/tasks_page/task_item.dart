@@ -8,12 +8,14 @@ class TaskItem extends StatefulWidget {
   final String taskName;
   final Server server;
   final VoidCallback onNewTaskSelected;
+  final VoidCallback onCopyTaskPressed;
 
   const TaskItem({
     super.key,
     required this.taskName,
     required this.server,
     required this.onNewTaskSelected,
+    required this.onCopyTaskPressed,
   });
 
   @override
@@ -28,7 +30,7 @@ class _TaskItemState extends State<TaskItem> {
   @override
   void initState() {
     _taskName = widget.taskName;
-    _taskRenameController.text = '';
+    _taskRenameController.text = widget.taskName;
     super.initState();
   }
 
@@ -44,10 +46,12 @@ class _TaskItemState extends State<TaskItem> {
       onTap: () {
         if (!widget.server.currentMap.tasks.selected.contains(_taskName)) {
           widget.server.currentMap.tasks.selected.add(_taskName);
-          widget.server.serverInterface.commandSelectTasks(widget.server.currentMap.tasks.selected);
+          widget.server.serverInterface
+              .commandSelectTasks(widget.server.currentMap.tasks.selected);
         } else {
           widget.server.currentMap.tasks.selected.remove(_taskName);
-          widget.server.serverInterface.commandSelectTasks(widget.server.currentMap.tasks.selected);
+          widget.server.serverInterface
+              .commandSelectTasks(widget.server.currentMap.tasks.selected);
         }
         setState(() {});
       },
@@ -99,7 +103,9 @@ class _TaskItemState extends State<TaskItem> {
                 CustomizedElevatedIconButton(
                   icon: BootstrapIcons.copy,
                   isActive: false,
-                  onPressed: () {},
+                  onPressed: () {
+                    widget.onCopyTaskPressed();
+                  },
                 ),
                 CustomizedElevatedIconButton(
                     icon: BootstrapIcons.pencil_square,
@@ -107,7 +113,8 @@ class _TaskItemState extends State<TaskItem> {
                     onPressed: () {
                       if (_taskRename &&
                           _taskName != _taskRenameController.text) {
-                        //widget.server.serverInterface.commandRenameMap([_mapName, _mapRenameController.text]);
+                        widget.server.serverInterface.commandRenameTask(
+                            [_taskName, _taskRenameController.text]);
                         _taskName = _taskRenameController.text;
                       }
                       _taskRename = !_taskRename;
