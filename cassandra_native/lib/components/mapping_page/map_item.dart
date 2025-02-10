@@ -8,12 +8,14 @@ class MapItem extends StatefulWidget {
   final String mapName;
   final Server server;
   final VoidCallback onNewMapSelected;
+  final VoidCallback onCopyMapPressed;
 
   const MapItem({
     super.key,
     required this.mapName,
     required this.server,
     required this.onNewMapSelected,
+    required this.onCopyMapPressed,
   });
 
   @override
@@ -99,7 +101,7 @@ class _MapItemState extends State<MapItem> {
                 CustomizedElevatedIconButton(
                   icon: BootstrapIcons.copy,
                   isActive: false,
-                  onPressed: () {},
+                  onPressed: widget.onCopyMapPressed,
                 ),
                 CustomizedElevatedIconButton(
                     icon: BootstrapIcons.pencil_square,

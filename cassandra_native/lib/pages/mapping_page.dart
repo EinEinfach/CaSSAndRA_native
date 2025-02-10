@@ -10,7 +10,7 @@ import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/components/common/remote_control/joystick_v_2.dart';
 import 'package:cassandra_native/components/common/buttons/nav_button.dart';
 import 'package:cassandra_native/components/common/drawers/nav_drawer.dart';
-import 'package:cassandra_native/components/mapping_page/map_view.dart';
+import 'package:cassandra_native/components/mapping_page/main_content.dart';
 
 class MappingPage extends StatefulWidget {
   final Server server;
@@ -108,7 +108,7 @@ class _MappingPageState extends State<MappingPage> {
         return SafeArea(
           child: Stack(
             children: [
-              MapView(
+              MainContent(
                 server: widget.server,
                 //onOpenMapsOverlay: openMapsOverlay,
               ),

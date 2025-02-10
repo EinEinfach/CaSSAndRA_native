@@ -8,10 +8,12 @@ import 'package:cassandra_native/components/mapping_page/map_item.dart';
 
 class MapsOverview extends StatefulWidget {
   final Server server;
+  final VoidCallback onCopyMapPressed;
 
   const MapsOverview({
     super.key,
     required this.server,
+    required this.onCopyMapPressed,
   });
 
   @override
@@ -72,6 +74,12 @@ class _MapsOverviewState extends State<MapsOverview> {
                   mapName: map,
                   server: widget.server,
                   onNewMapSelected: onNewMapSelected,
+                  onCopyMapPressed: () {
+                    widget.server.serverInterface.commandCopyMap([map]);
+                    final newName = '${map}_copy';
+                    widget.server.maps.available.add(newName);
+                    widget.onCopyMapPressed();
+                  },
                 ).animate().fadeIn().scale(),
               );
             },

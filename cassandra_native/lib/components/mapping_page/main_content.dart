@@ -23,19 +23,19 @@ import 'package:cassandra_native/components/common/dialogs/customized_dialog_ok_
 import 'package:cassandra_native/components/common/dialogs/customized_dialog_input.dart';
 import 'package:cassandra_native/utils/custom_shape_calcs.dart';
 
-class MapView extends StatefulWidget {
+class MainContent extends StatefulWidget {
   final Server server;
 
-  const MapView({
+  const MainContent({
     super.key,
     required this.server,
   });
 
   @override
-  State<MapView> createState() => _MapViewState();
+  State<MainContent> createState() => _MainContentState();
 }
 
-class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
+class _MainContentState extends State<MainContent> with SingleTickerProviderStateMixin {
   late String selectedMap;
 
   //zoom and pan
@@ -164,10 +164,16 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
           ),
           content: MapsOverview(
             server: widget.server,
+            onCopyMapPressed: _onCopyMapPressed,
           ),
         ),
       );
     }
+  }
+
+  void _onCopyMapPressed() {
+    Navigator.pop(context);
+    _openMapsOverlay();
   }
 
   void _selectShapeOrPointInformation(LongPressStartDetails details) {

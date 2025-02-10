@@ -52,334 +52,344 @@ class ServerInterface {
 
   void commandMove(double linearSpeed, double angularSpeed) {
     final List<double> movementValue = [linearSpeed, angularSpeed];
-    final Map<String, dynamic> cmdMove =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('robot', 'move', movementValue);
-    final String cmdMoveJson = jsonEncode(cmdMove);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdMoveJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdMoveJson);
+    _sendCommand(cmdJson);
   }
 
   void commandSendMessage(String message) {
-    final Map<String, dynamic> cmdSendMessage =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('server', 'sendMessage', [message]);
-    final String cmdSendMessageJson = jsonEncode(cmdSendMessage);
+    final String cmdJson= jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdSendMessageJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdSendMessageJson);
+    _sendCommand(cmdJson);
   }
 
   void commandRestartServer() {
-    final Map<String, dynamic> cmdRestartServer =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('server', 'restart', []);
-    final String cmdRestartServerJson = jsonEncode(cmdRestartServer);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdRestartServerJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdRestartServerJson);
+    _sendCommand(cmdJson);
   }
 
   void commandShutdownServer() {
-    final Map<String, dynamic> cmdShutdownServer =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('server', 'shutdown', []);
-    final String cmdShutdownServerJson = jsonEncode(cmdShutdownServer);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdShutdownServerJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdShutdownServerJson);
+    _sendCommand(cmdJson);
   }
 
   void commandUpdateCoords(String value) {
-    final Map<String, dynamic> cmdUpdateCoords =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('coords', 'update', [value]);
-    final String cmdUpdateCoordsJson = jsonEncode(cmdUpdateCoords);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdUpdateCoordsJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdUpdateCoordsJson);
+    _sendCommand(cmdJson);
   }
 
   void commandUpdateSettings() {
-    final Map<String, dynamic> cmdUpdateSettings =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('settings', 'update', []);
-    final String cmdUpdateSettingsJson = jsonEncode(cmdUpdateSettings);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdUpdateSettingsJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdUpdateSettingsJson);
+    _sendCommand(cmdJson);
   }
 
   void commandSetSettings(String command, Map<String, dynamic> settings) {
-    final Map<String, dynamic> cmdSetSettings =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('settings', command, settings);
-    final String cmdSetSettingsJson = jsonEncode(cmdSetSettings);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdSetSettingsJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdSetSettingsJson);
+    _sendCommand(cmdJson);
   }
 
   void commandSetSelection(List<Offset> selection) {
     final Map<String, List<double>> selectionCoords = _coordsToMap(selection);
-    final Map<String, dynamic> cmdSetSelection =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('map', 'setSelection', selectionCoords);
-    final String cmdSetSelectionJson = jsonEncode(cmdSetSelection);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdSetSelectionJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdSetSelectionJson);
+    _sendCommand(cmdJson);
   }
 
   void commandSetMowParameters(Map<String, dynamic> mowParameters) {
-    final Map<String, dynamic> cmdSetMowParameters =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('map', 'setMowParameters', mowParameters);
-    final String cmdSetMowParametersJson = jsonEncode(cmdSetMowParameters);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdSetMowParametersJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdSetMowParametersJson);
+    _sendCommand(cmdJson);
   }
 
   void commandMow(String value) {
-    final Map<String, dynamic> cmdMow =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('robot', 'mow', [value]);
-    final String cmdMowJson = jsonEncode(cmdMow);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdMowJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdMowJson);
+    _sendCommand(cmdJson);
   }
 
   void commandStop() {
-    final Map<String, dynamic> cmdStop =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('robot', 'stop', []);
-    final String cmdStopJson = jsonEncode(cmdStop);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdStopJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdStopJson);
+    _sendCommand(cmdJson);
   }
 
   void commandDock() {
-    final Map<String, dynamic> cmdDock =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('robot', 'dock', []);
-    final String cmdDockJson = jsonEncode(cmdDock);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdDockJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdDockJson);
+    _sendCommand(cmdJson);
   }
 
   void commandGoto(Offset gotoPoint) {
     final Map<String, List<double>> gotoCoords = _coordsToMap([gotoPoint]);
-    final Map<String, dynamic> cmdGoto =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('robot', 'goTo', gotoCoords);
-    final String cmdGotoJson = jsonEncode(cmdGoto);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdGotoJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdGotoJson);
+    _sendCommand(cmdJson);
   }
 
   void commandShutdown() {
-    final Map<String, dynamic> cmdShutdown =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('robot', 'shutdown', []);
-    final String cmdShutdownJson = jsonEncode(cmdShutdown);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdShutdownJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdShutdownJson);
+    _sendCommand(cmdJson);
   }
 
   void commandReboot() {
-    final Map<String, dynamic> cmdReboot =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('robot', 'reboot', []);
-    final String cmdRebootJson = jsonEncode(cmdReboot);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdRebootJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdRebootJson);
+    _sendCommand(cmdJson);
   }
 
   void commandRebootGps() {
-    final Map<String, dynamic> cmdRebootGps =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('robot', 'rebootGps', []);
-    final String cmdRebootGpsJson = jsonEncode(cmdRebootGps);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdRebootGpsJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdRebootGpsJson);
+    _sendCommand(cmdJson);
   }
 
   void commandResetObstacles() {
-    final Map<String, dynamic> cmdResetObstacles =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('map', 'resetObstacles', []);
-    final String cmdResetObstaclesJson = jsonEncode(cmdResetObstacles);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdResetObstaclesJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdResetObstaclesJson);
+    _sendCommand(cmdJson);
   }
 
   void commandResetRoute() {
-    final Map<String, dynamic> cmdResetRoute =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('map', 'resetRoute', []);
-    final String cmdResetRouteJson = jsonEncode(cmdResetRoute);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdResetRouteJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdResetRouteJson);
+    _sendCommand(cmdJson);
   }
 
   void commandSelectTasks(List<String> tasks) {
-    final Map<String, dynamic> cmdSelectTasks =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('tasks', 'select', tasks);
-    final String cmdSelectTasksJson = jsonEncode(cmdSelectTasks);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdSelectTasksJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdSelectTasksJson);
+    _sendCommand(cmdJson);
   }
 
   void commandLoadTasks(List<String> tasks) {
-    final Map<String, dynamic> cmdLoadTasks =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('tasks', 'load', tasks);
-    final String cmdLoadTasksJson = jsonEncode(cmdLoadTasks);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdLoadTasksJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdLoadTasksJson);
+    _sendCommand(cmdJson);
   }
 
   void commandSaveTask(Map<String, dynamic> taskData) {
-    final Map<String, dynamic> cmdSaveTask =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('tasks', 'save', taskData);
-    final String cmdSaveTaskJson = jsonEncode(cmdSaveTask);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdSaveTaskJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdSaveTaskJson);
+    _sendCommand(cmdJson);
   }
 
   void commandRemoveTask(List<String> task) {
-    final Map<String, dynamic> cmdRemoveTask =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('tasks', 'remove', task);
-    final String cmdRemoveTaskJson = jsonEncode(cmdRemoveTask);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdRemoveTaskJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdRemoveTaskJson);
+    _sendCommand(cmdJson);
   }
 
   void commandRenameTask(List<String> task) {
-    final Map<String, dynamic> cmdRenameTask =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('tasks', 'rename', task);
-    final String cmdRenameTaskJson = jsonEncode(cmdRenameTask);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdRenameTaskJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdRenameTaskJson);
+    _sendCommand(cmdJson);
   }
 
   void commandCopyTask(List<String> task) {
-    final Map<String, dynamic> cmdCopyTask =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('tasks', 'copy', task);
-    final String cmdCopyTaskJson = jsonEncode(cmdCopyTask);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdCopyTaskJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdCopyTaskJson);
+    _sendCommand(cmdJson);
   }
 
   void commandSelectMap(List<String> map) {
-    final Map<String, dynamic> cmdSelectMap =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('maps', 'select', map);
-    final String cmdSelectMapJson = jsonEncode(cmdSelectMap);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdSelectMapJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdSelectMapJson);
+    _sendCommand(cmdJson);
   }
 
   void commandLoadMap(List<String> map) {
-    final Map<String, dynamic> cmdLoadMap =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('maps', 'load', map);
-    final String cmdLoadMapJson = jsonEncode(cmdLoadMap);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdLoadMapJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdLoadMapJson);
+    _sendCommand(cmdJson);
   }
 
   void commandSaveMap(Map<String, dynamic> mapData) {
-    final Map<String, dynamic> cmdSaveMap =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('maps', 'save', mapData);
-    final String cmdSaveMapJson = jsonEncode(cmdSaveMap);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdSaveMapJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdSaveMapJson);
+    _sendCommand(cmdJson);
   }
 
   void commandRemoveMap(List<String> map) {
-    final Map<String, dynamic> cmdRemoveMap =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('maps', 'remove', map);
-    final String cmdRemoveMapJson = jsonEncode(cmdRemoveMap);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdRemoveMapJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdRemoveMapJson);
+    _sendCommand(cmdJson);
   }
 
   void commandRenameMap(List<String> names) {
-    final Map<String, dynamic> cmdRenameMap =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('maps', 'rename', names);
-    final String cmdRenameMapJson = jsonEncode(cmdRenameMap);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdRenameMapJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdRenameMapJson);
+    _sendCommand(cmdJson);
+  }
+
+  void commandCopyMap(List<String> map) {
+    final Map<String, dynamic> cmd =
+        _addTopicAndCommandToValue('maps', 'copy', map);
+    final String cmdJson = jsonEncode(cmd);
+    if (kDebugMode) {
+      debugPrint(cmdJson);
+    }
+    _sendCommand(cmdJson);
   }
 
   void commandToggleMowMotor() {
-    final Map<String, dynamic> cmdToggleMowMotor =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('robot', 'toggleMowMotor', []);
-    final String cmdToggleMowMotorJson = jsonEncode(cmdToggleMowMotor);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdToggleMowMotorJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdToggleMowMotorJson);
+    _sendCommand(cmdJson);
   }
 
   void commandSkipNextPoint() {
-    final Map<String, dynamic> cmdSkipNextPoint =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('robot', 'skipNextPoint', []);
-    final String cmdSkipNextPointJson = jsonEncode(cmdSkipNextPoint);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdSkipNextPointJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdSkipNextPointJson);
+    _sendCommand(cmdJson);
   }
 
   void commandSetMowProgress(double value) {
-    final Map<String, dynamic> cmdSetMowProgress =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('robot', 'setMowProgress', [value]);
-    final String cmdSetMowProgressJson = jsonEncode(cmdSetMowProgress);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdSetMowProgressJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdSetMowProgressJson);
+    _sendCommand(cmdJson);
   }
 
   void commandCalculateSubtask(Map<String, dynamic> subtaskData) {
-    final Map<String, dynamic> cmdCalculateSubtask =
+    final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('tasks', 'calculate', subtaskData);
-    final String cmdCalculateSubtaskJson = jsonEncode(cmdCalculateSubtask);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
-      debugPrint(cmdCalculateSubtaskJson);
+      debugPrint(cmdJson);
     }
-    _sendCommand(cmdCalculateSubtaskJson);
+    _sendCommand(cmdJson);
   }
 }
