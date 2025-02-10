@@ -195,12 +195,10 @@ class _MapViewState extends State<MapView> {
               taskHistory.reset();
               Navigator.pop(context);
               _openTasksOverlay();
-              //widget.onOpenTasksOverlay();
             }),
       );
     } else {
       _openTasksOverlay();
-      // widget.onOpenTasksOverlay();
     }
   }
 

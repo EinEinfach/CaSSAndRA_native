@@ -63,6 +63,7 @@ class _TasksOverviewState extends State<TasksOverview> {
                 key: Key(task),
                 background: const DismissItem(),
                 onDismissed: (direction) {
+                  widget.server.currentMap.tasks.resetTaskCoords(task);
                   widget.server.serverInterface.commandRemoveTask([task]);
                   if (widget.server.currentMap.tasks.selected.contains(task)) {
                     widget.server.serverInterface.commandSelectTasks([]);

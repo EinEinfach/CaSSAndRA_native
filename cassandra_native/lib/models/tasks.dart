@@ -38,4 +38,14 @@ class Tasks {
     shiftedSelections = {};
     scaledSelections = {};
   }
+
+  void resetTaskCoords (String taskName) {
+    selected.remove(taskName);
+    previews.remove(taskName);
+    shiftedPreviews.remove(taskName);
+    scaledPreviews.remove(taskName);
+    selections.remove(taskName);
+    shiftedSelections.remove(taskName);
+    scaledSelections.remove(taskName);
+  }
 }

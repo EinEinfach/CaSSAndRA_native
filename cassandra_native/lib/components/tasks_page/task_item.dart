@@ -49,7 +49,7 @@ class _TaskItemState extends State<TaskItem> {
           widget.server.serverInterface
               .commandSelectTasks(widget.server.currentMap.tasks.selected);
         } else {
-          widget.server.currentMap.tasks.selected.remove(_taskName);
+          widget.server.currentMap.tasks.resetTaskCoords(_taskName);
           widget.server.serverInterface
               .commandSelectTasks(widget.server.currentMap.tasks.selected);
         }
