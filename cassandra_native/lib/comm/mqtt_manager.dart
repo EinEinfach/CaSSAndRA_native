@@ -117,6 +117,7 @@ class MqttManager {
     subscribe(server.id, '${server.serverNamePrefix}/maps');
     subscribe(server.id, '${server.serverNamePrefix}/mapsCoords');
     subscribe(server.id, '${server.serverNamePrefix}/settings');
+    subscribe(server.id, '${server.serverNamePrefix}/schedule');
   }
 
   void subscribe(String clientId, String topic) {

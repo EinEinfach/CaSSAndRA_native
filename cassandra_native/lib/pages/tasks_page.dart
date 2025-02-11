@@ -6,7 +6,7 @@ import 'package:cassandra_native/comm/mqtt_manager.dart';
 
 import 'package:cassandra_native/models/server.dart';
 import 'package:cassandra_native/models/mow_parameters.dart';
-import 'package:cassandra_native/components/tasks_page/map_view.dart';
+import 'package:cassandra_native/components/tasks_page/main_content.dart';
 import 'package:cassandra_native/components/common/buttons/nav_button.dart';
 import 'package:cassandra_native/components/common/drawers/nav_drawer.dart';
 import 'package:cassandra_native/components/common/dialogs/new_mow_parameters.dart';
@@ -119,7 +119,7 @@ class _TasksPageState extends State<TasksPage> {
         builder: (context) {
           return SafeArea(
             child: Stack(children: [
-              MapView(
+              MainContent(
                 server: widget.server,
                 openMowParametersOverlay: openMowParametersOverlay,
               ),

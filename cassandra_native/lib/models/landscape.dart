@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 
 import 'package:cassandra_native/models/tasks.dart';
+import 'package:cassandra_native/models/schedule.dart';
 
 class Landscape {
   String? mapId;
@@ -68,6 +69,7 @@ class Landscape {
 
   // tasks
   Tasks tasks = Tasks();
+  Schedule schedule = Schedule();
 
   void coordsJsonToClassData(String message) {
     try {

@@ -22,12 +22,12 @@ import 'package:cassandra_native/utils/custom_shape_calcs.dart';
 // globals
 import 'package:cassandra_native/data/user_data.dart' as user;
 
-class MapView extends StatefulWidget {
+class MainContent extends StatefulWidget {
   final Server server;
   final void Function() openMowParametersOverlay;
   // final void Function() onOpenTasksOverlay;
 
-  const MapView({
+  const MainContent({
     super.key,
     required this.server,
     required this.openMowParametersOverlay,
@@ -35,10 +35,10 @@ class MapView extends StatefulWidget {
   });
 
   @override
-  State<MapView> createState() => _MapViewState();
+  State<MainContent> createState() => _MainContentState();
 }
 
-class _MapViewState extends State<MapView> {
+class _MainContentState extends State<MainContent> {
   //zoom and pan
   ZoomPanLogic zoomPan = ZoomPanLogic();
   MapRobotLogic mapRobotLogic = MapRobotLogic();

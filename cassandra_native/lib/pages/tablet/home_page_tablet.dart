@@ -3,7 +3,7 @@ import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/components/common/remote_control/remote_control_drawer.dart';
 import 'package:cassandra_native/components/common/drawers/nav_drawer.dart';
-import 'package:cassandra_native/components/home_page/map_view.dart';
+import 'package:cassandra_native/components/home_page/main_content.dart';
 import 'package:cassandra_native/components/common/buttons/nav_button.dart';
 import 'package:cassandra_native/models/server.dart';
 
@@ -37,7 +37,7 @@ class HomePageTablet extends StatelessWidget {
         return SafeArea(
           child: Stack(
             children: [
-              MapView(
+              MainContent(
                 server: server,
                 openMowParametersOverlay: openMowParametersOverlay,
                 onOpenTasksOverlay: onOpenTasksOverlay,

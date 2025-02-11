@@ -14,7 +14,7 @@ import 'package:cassandra_native/models/mow_parameters.dart';
 import 'package:cassandra_native/components/common/drawers/nav_drawer.dart';
 import 'package:cassandra_native/components/common/buttons/nav_button.dart';
 import 'package:cassandra_native/components/common/remote_control/remote_control_drawer.dart';
-import 'package:cassandra_native/components/home_page/map_view.dart';
+import 'package:cassandra_native/components/home_page/main_content.dart';
 import 'package:cassandra_native/components/common/select_tasks.dart';
 import 'package:cassandra_native/components/home_page/status_window.dart';
 import 'package:cassandra_native/components/common/buttons/command_button.dart';
@@ -242,7 +242,7 @@ class _HomePageState extends State<HomePage> {
               child: Stack(
                 children: [
                   /************************** Map ***************************************/
-                  MapView(
+                  MainContent(
                     server: widget.server,
                     openMowParametersOverlay: openMowParametersOverlay,
                     onOpenTasksOverlay: openTasksOverlay,

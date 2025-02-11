@@ -141,6 +141,8 @@ class Server {
       }
     } else if (topic.contains('/settings')) {
       settings.settingsJsonToClassData(message);
+    } else if (topic.contains('/schedule')) {
+      currentMap.schedule.scheduleJsonToClassData(message);
     }
   }
 

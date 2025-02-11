@@ -14,12 +14,12 @@ import 'package:cassandra_native/components/common/buttons/customized_elevated_i
 import 'package:cassandra_native/components/home_page/status_bar.dart';
 import 'package:cassandra_native/utils/custom_shape_calcs.dart';
 
-class MapView extends StatefulWidget {
+class MainContent extends StatefulWidget {
   final Server server;
   final void Function() openMowParametersOverlay;
   final void Function() onOpenTasksOverlay;
 
-  const MapView({
+  const MainContent({
     super.key,
     required this.server,
     required this.openMowParametersOverlay,
@@ -27,10 +27,10 @@ class MapView extends StatefulWidget {
   });
 
   @override
-  State<MapView> createState() => _MapViewState();
+  State<MainContent> createState() => _MainContentState();
 }
 
-class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
+class _MainContentState extends State<MainContent> with SingleTickerProviderStateMixin {
   //zoom and pan
   ZoomPanLogic zoomPan = ZoomPanLogic();
   MapRobotLogic mapRobotLogic = MapRobotLogic();

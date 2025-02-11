@@ -4,7 +4,7 @@ import 'package:bootstrap_icons/bootstrap_icons.dart';
 
 import 'package:cassandra_native/components/common/remote_control/remote_control_drawer.dart';
 import 'package:cassandra_native/components/common/drawers/nav_drawer.dart';
-import 'package:cassandra_native/components/home_page/map_view.dart';
+import 'package:cassandra_native/components/home_page/main_content.dart';
 import 'package:cassandra_native/models/server.dart';
 
 class HomePageDesktop extends StatelessWidget {
@@ -52,7 +52,7 @@ class HomePageDesktop extends StatelessWidget {
                 Expanded(
                   child: Stack(
                     children: [
-                      MapView(
+                      MainContent(
                         server: server,
                         openMowParametersOverlay: openMowParametersOverlay,
                         onOpenTasksOverlay: onOpenTasksOverlay,
