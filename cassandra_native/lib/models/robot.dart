@@ -10,6 +10,8 @@ class Robot {
   String firmware = '';
   String version = '';
   String status = 'offline';
+  String dockReason = '';
+  String sensorState = '';
   String? lastStatus;
   Offset position = const Offset(0, 0);
   Offset target = const Offset(0, 0);
@@ -45,6 +47,8 @@ class Robot {
           Offset(decodedMessage['target']['x'], decodedMessage['target']['y']);
       angle = decodedMessage['angle'];
       status = decodedMessage['status'];
+      dockReason = decodedMessage['dockReason'] ?? '';
+      sensorState = decodedMessage['sensorState'];
       mowPointIdx = decodedMessage['mowPointIdx'];
       soc = decodedMessage['battery']['soc'];
       voltage = decodedMessage['battery']['voltage'];

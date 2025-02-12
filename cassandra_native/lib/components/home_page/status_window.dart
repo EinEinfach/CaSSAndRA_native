@@ -19,6 +19,14 @@ class StatusWindow extends StatelessWidget {
 
   // build status window
   Widget _buildStatusWindow(BuildContext context) {
+    String additionalInformation = '';
+    List<String> robotDockingStates = ['docking', 'docked', 'charging'];
+
+    if (robotDockingStates.contains(server.robot.status)) {
+      additionalInformation = server.robot.dockReason;
+    } else if (server.robot.status == 'error'){
+      additionalInformation = server.robot.sensorState;
+    }
     final StatusWindowLogic statusWindowLogic =
         StatusWindowLogic(currentServer: server);
     if (smallSize) {
@@ -40,6 +48,7 @@ class StatusWindow extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'State',
@@ -48,6 +57,12 @@ class StatusWindow extends StatelessWidget {
                   Text(
                     server.robot.status,
                     style: Theme.of(context).textTheme.labelLarge,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    additionalInformation,
+                    style: Theme.of(context).textTheme.bodySmall,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -111,6 +126,12 @@ class StatusWindow extends StatelessWidget {
                   Text(
                     server.robot.status,
                     style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  Text(
+                    additionalInformation,
+                    style: Theme.of(context).textTheme.bodySmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const Expanded(
                     child: SizedBox(),

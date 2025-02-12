@@ -567,16 +567,13 @@ class _MainContentState extends State<MainContent> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           CommandButton(
                             icon: BootstrapIcons.plus,
                             onPressed: _addTask,
                             onLongPressed: () {},
-                          ),
-                          SizedBox(
-                            width: 10,
                           ),
                           CommandButton(
                             icon: BootstrapIcons.clock,
