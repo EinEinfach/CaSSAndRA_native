@@ -17,6 +17,7 @@ import 'package:cassandra_native/components/tasks_page/map_painter.dart';
 import 'package:cassandra_native/components/tasks_page/task_information.dart';
 import 'package:cassandra_native/components/tasks_page/point_information.dart';
 import 'package:cassandra_native/components/tasks_page/tasks_overview.dart';
+import 'package:cassandra_native/components/tasks_page/schedule.dart';
 import 'package:cassandra_native/utils/custom_shape_calcs.dart';
 
 // globals
@@ -131,6 +132,28 @@ class _MainContentState extends State<MainContent> {
         ),
       );
     }
+  }
+
+  void _openScheduleOverlay() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        scrollable: true,
+        title: const Text(
+          'Schedule',
+          style: TextStyle(
+            fontSize: 14,
+          ),
+        ),
+        content: Schedule(
+          server: widget.server,
+        ),
+      ),
+    );
   }
 
   void _onCopyTaskPressed() {
@@ -544,12 +567,20 @@ class _MainContentState extends State<MainContent> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           CommandButton(
                             icon: BootstrapIcons.plus,
                             onPressed: _addTask,
+                            onLongPressed: () {},
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          CommandButton(
+                            icon: BootstrapIcons.clock,
+                            onPressed: _openScheduleOverlay,
                             onLongPressed: () {},
                           ),
                         ],

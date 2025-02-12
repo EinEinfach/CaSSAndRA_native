@@ -64,7 +64,7 @@ class ServerInterface {
   void commandSendMessage(String message) {
     final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('server', 'sendMessage', [message]);
-    final String cmdJson= jsonEncode(cmd);
+    final String cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
       debugPrint(cmdJson);
     }
@@ -105,6 +105,16 @@ class ServerInterface {
     final Map<String, dynamic> cmd =
         _addTopicAndCommandToValue('settings', 'update', []);
     final String cmdJson = jsonEncode(cmd);
+    if (kDebugMode) {
+      debugPrint(cmdJson);
+    }
+    _sendCommand(cmdJson);
+  }
+
+  void commandSaveSchedule(Map<String, dynamic> scheduleData) {
+    final Map<String, dynamic> cmd =
+        _addTopicAndCommandToValue('schedule', 'save', scheduleData);
+    final cmdJson = jsonEncode(cmd);
     if (kDebugMode) {
       debugPrint(cmdJson);
     }

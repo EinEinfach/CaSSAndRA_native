@@ -35,9 +35,9 @@ class _TasksPageState extends State<TasksPage> {
   @override
   void initState() {
     super.initState();
+    _connectToServer();
     widget.server.currentMap.tasks.resetCooords();
     widget.server.serverInterface.commandSelectTasks([]);
-    _connectToServer();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       screenSize = MediaQuery.of(context).size;
     });

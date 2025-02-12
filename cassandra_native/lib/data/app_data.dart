@@ -6,7 +6,7 @@ late PackageInfo packageInfo;
 
 // App version
 late String appVersion;
-const String requiredServerVersion = '0.200.0';
+const String requiredServerVersion = '0.209.0';
 
 // Temporarly data for UI
 int smallWidth = 550;
