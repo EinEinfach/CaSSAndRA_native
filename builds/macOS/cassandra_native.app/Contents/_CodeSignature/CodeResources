@@ -23,10 +23,10 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			HarMNGdLBut4nfbPIsypHP7MrTY=
+			5GupLWr6QPPkWP6faWB8rTPSEp4=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"1daacc34674b06eb789df6cf22cca91cfeccad36" or cdhash H"2b9ac6cb60c437e6984f765f733a1ce45af96a73"</string>
+			<string>cdhash H"e46ba92d6afa40f3e458fe9f69607cad33d2129e" or cdhash H"ada4b4f648ba9df484e6420b5b723774ed71d18d"</string>
 		</dict>
 		<key>Frameworks/Ass.framework</key>
 		<dict>

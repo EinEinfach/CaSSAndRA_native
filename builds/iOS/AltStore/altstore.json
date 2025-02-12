@@ -31,6 +31,14 @@
       ],
       "versions": [
         {
+          "version": "0.13.0",
+          "date": "2025-02-12T09:00:00-08:00",
+          "size": 44700000,
+          "downloadURL": "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/cassandra_native.ipa",
+          "localizedDescription": "- Schedule available in tasks section\n- Dock reason and error type in overview\n- Requeired server version 0.209.0",
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "0.12.0",
           "date": "2025-02-10T09:00:00-08:00",
           "size": 44600000,
