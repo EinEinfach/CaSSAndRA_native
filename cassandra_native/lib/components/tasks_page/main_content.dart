@@ -324,19 +324,22 @@ class _MainContentState extends State<MainContent> {
   }
 
   void _addTask() {
-    currentTask.addSubtask(
-        lasso.selection, user.currentMowParameters, widget.server.currentMap);
-    _resetLassoSelection();
-    currentTask.toCartesian(widget.server.currentMap);
-    final currentTaskName = '';
-    final amountOfSubtasks = currentTask.selections['']!.length;
-    final subTaskData = currentTask.subtaskToGeoJson(
-        currentTaskName,
-        amountOfSubtasks - 1,
-        currentTask.selectionsCartesian[currentTaskName]![amountOfSubtasks - 1],
-        currentTask.mowParameters[currentTaskName]![amountOfSubtasks - 1]);
-    widget.server.serverInterface.commandCalculateSubtask(subTaskData);
-    setState(() {});
+    if (currentTask.active) {
+      currentTask.addSubtask(
+          lasso.selection, user.currentMowParameters, widget.server.currentMap);
+      _resetLassoSelection();
+      currentTask.toCartesian(widget.server.currentMap);
+      final currentTaskName = '';
+      final amountOfSubtasks = currentTask.selections['']!.length;
+      final subTaskData = currentTask.subtaskToGeoJson(
+          currentTaskName,
+          amountOfSubtasks - 1,
+          currentTask
+              .selectionsCartesian[currentTaskName]![amountOfSubtasks - 1],
+          currentTask.mowParameters[currentTaskName]![amountOfSubtasks - 1]);
+      widget.server.serverInterface.commandCalculateSubtask(subTaskData);
+      setState(() {});
+    }
   }
 
   void _checkForNewPreview() {
