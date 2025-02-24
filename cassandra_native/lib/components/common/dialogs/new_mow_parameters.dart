@@ -287,7 +287,7 @@ class _NewMowParametersState extends State<NewMowParameters> {
             Padding(
               padding: const EdgeInsets.only(top: 10),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   CustomizedElevatedButton(
                     text: 'cancel',

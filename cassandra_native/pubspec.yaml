@@ -55,6 +55,7 @@ dependencies:
   media_kit_video: ^1.2.5
   media_kit_libs_video: ^1.0.5
   polybool: ^0.2.0
+  multiselect_dropdown_flutter: ^0.0.7
 
 dev_dependencies:
   flutter_test:

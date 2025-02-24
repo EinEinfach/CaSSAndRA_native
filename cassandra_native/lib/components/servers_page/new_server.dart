@@ -233,7 +233,7 @@ class _NewServerState extends State<NewServer> {
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   CustomizedElevatedButton(
                     text: 'cancel',

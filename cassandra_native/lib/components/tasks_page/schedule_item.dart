@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:multi_dropdown/multi_dropdown.dart';
+import 'package:multiselect_dropdown_flutter/multiselect_dropdown_flutter.dart';
 
 import 'package:cassandra_native/models/server.dart';
 
@@ -26,8 +26,6 @@ class ScheduleItem extends StatefulWidget {
 }
 
 class _ScheduleItemState extends State<ScheduleItem> {
-  final controller = MultiSelectController<String>();
-
   String _doubleToTime(double time) {
     int hours = time.floor();
     int minutes = ((time - hours) * 60).round();
@@ -38,14 +36,6 @@ class _ScheduleItemState extends State<ScheduleItem> {
 
   @override
   Widget build(BuildContext context) {
-    List<DropdownItem<String>> items = [];
-    for (var item in widget.server.currentMap.tasks.available) {
-      if (widget.timeTableCopy[widget.day]['tasks'].contains(item)) {
-        items.add(DropdownItem(label: item, value: item, selected: true));
-      } else {
-        items.add(DropdownItem(label: item, value: item));
-      }
-    }
     RangeLabels rangeLabels = RangeLabels(
         _doubleToTime(
             widget.timeTableCopy[widget.day]['timeRange'][0].toDouble()),
@@ -112,40 +102,35 @@ class _ScheduleItemState extends State<ScheduleItem> {
                 }
               : null,
         ),
-        MultiDropdown<String>(
-          items: items,
-          controller: controller,
-          enabled: widget.active,
-          searchEnabled: false,
-          chipDecoration: ChipDecoration(
-            borderRadius: BorderRadius.circular(6),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            wrap: true,
-            runSpacing: 2,
-            spacing: 2,
-          ),
-          fieldDecoration: FieldDecoration(
-            hintText: 'No selection',
-            hintStyle: Theme.of(context).textTheme.bodyMedium,
-            showClearIcon: false,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide:
-                  BorderSide(color: Theme.of(context).colorScheme.primary),
-            ),
-          ),
-          dropdownDecoration: DropdownDecoration(
-            backgroundColor: Theme.of(context).colorScheme.secondary,
-            marginTop: 2,
-            maxHeight: 300,
-          ),
-          dropdownItemDecoration: DropdownItemDecoration(
-            selectedBackgroundColor: Theme.of(context).colorScheme.primary,
-            //selectedIcon: null,
-          ),
-          onSelectionChange: (selectedItems) {
-            widget.taskChanged(widget.day, selectedItems);
-          },
+        SizedBox(
+          width: double.maxFinite,
+          height: 45,
+          child: widget.active
+              ? MultiSelectDropdown.simpleList(
+                  checkboxFillColor: Theme.of(context).colorScheme.onPrimary,
+                  textStyle: Theme.of(context).textTheme.bodyMedium!,
+                  boxDecoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  whenEmpty: 'select task',
+                  numberOfItemsLabelToShow: 5,
+                  list: widget.server.currentMap.tasks.available,
+                  initiallySelected: widget.timeTableCopy[widget.day]['tasks'],
+                  onChange: (selectedItems) {
+                    widget.taskChanged(
+                        widget.day, selectedItems.cast<String>());
+                  })
+              : Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
         ),
       ],
     );
