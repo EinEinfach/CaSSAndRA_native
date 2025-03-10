@@ -421,7 +421,8 @@ class Task {
     // centroids[taskName]![subTaskNr] = scaledAndMovedCoords + Offset(-15, -80);
   }
 
-  void movePointInformation(Offset position, LongPressMoveUpdateDetails details, ZoomPanLogic zoomPan) {
+  void movePointInformation(Offset position, LongPressMoveUpdateDetails details,
+      ZoomPanLogic zoomPan) {
     final Offset scaledAndMovedCoords =
         (details.localPosition - zoomPan.offset) / zoomPan.scale;
     final Offset delta = scaledAndMovedCoords - lastPosition!;
@@ -476,12 +477,10 @@ class Task {
     } else {
       currentSelection = currentMap.scaledPerimeter;
     }
-    if (!selections.containsKey('')) {
-      previews[''] = [];
-      selections[''] = [];
-      mowParameters[''] = [];
-      centroids[''] = [];
-    }
+    previews[''] = [];
+    selections[''] = [];
+    mowParameters[''] = [];
+    centroids[''] = [];
     previews['']!.add([]);
     selections['']!.add(currentSelection);
     centroids['']!.add(calculateCentroid(currentSelection));
