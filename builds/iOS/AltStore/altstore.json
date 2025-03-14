@@ -31,6 +31,14 @@
       ],
       "versions": [
         {
+          "version": "0.14.1",
+          "date": "2025-03-14T09:00:00-08:00",
+          "size": 44700000,
+          "downloadURL": "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/cassandra_native.ipa",
+          "localizedDescription": "- Server CPU, MEM and HDD information for some linux machines\n- Bugfixing", 
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "0.14.0",
           "date": "2025-03-10T09:00:00-08:00",
           "size": 44700000,
@@ -175,13 +183,6 @@
       "identifier": "we_are_almost_done",
       "caption": "We are pleased to inform you that most features of CaSSAndRA are natively supported. We’re almost done!",
       "date": "2025-03-10",
-      "tintColor": "#5CA399"
-    },
-    {
-      "title": "Test release of CaSSAndRA native",
-      "identifier": "test_release_cassandra_native",
-      "caption": "We’re thrilled to announce the first test release of the CaSSAndRA native is now available for download via AltStore!",
-      "date": "2024-10-06",
       "tintColor": "#5CA399"
     }
   ]
