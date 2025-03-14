@@ -77,17 +77,35 @@ class ServerItem extends StatelessWidget {
                                 ),
                         ),
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const SizedBox(
                               width: 5,
                             ),
-                            Text(
-                              server.robot.firmware != ''
-                                  ? '${server.robot.firmware}: ${server.robot.version}'
-                                  : server.robot.firmware,
-                              style: Theme.of(context).textTheme.bodySmall,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  server.robot.firmware != ''
+                                      ? '${server.robot.firmware}: ${server.robot.version}'
+                                      : server.robot.firmware,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  server.cpuTemp != null &&
+                                          server.cpuLoad != null &&
+                                          server.memUsage != null &&
+                                          server.hddUsage != null
+                                      ? 'CPU: ${server.cpuLoad!.toInt()}% ${server.cpuTemp!.toInt()}°C MEM: ${server.memUsage!.toInt()}% HDD: ${server.hddUsage!.toInt()}%'
+                                      : '',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
                             ),
                             Expanded(
                               child: SizedBox.shrink(),

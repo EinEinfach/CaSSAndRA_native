@@ -54,6 +54,10 @@ class Server {
         );
   String software = '';
   String version = '';
+  double? cpuTemp;
+  double? cpuLoad;
+  double? memUsage;
+  double? hddUsage;
   final String id;
   final Category category;
   final String alias;
@@ -151,6 +155,10 @@ class Server {
     try {
       software = decodedMessage['software'];
       version = decodedMessage['version'];
+      cpuTemp = decodedMessage['cpuTemp'];
+      cpuLoad = decodedMessage['cpuLoad'];
+      memUsage = decodedMessage['memUsage'];
+      hddUsage = decodedMessage['hddUsage'];
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Invalid server json data: $e');

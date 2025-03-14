@@ -56,16 +56,34 @@ class NavDrawer extends StatelessWidget {
                             Column(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
+                                Column(
                                   children: [
-                                    Text(
-                                      server.alias,
-                                      style:
-                                          Theme.of(context).textTheme.bodyLarge,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          server.alias,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyLarge,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
                                     ),
+                                    server.cpuTemp != null
+                                        ? Row(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: [
+                                            Text(
+                                                'CPU: ${server.cpuLoad!.toInt()}% ${server.cpuTemp!.toInt()}°C MEM: ${server.memUsage!.toInt()}% HDD: ${server.hddUsage!.toInt()}%',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodySmall,
+                                              ),
+                                          ],
+                                        )
+                                        : const SizedBox(),
                                   ],
                                 ),
                                 Row(
