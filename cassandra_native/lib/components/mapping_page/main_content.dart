@@ -283,7 +283,7 @@ class _MainContentState extends State<MainContent> with SingleTickerProviderStat
     if (mapName == null) {
       return;
     } else if (!widget.server.maps.available.contains(mapName)) {
-      final mapData = shapes.toGeoJson(mapName);
+      final mapData = shapes.toGeoJson(mapName, widget.server.maps.selected);
       widget.server.serverInterface.commandSaveMap(mapData);
       lasso.reset();
       shapes.reset();

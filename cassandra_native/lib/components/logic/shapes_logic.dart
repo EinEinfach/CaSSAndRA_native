@@ -369,13 +369,13 @@ class Shapes {
         .toList();
   }
 
-  Map<String, dynamic> toGeoJson(String name) {
+  Map<String, dynamic> toGeoJson(String name, String oldName) {
     List<dynamic> features = [];
     Map<String, dynamic> mapJson = {};
     if (perimeterCartesian.isNotEmpty) {
       final nameFeature = {
         'type': 'Feature',
-        'properties': {'name': name}
+        'properties': {'name': name, 'oldName': oldName},
       };
       features.add(nameFeature);
       var perimeterFeature = {
