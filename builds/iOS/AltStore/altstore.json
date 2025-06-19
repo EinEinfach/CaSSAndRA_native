@@ -26,10 +26,18 @@
         "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/005.PNG",
         "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/006.PNG",
         "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/007.PNG",
-	"https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/008.PNG",
+	      "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/008.PNG",
         "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/AltStore/screenshots/009.PNG"
       ],
       "versions": [
+        {
+          "version": "0.14.2",
+          "date": "2025-06-19T09:00:00-08:00",
+          "size": 44700000,
+          "downloadURL": "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/cassandra_native.ipa",
+          "localizedDescription": "- Support Cassandra server version 0.219.0\n- Edited map contains all saved task\n- Bugfixing", 
+          "minOSVersion": "16.0"
+        },
         {
           "version": "0.14.1",
           "date": "2025-03-14T09:00:00-08:00",
