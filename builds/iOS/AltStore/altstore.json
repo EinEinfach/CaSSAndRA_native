@@ -31,6 +31,14 @@
       ],
       "versions": [
         {
+          "version": "0.14.3",
+          "date": "2025-08-06T09:00:00-08:00",
+          "size": 44700000,
+          "downloadURL": "https://EinEinfach.github.io/CaSSAndRA_native/builds/iOS/cassandra_native.ipa",
+          "localizedDescription": "- Added wait spinner to status window", 
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "0.14.2",
           "date": "2025-06-19T09:00:00-08:00",
           "size": 44700000,

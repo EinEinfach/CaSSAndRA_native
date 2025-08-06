@@ -23,10 +23,10 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			OciB9yIUcFy2w6OT13iu2xZjhFA=
+			CS421U8S3MIddw2Kh8F/XAy+le4=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"39c881f72214705cb6c3a393d778aedb16638450" or cdhash H"972a1af76f4579305da68518818f8627cc7cf779"</string>
+			<string>cdhash H"092e36d54f12dcc21d770d8a87c17f5c0cbe95ee" or cdhash H"cda7cfbf5acfef38506421a4ec5d540240cea7dd"</string>
 		</dict>
 		<key>Frameworks/Ass.framework</key>
 		<dict>
@@ -203,10 +203,10 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			cWh3vVBU8TaPX/3tpQBnEiFVuDM=
+			pOkmgO5DnkQp6ojRV2IUlbnkxq0=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"716877bd5054f1368f5ffdeda50067122155b833" or cdhash H"d7c6049aa01a95058bc87e2709d1e01850e61bfd"</string>
+			<string>cdhash H"a4e92680ee439e4429ea88d157621495b9e4c6ad" or cdhash H"c266249bd7ea5e88fff207f116aaa45d640d785e"</string>
 		</dict>
 		<key>Frameworks/libswiftAppKit.dylib</key>
 		<dict>
@@ -374,82 +374,82 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			MdoIa5RpZRgMWKbnO6Sc23ar/DM=
+			B75O8Jt+w24GFq953JVg9yozqdo=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"31da086b946965180c58a6e73ba49cdb76abfc33" or cdhash H"86c9e13630088a81696f7d2596e6fb2ed3573c91"</string>
+			<string>cdhash H"07be4ef09b7ec36e0616af79dc9560f72a33a9da" or cdhash H"10835ff4f5a5a84901d76341398a2bb182bff367"</string>
 		</dict>
 		<key>Frameworks/media_kit_native_event_loop.framework</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			rkUYMTWLGR9xsaH8FxhoBIJtzIc=
+			MUatfbHipLXvaRO0XOkx0gtPMZU=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"ae451831358b191f71b1a1fc17186804826dcc87" or cdhash H"78418802bef088d45439e95996e6eccecd94a756"</string>
+			<string>cdhash H"3146ad7db1e2a4b5ef6913b45ce931d20b4f3195" or cdhash H"7374ed1d485a53b211335bd8c27ac82f0d5d799e"</string>
 		</dict>
 		<key>Frameworks/media_kit_video.framework</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			1e39j2DHG2KKCuwcapN1gTFxeGs=
+			tbZ8xhWsJdYiSJVs+2yIrmESUqU=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"d5edfd8f60c71b628a0aec1c6a9375813171786b" or cdhash H"376ad9da059ff6da00a9b8e9e795a6ec58501adf"</string>
+			<string>cdhash H"b5b67cc615ac25d62248956cfb6c88ae611252a5" or cdhash H"03e2ef705eb085866c6092032e334511622e0a14"</string>
 		</dict>
 		<key>Frameworks/package_info_plus.framework</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			SJNIRQjynLq/7X1oyj+USmB76Yc=
+			lyNPqHrPEb/Up3MgbR9XyUN5O70=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"4893484508f29cbabfed7d68ca3f944a607be987" or cdhash H"0f59dedaafd9341c149ec524c0ea13814fc43676"</string>
+			<string>cdhash H"97234fa87acf11bfd4a773206d1f57c943793bbd" or cdhash H"7e11beaccae56328d8d2fbb4d3fd32006f5be7fe"</string>
 		</dict>
 		<key>Frameworks/path_provider_foundation.framework</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			gmZfQWRHDON/9GAAY07rGRbvkdM=
+			+CNeoyGvOGlDc9M4SCXQJDRWQvc=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"82665f4164470ce37ff46000634eeb1916ef91d3" or cdhash H"2c1ba8eec9b738e0f6c745aaeba064f59f16600e"</string>
+			<string>cdhash H"f8235ea321af38694373d3384825d024345642f7" or cdhash H"efed317583717ad30f00985ba7a9a7637abf54ff"</string>
 		</dict>
 		<key>Frameworks/screen_brightness_macos.framework</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			wjJ6z/5VvML8IvX0aBcB/90o/hE=
+			Nu/z+4ITpfw+W2T5wT8Bix0dc6Q=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"c2327acffe55bcc2fc22f5f4681701ffdd28fe11" or cdhash H"0a3b613b7e650f017a908c8d7668c87c5b9c3d6d"</string>
+			<string>cdhash H"36eff3fb8213a5fc3e5b64f9c13f018b1d1d73a4" or cdhash H"03783e0a11ac7209f768b5560fa98ddf073dc41f"</string>
 		</dict>
 		<key>Frameworks/shared_preferences_foundation.framework</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			fYFbEyOdwUcs+2uLZ08eqtidByM=
+			5xJO9+eVI0GYCK9uR8SMDvs5rzg=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"7d815b13239dc1472cfb6b8b674f1eaad89d0723" or cdhash H"4e1682901691db23b0d4040d6d743bf965d844e5"</string>
+			<string>cdhash H"e7124ef7e79523419808af6e47c48c0efb39af38" or cdhash H"d4577e63a682783da09ec093f05c2f57fdd309de"</string>
 		</dict>
 		<key>Frameworks/url_launcher_macos.framework</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			o06KxKK7QJ2L8qqKnKGQrqKx204=
+			APbRM/pNZYJxEN5A7kW5Hb0yjiI=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"a34e8ac4a2bb409d8bf2aa8a9ca190aea2b1db4e" or cdhash H"132e396e8c3ab327365238b14c1b9fea5ff1bc7b"</string>
+			<string>cdhash H"00f6d133fa4d65827110de40ee45b91dbd328e22" or cdhash H"b7330a7f7b65bb24c222d403eecd4b47c73edbfb"</string>
 		</dict>
 		<key>Frameworks/wakelock_plus.framework</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			6LJgmxWfXbMg8YB1BQ2d+HYWODA=
+			XQ8hnNB0mxgZ/eGMNmyn1l1dsC0=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"e8b2609b159f5db320f18075050d9df876163830" or cdhash H"2e3f6f376e98ca0e20c19c20895e8129d35a2254"</string>
+			<string>cdhash H"5d0f219cd0749b1819fde18c366ca7d65d5db02d" or cdhash H"99b08a2ea23a74d78031f115e54bfe0ead8fa958"</string>
 		</dict>
 		<key>Resources/AppIcon.icns</key>
 		<dict>
