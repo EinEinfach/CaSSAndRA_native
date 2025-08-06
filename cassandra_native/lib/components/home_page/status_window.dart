@@ -24,7 +24,7 @@ class StatusWindow extends StatelessWidget {
 
     if (robotDockingStates.contains(server.robot.status)) {
       additionalInformation = server.robot.dockReason;
-    } else if (server.robot.status == 'error'){
+    } else if (server.robot.status == 'error') {
       additionalInformation = server.robot.sensorState;
     }
     final StatusWindowLogic statusWindowLogic =
@@ -40,55 +40,73 @@ class StatusWindow extends StatelessWidget {
         ),
         onPressed: onPressed,
         onLongPress: () {},
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Stack(
           children: [
-            SizedBox(
-              width: 80,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'State',
-                    style: Theme.of(context).textTheme.bodyMedium,
+            if (server.status == 'busy')
+              Positioned.fill(
+                child: Center(
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                          Theme.of(context).colorScheme.primary),
+                    ),
                   ),
-                  Text(
-                    server.robot.status,
-                    style: Theme.of(context).textTheme.labelLarge,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    additionalInformation,
-                    style: Theme.of(context).textTheme.bodySmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                ),
               ),
-            ),
-            const SizedBox(),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Total',
-                  style: Theme.of(context).textTheme.bodySmall,
+                SizedBox(
+                  width: 80,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'State',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      Text(
+                        server.robot.status,
+                        style: Theme.of(context).textTheme.labelLarge,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        additionalInformation,
+                        style: Theme.of(context).textTheme.bodySmall,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    ],
+                  ),
                 ),
-                Text(
-                  statusWindowLogic.totalSqm,
-                  style: Theme.of(context).textTheme.labelLarge,
-                ),
-                Text(
-                  'Estimated',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                Text(
-                  statusWindowLogic.uiEstimationTime,
-                  style: Theme.of(context).textTheme.labelLarge,
+                const SizedBox(),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Total',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    Text(
+                      statusWindowLogic.totalSqm,
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                    Text(
+                      'Estimated',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    Text(
+                      statusWindowLogic.uiEstimationTime,
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -108,149 +126,167 @@ class StatusWindow extends StatelessWidget {
         ),
         onPressed: onPressed,
         onLongPress: () {},
-        child: Row(
+        child: Stack(
           children: [
-            SizedBox(
-              width: 80,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    height: 18,
+            if (server.status == 'busy')
+              Positioned.fill(
+                child: Center(
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                          Theme.of(context).colorScheme.primary),
+                    ),
                   ),
-                  Text(
-                    'State',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  Text(
-                    server.robot.status,
-                    style: Theme.of(context).textTheme.labelLarge,
-                  ),
-                  Text(
-                    additionalInformation,
-                    style: Theme.of(context).textTheme.bodySmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const Expanded(
-                    child: SizedBox(),
-                  ),
-                  Text(
-                    'Map',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  Text(
-                    statusWindowLogic.mapName,
-                    style: Theme.of(context).textTheme.bodySmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(
-                    height: 18,
-                  ),
-                ],
+                ),
               ),
-            ),
-            const Expanded(
-              child: SizedBox(),
-            ),
-            SizedBox(
-              width: 120,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Column(
+            Row(
+              children: [
+                SizedBox(
+                  width: 80,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Distance',
-                        style: Theme.of(context).textTheme.bodySmall,
+                      const SizedBox(
+                        height: 18,
                       ),
                       Text(
-                        statusWindowLogic.distanceData,
+                        'State',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      Text(
+                        server.robot.status,
                         style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      Text(
+                        additionalInformation,
+                        style: Theme.of(context).textTheme.bodySmall,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Text(
-                        'Index',
-                        style: Theme.of(context).textTheme.bodySmall,
+                      const Expanded(
+                        child: SizedBox(),
                       ),
                       Text(
-                        statusWindowLogic.idxData,
-                        style: Theme.of(context).textTheme.labelLarge,
+                        'Map',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      Text(
+                        statusWindowLogic.mapName,
+                        style: Theme.of(context).textTheme.bodySmall,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+                      const SizedBox(
+                        height: 18,
+                      ),
                     ],
                   ),
-                  Column(
+                ),
+                const Expanded(
+                  child: SizedBox(),
+                ),
+                SizedBox(
+                  width: 120,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Text(
-                        'Speed',
-                        style: Theme.of(context).textTheme.bodySmall,
+                      Column(
+                        children: [
+                          Text(
+                            'Distance',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          Text(
+                            statusWindowLogic.distanceData,
+                            style: Theme.of(context).textTheme.labelLarge,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
-                      Text(
-                        statusWindowLogic.speedData,
-                        style: Theme.of(context).textTheme.labelLarge,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      Column(
+                        children: [
+                          Text(
+                            'Index',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          Text(
+                            statusWindowLogic.idxData,
+                            style: Theme.of(context).textTheme.labelLarge,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Text(
+                            'Speed',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          Text(
+                            statusWindowLogic.speedData,
+                            style: Theme.of(context).textTheme.labelLarge,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-            const Expanded(
-              child: SizedBox(),
-            ),
-            SizedBox(
-              width: 80,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Column(
+                ),
+                const Expanded(
+                  child: SizedBox(),
+                ),
+                SizedBox(
+                  width: 80,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Text(
-                        'Total',
-                        style: Theme.of(context).textTheme.bodySmall,
+                      Column(
+                        children: [
+                          Text(
+                            'Total',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          Text(
+                            statusWindowLogic.totalSqm,
+                            style: Theme.of(context).textTheme.labelLarge,
+                          ),
+                        ],
                       ),
-                      Text(
-                        statusWindowLogic.totalSqm,
-                        style: Theme.of(context).textTheme.labelLarge,
+                      Column(
+                        children: [
+                          Text(
+                            'Estimated',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          Text(
+                            statusWindowLogic.uiEstimationTime,
+                            style: Theme.of(context).textTheme.labelLarge,
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Text(
+                            'Duration',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          Text(
+                            '${statusWindowLogic.duration}h',
+                            style: Theme.of(context).textTheme.labelLarge,
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  Column(
-                    children: [
-                      Text(
-                        'Estimated',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      Text(
-                        statusWindowLogic.uiEstimationTime,
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Text(
-                        'Duration',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      Text(
-                        '${statusWindowLogic.duration}h',
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),
