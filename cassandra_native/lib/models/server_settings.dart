@@ -57,6 +57,12 @@ class ServerSettings {
   double mowSpeedSetPoint = 0.3;
   // robot fix timeout
   int fixTimeout = 60;
+  // app settings
+  double? minVoltage;
+  double? maxVoltage;
+  double? chargeCurrentThd;
+  int? dataMaxAge;
+  int? offlineTimeout;
 
   void settingsJsonToClassData(String message) {
     var decodedMessage = jsonDecode(message) as Map<String, dynamic>;
@@ -107,6 +113,21 @@ class ServerSettings {
       transitSpeedSetPoint = double.tryParse(decodedMessage['transitSpeedSetPoint'].toString())!;
       mowSpeedSetPoint = double.tryParse(decodedMessage['mowSpeedSetPoint'].toString())!;
       fixTimeout = decodedMessage['fixTimeout'];
+      minVoltage = decodedMessage['minVoltage'] != null
+          ? double.tryParse(decodedMessage['minVoltage'].toString())
+          : null;
+      maxVoltage = decodedMessage['maxVoltage'] != null
+          ? double.tryParse(decodedMessage['maxVoltage'].toString())
+          : null;
+      chargeCurrentThd = decodedMessage['chargeCurrentThd'] != null
+          ? double.tryParse(decodedMessage['chargeCurrentThd'].toString())
+          : null;
+      dataMaxAge = decodedMessage['dataMaxAge'] != null
+          ? int.tryParse(decodedMessage['dataMaxAge'].toString())
+          : null;
+      offlineTimeout = decodedMessage['offlineTimeout'] != null
+          ? int.tryParse(decodedMessage['offlineTimeout'].toString())
+          : null;
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Invalid settings JSON: $e');
@@ -147,5 +168,13 @@ class ServerSettings {
     'robotPositionMode': robotPositionMode.name,
     'longtitude': longtitude ?? 0.0,
     'latitude': latitude ?? 0.0,
+  };
+
+  Map<String, dynamic> appCfgToJson() => {
+    'minVoltage': minVoltage ?? 0.0,
+    'maxVoltage': maxVoltage ?? 0.0,
+    'chargeCurrentThd': chargeCurrentThd ?? 0.0,
+    'dataMaxAge': dataMaxAge ?? 0,
+    'offlineTimeout': offlineTimeout ?? 0,
   };
 }
